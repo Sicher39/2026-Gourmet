@@ -1,0 +1,79 @@
+@import "tailwindcss" source(none);
+
+@source "../js";
+@source "../views";
+@source "../../app";
+
+
+/* ---- Design tokens (colors, fonts, breakpoints) ---- */
+@theme {
+    /* colors */
+    --color-dark: jrr4gcr;
+    --color-primary: #642D18;
+    --color-accent: #ff7704;
+    --color-bgLight: #F4F1E9;
+
+
+
+    /* fonts */
+    --font-head: itc-avant-garde-gothic-pro;
+    --font-main: itc-avant-garde-gothic-pro,sans-serif;
+    --font-hand: american-scribe, sans-serif;
+
+    /* breakpoints */
+    --breakpoint-sm: 375px;
+    --breakpoint-smW: 700px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+    --breakpoint-2xl: 1536px;
+    --breakpoint-3xl: 1800px;
+    --breakpoint-qhd: 2560px;
+    --breakpoint-4k: 3840px;
+
+}
+
+
+@layer base {
+    h1 {
+        @apply font-head text-primary;
+    }
+
+    h2 {
+        @apply font-head font-thin text-primary;
+    }
+
+    h3 {
+        @apply font-head font-normal text-left text-xl md:text-2xl text-primary;
+    }
+
+    h4 {
+        @apply font-head font-normal text-left text-xl md:text-7xl  text-primary;
+    }
+
+    h5 {
+        @apply font-main text-primary text-xl md:text-3xl;
+    }
+
+    p {
+        @apply font-main font-thin text-2xl text-primary;
+    }
+
+    li {
+        @apply font-main font-thin text-2xl text-primary marker:text-accent list-outside list-disc ml-5;
+    }
+
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+
+
+
+

@@ -1,0 +1,187 @@
+{
+  "_ButtonMain-B4xYUwEv.js": {
+    "file": "assets/ButtonMain-B4xYUwEv.js",
+    "name": "ButtonMain",
+    "imports": [
+      "_MainLayout.vue_vue_type_script_setup_true_lang-BAFSrHmG.js",
+      "resources/js/front/app.ts"
+    ],
+    "css": [
+      "assets/ButtonMain-cPPnkASS.css"
+    ]
+  },
+  "_ButtonMain-cPPnkASS.css": {
+    "file": "assets/ButtonMain-cPPnkASS.css",
+    "src": "_ButtonMain-cPPnkASS.css"
+  },
+  "_H3Header-CFPcJA60.js": {
+    "file": "assets/H3Header-CFPcJA60.js",
+    "name": "H3Header",
+    "imports": [
+      "_MainLayout.vue_vue_type_script_setup_true_lang-BAFSrHmG.js",
+      "resources/js/front/app.ts"
+    ]
+  },
+  "_HeaderSection.vue_vue_type_script_setup_true_lang-D9ut0Z2_.js": {
+    "file": "assets/HeaderSection.vue_vue_type_script_setup_true_lang-D9ut0Z2_.js",
+    "name": "HeaderSection.vue_vue_type_script_setup_true_lang",
+    "imports": [
+      "_MainLayout.vue_vue_type_script_setup_true_lang-BAFSrHmG.js",
+      "resources/js/front/app.ts"
+    ]
+  },
+  "_MainLayout.vue_vue_type_script_setup_true_lang-BAFSrHmG.js": {
+    "file": "assets/MainLayout.vue_vue_type_script_setup_true_lang-BAFSrHmG.js",
+    "name": "MainLayout.vue_vue_type_script_setup_true_lang",
+    "imports": [
+      "resources/js/front/app.ts"
+    ]
+  },
+  "_MenuItem.vue_vue_type_script_setup_true_lang-DxUgoDwP.js": {
+    "file": "assets/MenuItem.vue_vue_type_script_setup_true_lang-DxUgoDwP.js",
+    "name": "MenuItem.vue_vue_type_script_setup_true_lang",
+    "imports": [
+      "resources/js/front/app.ts"
+    ]
+  },
+  "node_modules/.pnpm/photoswipe@5.4.4/node_modules/photoswipe/dist/photoswipe.esm.js": {
+    "file": "assets/photoswipe.esm-D2Nf-uDI.js",
+    "name": "photoswipe.esm",
+    "src": "node_modules/.pnpm/photoswipe@5.4.4/node_modules/photoswipe/dist/photoswipe.esm.js",
+    "isDynamicEntry": true
+  },
+  "resources/css/filament/theme.css": {
+    "file": "assets/theme-CJoFYR2z.css",
+    "src": "resources/css/filament/theme.css",
+    "isEntry": true
+  },
+  "resources/js/front/app.ts": {
+    "file": "assets/app-CkoeaBTJ.js",
+    "name": "app",
+    "src": "resources/js/front/app.ts",
+    "isEntry": true,
+    "dynamicImports": [
+      "resources/js/front/pages/Contact.vue",
+      "resources/js/front/pages/CookiePolicy.vue",
+      "resources/js/front/pages/DrinkMenu.vue",
+      "resources/js/front/pages/FoodMenu.vue",
+      "resources/js/front/pages/Galleries.vue",
+      "resources/js/front/pages/Gdpr.vue",
+      "resources/js/front/pages/Index.vue",
+      "resources/js/front/pages/OrderTerms.vue",
+      "resources/js/front/pages/RestaurantReservation.vue"
+    ],
+    "css": [
+      "assets/app-Ddua5Z8Y.css"
+    ]
+  },
+  "resources/js/front/pages/Contact.vue": {
+    "file": "assets/Contact-CYlNCC8y.js",
+    "name": "Contact",
+    "src": "resources/js/front/pages/Contact.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "_MainLayout.vue_vue_type_script_setup_true_lang-BAFSrHmG.js",
+      "_HeaderSection.vue_vue_type_script_setup_true_lang-D9ut0Z2_.js",
+      "resources/js/front/app.ts"
+    ]
+  },
+  "resources/js/front/pages/CookiePolicy.vue": {
+    "file": "assets/CookiePolicy-BKatczOt.js",
+    "name": "CookiePolicy",
+    "src": "resources/js/front/pages/CookiePolicy.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/front/app.ts",
+      "_MainLayout.vue_vue_type_script_setup_true_lang-BAFSrHmG.js"
+    ]
+  },
+  "resources/js/front/pages/DrinkMenu.vue": {
+    "file": "assets/DrinkMenu-DhApman0.js",
+    "name": "DrinkMenu",
+    "src": "resources/js/front/pages/DrinkMenu.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "_MainLayout.vue_vue_type_script_setup_true_lang-BAFSrHmG.js",
+      "_HeaderSection.vue_vue_type_script_setup_true_lang-D9ut0Z2_.js",
+      "_H3Header-CFPcJA60.js",
+      "_MenuItem.vue_vue_type_script_setup_true_lang-DxUgoDwP.js",
+      "resources/js/front/app.ts"
+    ]
+  },
+  "resources/js/front/pages/FoodMenu.vue": {
+    "file": "assets/FoodMenu-BbKp61Aw.js",
+    "name": "FoodMenu",
+    "src": "resources/js/front/pages/FoodMenu.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "_MainLayout.vue_vue_type_script_setup_true_lang-BAFSrHmG.js",
+      "_HeaderSection.vue_vue_type_script_setup_true_lang-D9ut0Z2_.js",
+      "_H3Header-CFPcJA60.js",
+      "_MenuItem.vue_vue_type_script_setup_true_lang-DxUgoDwP.js",
+      "resources/js/front/app.ts"
+    ]
+  },
+  "resources/js/front/pages/Galleries.vue": {
+    "file": "assets/Galleries-xLudZNqv.js",
+    "name": "Galleries",
+    "src": "resources/js/front/pages/Galleries.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/front/app.ts",
+      "_MainLayout.vue_vue_type_script_setup_true_lang-BAFSrHmG.js",
+      "_ButtonMain-B4xYUwEv.js",
+      "_HeaderSection.vue_vue_type_script_setup_true_lang-D9ut0Z2_.js"
+    ],
+    "dynamicImports": [
+      "node_modules/.pnpm/photoswipe@5.4.4/node_modules/photoswipe/dist/photoswipe.esm.js"
+    ]
+  },
+  "resources/js/front/pages/Gdpr.vue": {
+    "file": "assets/Gdpr-DRYCNKfv.js",
+    "name": "Gdpr",
+    "src": "resources/js/front/pages/Gdpr.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/front/app.ts",
+      "_MainLayout.vue_vue_type_script_setup_true_lang-BAFSrHmG.js"
+    ]
+  },
+  "resources/js/front/pages/Index.vue": {
+    "file": "assets/Index-DTajnW7m.js",
+    "name": "Index",
+    "src": "resources/js/front/pages/Index.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "_MainLayout.vue_vue_type_script_setup_true_lang-BAFSrHmG.js",
+      "_HeaderSection.vue_vue_type_script_setup_true_lang-D9ut0Z2_.js",
+      "resources/js/front/app.ts",
+      "_ButtonMain-B4xYUwEv.js",
+      "_H3Header-CFPcJA60.js"
+    ],
+    "dynamicImports": [
+      "node_modules/.pnpm/photoswipe@5.4.4/node_modules/photoswipe/dist/photoswipe.esm.js"
+    ]
+  },
+  "resources/js/front/pages/OrderTerms.vue": {
+    "file": "assets/OrderTerms-Z5xPUvpB.js",
+    "name": "OrderTerms",
+    "src": "resources/js/front/pages/OrderTerms.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "_MainLayout.vue_vue_type_script_setup_true_lang-BAFSrHmG.js",
+      "resources/js/front/app.ts"
+    ]
+  },
+  "resources/js/front/pages/RestaurantReservation.vue": {
+    "file": "assets/RestaurantReservation-CIKvdCkd.js",
+    "name": "RestaurantReservation",
+    "src": "resources/js/front/pages/RestaurantReservation.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/front/app.ts",
+      "_HeaderSection.vue_vue_type_script_setup_true_lang-D9ut0Z2_.js",
+      "_MainLayout.vue_vue_type_script_setup_true_lang-BAFSrHmG.js"
+    ]
+  }
+}
