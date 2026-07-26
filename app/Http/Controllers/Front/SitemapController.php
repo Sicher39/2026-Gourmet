@@ -20,7 +20,6 @@ class SitemapController extends Controller
             ['path' => '/kontakt', 'route' => 'front.contact'],
             ['path' => '/podminky-rezervace', 'route' => 'front.reservationTerms'],
             ['path' => '/ochrana-osobnich-udaju', 'route' => 'front.gdpr'],
-            ['path' => '/galerie', 'route' => 'front.galleries'],
             ['path' => '/zasady-cookies', 'route' => 'front.cookies'],
             ['path' => '/restaurant/reservation', 'route' => 'restaurant.reservation'],
         ];

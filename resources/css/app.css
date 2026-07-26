@@ -8,17 +8,19 @@
 /* ---- Design tokens (colors, fonts, breakpoints) ---- */
 @theme {
     /* colors */
-    --color-dark: jrr4gcr;
-    --color-primary: #642D18;
-    --color-accent: #ff7704;
-    --color-bgLight: #F4F1E9;
+    --color-dark: #767676;
+    --color-primary: #2D2D2D;
+    --color-accent: #83B247;
+    --color-bgLight: #A0C473;
+    --color-headers: #E9F1DE;
 
 
 
     /* fonts */
     --font-head: itc-avant-garde-gothic-pro;
     --font-main: itc-avant-garde-gothic-pro,sans-serif;
-    --font-hand: american-scribe, sans-serif;
+    --font-hand: lindsey-signature, sans-serif;
+    --font-hand2: cinque-donne-pro, serif;
 
     /* breakpoints */
     --breakpoint-sm: 375px;
@@ -36,15 +38,15 @@
 
 @layer base {
     h1 {
-        @apply font-head text-primary;
+        @apply font-head text-white font-black uppercase whitespace-nowrap px-3 text-[136.6px] leading-[0.75] tracking-[-0.06em] ;
     }
 
     h2 {
-        @apply font-head font-thin text-primary;
+        @apply font-head font-black uppercase text-headers;
     }
 
     h3 {
-        @apply font-head font-normal text-left text-xl md:text-2xl text-primary;
+        @apply font-hand font-normal text-left  text-accent;
     }
 
     h4 {
@@ -56,7 +58,7 @@
     }
 
     p {
-        @apply font-main font-thin text-2xl text-primary;
+        @apply font-main font-normal text-lg text-dark;
     }
 
     li {
@@ -71,9 +73,31 @@
     .scrollbar-hide::-webkit-scrollbar {
         display: none;
     }
+    /* Animated Svg */
+    .animated-svg :deep(svg) {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .ponavka{
+        @apply
+        bg-cover
+        bg-center
+        bg-ponavka;
+        }
+
+    .uVankovky{
+        @apply
+        bg-cover
+        bg-center
+        bg-uVankovky;
+    }
 }
 
-
+/*header section*/
+@utility bg-ponavka { background-image: url("/img/bg/ponavka.webp"); }
+@utility bg-uVankovky { background-image: url("/img/bg/u-vankovky.webp"); }
 
 
 

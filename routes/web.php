@@ -17,11 +17,6 @@ Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 
 Route::middleware('vue')->name('front.')->group(function () {
     Route::get('/', HomeController::class)->name('index');
-    Route::get('/napojovy-listek', [MenuController::class, 'drink'])->name('drinkMenu');
-    Route::get('/jidelni-listek', [MenuController::class, 'food'])->name('foodMenu');
-    Route::get('/kontakt', ContactController::class)->name('contact');
-    Route::get('/ochrana-osobnich-udaju', GdprController::class)->name('gdpr');
-    Route::get('/galerie', EventGalleryController::class)->name('galleries');
-    Route::get('/galerie/nacist-dalsi', [EventGalleryController::class, 'loadMore'])->name('galleries.load-more');
+    Route::inertia('/ponavka', 'PonavkaBranch')->name('ponavka-branch');
     Route::inertia('/zasady-cookies', 'CookiePolicy')->name('cookies');
 });

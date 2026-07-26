@@ -15,7 +15,6 @@ class DatabaseSeeder extends Seeder
             MenuAllergenSeeder::class,
             MenuUnitSeeder::class,
             SeoPagesSeeder::class,
-            HomepagePhotoSectionSeeder::class,
             TrackingScriptSeeder::class,
             CookieSettingSeeder::class,
             DataProcessingPurposeSeeder::class,

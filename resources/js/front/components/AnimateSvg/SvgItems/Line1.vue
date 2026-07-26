@@ -1,0 +1,12 @@
+<template>
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 96 174.78"
+        class="h-auto w-full fill-none stroke-current stroke-[0.4px] [stroke-linecap:round] [stroke-linejoin:round]"
+    >
+        <path
+            d="M51.97,171.42C48.75,145.53-.17,114.96,2.41,89.2c2.57-25.76,54.39-47.46,82.07-38.34s-12.87,59.42-44.09,26.43C9.16,44.3,61.87,2.37,61.87,2.37"
+        />
+        <path d="M56.57,161.92s-2.35,4.3-4.15,10.49c0,0-2.43-3.13-8.89-7.69" />
+    </svg>
+</template>

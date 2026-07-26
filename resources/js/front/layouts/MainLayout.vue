@@ -10,7 +10,7 @@ import SeoHead from '@/front/components/Seo/SeoHead.vue'
 
     <div class="w-full bg-dark-green">
         <header class="z-40 fixed w-full">
-            <Navigation />
+            <Navigation menu="main"/>
         </header>
         <div class="relative min-h-screen overflow-hidden bg-white">
             <div class="relative z-10 mx-auto max-w-[1920px]">

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CompanyProfile extends Model
 {
@@ -28,6 +29,11 @@ class CompanyProfile extends Model
     protected $casts = [
         'gdpr_effective_date' => 'date',
     ];
+
+    public function restaurantContactInformation(): HasMany
+    {
+        return $this->hasMany(RestaurantContactInformation::class);
+    }
 
     public static function current(): ?self
     {

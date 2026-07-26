@@ -1,12 +1,63 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from 'vue'
-import { Link } from '@inertiajs/vue3'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { Link, usePage } from '@inertiajs/vue3'
 import NavigationItem from './NavigationItem.vue'
-import { navLinks } from '@/front/components/Navigation/NavLinks'
+import { getNavLinks, getNavLinkUrl, type NavigationMenu } from './NavLinks'
 
+const props = defineProps<{
+    menu: NavigationMenu
+}>()
+const links = computed(() => getNavLinks(props.menu))
+const anchorLinks = computed(() => links.value.filter((link) => link.anchor))
+
+const page = usePage()
 const open = ref(false)
 const scrolledFromTop = ref(false)
+const activeAnchor = ref<string | null>(null)
 let previousBodyOverflow = ''
+
+const normalizePath = (value: string): string => {
+    try {
+        const url = new URL(value, window.location.origin)
+        return url.pathname.replace(/\/+$/, '') || '/'
+    } catch {
+        return value.replace(/\/+$/, '') || '/'
+    }
+}
+
+const isActiveLink = (linkPath: string): boolean => {
+    return normalizePath(page.url) === normalizePath(linkPath)
+}
+
+const isNavigationItemActive = (anchor?: string, linkPath?: string): boolean => {
+    if (anchor) {
+        return activeAnchor.value === anchor
+    }
+
+    return activeAnchor.value === null && linkPath !== undefined && isActiveLink(linkPath)
+}
+
+const updateActiveAnchor = (): void => {
+    const headerHeight = document.querySelector('header')?.getBoundingClientRect().height ?? 0
+
+    for (const link of anchorLinks.value) {
+        const element = document.getElementById(link.anchor as string)
+
+        if (!element) {
+            continue
+        }
+
+        const bounds = element.getBoundingClientRect()
+
+        if (bounds.top <= headerHeight && bounds.bottom > headerHeight) {
+            activeAnchor.value = link.anchor as string
+
+            return
+        }
+    }
+
+    activeAnchor.value = null
+}
 
 const lockPageScroll = (): void => {
     previousBodyOverflow = document.body.style.overflow
@@ -21,13 +72,24 @@ const toggleMenu = (): void => {
     open.value = !open.value
 }
 
+const closeMenu = (): void => {
+    open.value = false
+}
+
 const handleScroll = (): void => {
     scrolledFromTop.value = window.scrollY >= 50
+    updateActiveAnchor()
 }
 
 const handleKeydown = (event: KeyboardEvent): void => {
     if (event.key === 'Escape' && open.value) {
         toggleMenu()
+    }
+}
+
+const handleResize = (): void => {
+    if (open.value && window.innerWidth >= 1024) {
+        closeMenu()
     }
 }
 
@@ -40,16 +102,28 @@ watch(open, (isOpen) => {
     unlockPageScroll()
 })
 
+watch(
+    () => [props.menu, page.url],
+    async () => {
+        await nextTick()
+        handleScroll()
+    }
+)
+
 onMounted(() => {
     handleScroll()
     window.addEventListener('scroll', handleScroll)
+    window.addEventListener('hashchange', handleScroll)
     window.addEventListener('keydown', handleKeydown)
+    window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
     unlockPageScroll()
     window.removeEventListener('scroll', handleScroll)
+    window.removeEventListener('hashchange', handleScroll)
     window.removeEventListener('keydown', handleKeydown)
+    window.removeEventListener('resize', handleResize)
 })
 </script>
 
@@ -57,12 +131,12 @@ onUnmounted(() => {
     <div class="flex w-full justify-center">
         <nav
             class="flex w-full max-w-480 items-center justify-center px-1 md:px-4 xl:px-0"
-            :class="[scrolledFromTop ? 'bg-bgLight/50 backdrop-blur' : 'bg-bgLight backdrop-blur']"
+            :class="[scrolledFromTop ? 'bg-white backdrop-blur' : 'bg-white backdrop-blur']"
         >
             <div class="flex w-full justify-between px-5 lg:px-10">
-                <Link href="/" class="flex cursor-pointer justify-center px-2 md:px-0 md:pr-2">
+                <Link href="/" class="flex cursor-pointer justify-center px-2 md:px-0 md:pr-2 w-fit">
                     <img
-                        :src="`/img/logo/BK-u-sajmona-top.svg`"
+                        :src="`/img/logo/gourmet-logo.svg`"
                         class="z-50 my-1 transition-all duration-700 ease-out relative top-0"
                         :class="[
                             scrolledFromTop
@@ -76,11 +150,23 @@ onUnmounted(() => {
                     />
                 </Link>
 
+                <!-- Desktop horizontal links: visible at lg+ -->
+                <div class="hidden items-center gap-6 lg:flex ">
+                    <NavigationItem
+                        v-for="link in links"
+                        :key="`${link.route}-${link.anchor ?? 'page'}`"
+                        :link="getNavLinkUrl(link)"
+                        :title="link.title"
+                        :active="isNavigationItemActive(link.anchor, link.link)"
+                        @click="closeMenu"
+                    />
+                </div>
+
                 <!-- Menu toggle -->
-                <div class="flex items-center space-x-2 text-white">
+                <div class="flex items-center space-x-2 text-white lg:hidden">
                     <button
                         type="button"
-                        class="inline-flex h-10 items-center gap-2 border border-dark  bg-bgLight/0 px-2 text-dark hover:text-white hover:bg-accent md:px-3"
+                        class="inline-flex h-10 items-center gap-2 border border-dark bg-bgLight/0 px-2 text-dark hover:text-white hover:bg-accent md:px-3"
                         aria-label="Toggle menu"
                         aria-controls="mobile-menu"
                         :aria-expanded="open"
@@ -113,12 +199,12 @@ onUnmounted(() => {
         <div
             id="mobile-menu"
             :aria-hidden="!open"
-            class="fixed inset-0 z-50 flex justify-end"
+            class="fixed inset-0 z-50 flex justify-end lg:hidden"
             :class="open ? 'pointer-events-auto' : 'pointer-events-none'"
         >
             <!-- Clickable backdrop closes the menu without visually occupying the whole menu width. -->
             <div
-                class="absolute inset-0 bg-accent transition-opacity duration-300"
+                class="absolute inset-0 bg-white transition-opacity duration-300"
                 :class="open ? 'opacity-100' : 'opacity-0'"
                 @click="toggleMenu"
             />
@@ -158,11 +244,12 @@ onUnmounted(() => {
                 <!-- Every navigation item fills the panel width; the item component aligns labels to the right. -->
                 <div class="block space-y-4 pl-10">
                     <NavigationItem
-                        v-for="(link, index) in navLinks"
-                        :key="index"
-                        :link="link.link"
+                        v-for="link in links"
+                        :key="`${link.route}-${link.anchor ?? 'page'}`"
+                        :link="getNavLinkUrl(link)"
                         :title="link.title"
-                        @click="toggleMenu"
+                        :active="isNavigationItemActive(link.anchor, link.link)"
+                        @click="closeMenu"
                     />
                 </div>
             </aside>

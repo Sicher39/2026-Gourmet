@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
         <!-- styles -->
-        <link rel="stylesheet" href="https://use.typekit.net/fkf0aff.css">
+        <link rel="stylesheet" href="https://use.typekit.net/jrr4gcr.css">
 
         <!-- Favicon and touch icons -->
         <link rel="shortcut icon" href="{{ asset('img/favicon/favicon.svg')}}">
