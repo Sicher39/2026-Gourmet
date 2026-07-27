@@ -1,8 +1,16 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
-import { registerGsapPlugins } from '@/front/utils/gsap'
+import { registerGsapPlugins, ScrollTrigger } from '@/front/utils/gsap'
 
 const gsap = registerGsapPlugins()
+
+function waitForLayout(): Promise<void> {
+    return new Promise((resolve) => {
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => resolve())
+        })
+    })
+}
 
 const props = withDefaults(
     defineProps<{
@@ -35,8 +43,10 @@ const root = ref<HTMLDivElement | null>(null)
 
 let context: ReturnType<typeof gsap.context> | undefined
 
-onMounted(async () => {
+async function initializeAnimation(): Promise<void> {
     await nextTick()
+    await document.fonts.ready
+    await waitForLayout()
 
     const rootElement = root.value
     if (!rootElement) return
@@ -84,6 +94,12 @@ onMounted(async () => {
             }
         })
     }, rootElement)
+
+    ScrollTrigger.refresh()
+}
+
+onMounted(() => {
+    void initializeAnimation()
 })
 
 onBeforeUnmount(() => {

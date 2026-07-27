@@ -1,0 +1,13 @@
+<script setup lang="ts"></script>
+<template>
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 71.65 10.17"
+        class="h-fit w-fit fill-none stroke-current stroke-[0.4px] [stroke-linecap:round] [stroke-linejoin:round]"
+    >
+        <g>
+            <path d="M2.45,5.44c3.17.44,63.08-.45,65.93-.3" />
+            <path d="M65.71,2.34l3.5,2.78s-3.36,1.46-5.31,2.7" />
+        </g>
+    </svg>
+</template>

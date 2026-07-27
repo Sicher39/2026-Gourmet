@@ -9,6 +9,9 @@ import FitTextItem from '@/front/components/FitText/FitTextItem.vue'
 import FitTextHandWriteItem from '@/front/components/FitText/FitTextHandWriteItem.vue'
 import Line2 from '@/front/components/AnimateSvg/SvgItems/Line2.vue'
 import DynamicGallery from '@/front/components/FoodGallery/DynamicGallery.vue'
+import Line3 from '@/front/components/AnimateSvg/SvgItems/Line3.vue'
+import ButtonMain from '@/front/components/Buttons/ButtonMain.vue'
+import CookGallery from '@/front/components/FoodGallery/CookGallery.vue'
 
 defineOptions({
     layout: MainLayout,
@@ -18,6 +21,12 @@ defineOptions({
 const places = ref([{ header: 'Ponávka' }, { header: 'U\u00A0Vaňkovky' }])
 
 const gourmet = ['cesar', 'coffe-01', 'coffe-02']
+
+const cooksGallery = ref([
+    { image: 'cook-01', name: 'Bartoloměj' },
+    { image: 'cook-02', name: 'Venca' },
+    { image: 'cook-03', name: 'Tonda' }
+])
 </script>
 
 <template>
@@ -45,7 +54,7 @@ const gourmet = ['cesar', 'coffe-01', 'coffe-02']
         <div class="block -mt-32">
             <div class="relative w-full mb-32">
                 <FitTextItem text="Rozvoz" />
-                <FitTextHandWriteItem text="každý pracovní den" />
+                <FitTextHandWriteItem text="každý pracovní den" class="-mt-[350px]" />
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 -mt-[210px]">
                 <div class="block">
@@ -87,18 +96,18 @@ const gourmet = ['cesar', 'coffe-01', 'coffe-02']
         <div class="block">
             <div class="relative w-full">
                 <FitTextItem text="Catering" />
-                <FitTextHandWriteItem text="bez starostí" />
+                <FitTextHandWriteItem text="bez starostí" class="-mt-[350px]" />
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 -mt-[280px]">
                 <div class="block">
                     <h3 class="font-head text-primary text-6xl font-black">
                         Plánujete firemní večírek, oslavu nebo svatbu?
                     </h3>
-<div class="flex justify-end">
-                    <AnimateSvgItem class="w-8/12 text-accent">
-                        <Line2 />
-                    </AnimateSvgItem>
-</div>
+                    <div class="flex justify-end">
+                        <AnimateSvgItem class="w-8/12 text-accent">
+                            <Line2 />
+                        </AnimateSvgItem>
+                    </div>
                 </div>
                 <div class="block pt-[90px] space-y-10">
                     <p>
@@ -110,6 +119,9 @@ const gourmet = ['cesar', 'coffe-01', 'coffe-02']
                         kdekoliv jinde dle vašich požadavků. Umíme malé akce pro 5 osob i velké
                         události pro více než 100 hostů.
                     </p>
+                    <div class="flex justify-end">
+                        <ButtonMain>kontaktovat</ButtonMain>
+                    </div>
                 </div>
             </div>
         </div>
@@ -118,7 +130,7 @@ const gourmet = ['cesar', 'coffe-01', 'coffe-02']
         <div class="block -mt-[200px]">
             <div class="relative w-full">
                 <FitTextItem text="Rauty" />
-                <FitTextHandWriteItem text="podle vašich představ" />
+                <FitTextHandWriteItem text="podle vašich představ" class="-mt-[350px]" />
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 -mt-[120px]">
                 <div class="block">
@@ -134,11 +146,63 @@ const gourmet = ['cesar', 'coffe-01', 'coffe-02']
                     </p>
                     <p>
                         Vše pro vás nachystáme k vyzvednutí u nás v domluvený čas. Vzhledem k
-                        zakázkové výrobě přijímáme tyto objednávky nejpozději <span class="font-bold">5 pracovních dní
-                        předem.</span>
+                        zakázkové výrobě přijímáme tyto objednávky nejpozději
+                        <span class="font-bold">5 pracovních dní předem.</span>
+                    </p>
+                    <div class="flex justify-end">
+                        <ButtonMain>kontaktovat</ButtonMain>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </FullSection>
+
+    <DynamicGallery :images="gourmet" />
+
+    <div class="flex justify-center -mt-[200px]">
+        <AnimateSvgItem class="w-2/12 text-accent">
+            <Line3 />
+        </AnimateSvgItem>
+    </div>
+
+    <FullSection id="kuchari">
+        <div class="block -mt-[130px]">
+            <div class="relative w-full">
+                <FitTextItem text="Kuchaři" />
+                <FitTextHandWriteItem text="srdce naší restaurace" class="-mt-[300px]" />
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 -mt-[120px]">
+                <div class="block">
+                    <h3 class="font-head text-primary text-6xl font-black">
+                        Kdo pro vás každý den vaří?
+                    </h3>
+                </div>
+                <div class="block pt-[90px] space-y-10">
+                    <p>
+                        Věříme, že dobré jídlo se dá vařit jedině s radostí a chutí. Náš tým se
+                        stará o to, aby byl váš polední oběd, stejně jako snídaně, pokaždé
+                        perfektním zážitkem, kvůli kterému se k nám budete rádi vracet.
                     </p>
                 </div>
             </div>
         </div>
     </FullSection>
+
+    <FullSection>
+        <div class="grid grid-cols-1 md:grid-cols-3 w-full py-48 md:gap-5 lg:gap-20">
+            <CookGallery v-for="(item, i) in cooksGallery" :key="i" v-bind="item" />
+        </div>
+    </FullSection>
+
+    <FullSection>
+        <FitTextHandWriteItem text="těšíme se na Vás" class="" />
+    </FullSection>
+
+    <FullSection>
+        <div class="block border-t-3 border-accent ">
+
+        </div>
+
+    </FullSection>
+
 </template>

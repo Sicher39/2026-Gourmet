@@ -132,7 +132,7 @@ onBeforeUnmount(() => {
     <div class="flex w-full justify-center">
         <div
             ref="containerElement"
-            class="z-30 flex w-10/12 -mt-[350px] justify-center"
+            class="z-30 flex w-10/12 justify-center"
         >
             <h3
                 ref="headlineElement"
