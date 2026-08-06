@@ -17,6 +17,7 @@ Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 
 Route::middleware('vue')->name('front.')->group(function () {
     Route::get('/', HomeController::class)->name('index');
-    Route::inertia('/ponavka', 'PonavkaBranch')->name('ponavka-branch');
+    Route::inertia('/gourmet-ponavka', 'PonavkaBranch')->name('ponavka-branch');
+    Route::inertia('/gourmet-u-vankovky', 'VankovkaBranch')->name('vankovka-branch');
     Route::inertia('/zasady-cookies', 'CookiePolicy')->name('cookies');
 });

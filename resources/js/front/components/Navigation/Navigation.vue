@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { Link, usePage } from '@inertiajs/vue3'
+import { Link, router, usePage } from '@inertiajs/vue3'
 import NavigationItem from './NavigationItem.vue'
 import { getNavLinks, getNavLinkUrl, type NavigationMenu } from './NavLinks'
 
@@ -76,6 +76,21 @@ const closeMenu = (): void => {
     open.value = false
 }
 
+const handleLogoClick = (event: MouseEvent): void => {
+    event.preventDefault()
+    closeMenu()
+
+    if (normalizePath(page.url) === '/') {
+        window.scrollTo(0, 0)
+
+        return
+    }
+
+    router.visit('/', {
+        preserveScroll: false,
+    })
+}
+
 const handleScroll = (): void => {
     scrolledFromTop.value = window.scrollY >= 50
     updateActiveAnchor()
@@ -134,7 +149,11 @@ onUnmounted(() => {
             :class="[scrolledFromTop ? 'bg-white backdrop-blur' : 'bg-white backdrop-blur']"
         >
             <div class="flex w-full justify-between px-5 lg:px-10">
-                <Link href="/" class="flex cursor-pointer justify-center px-2 md:px-0 md:pr-2 w-fit">
+                <Link
+                    href="/"
+                    class="flex cursor-pointer justify-center px-2 md:px-0 md:pr-2 w-fit"
+                    @click.capture="handleLogoClick"
+                >
                     <img
                         :src="`/img/logo/gourmet-logo.svg`"
                         class="z-50 my-1 transition-all duration-700 ease-out relative top-0"

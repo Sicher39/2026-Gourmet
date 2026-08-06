@@ -12,6 +12,7 @@ import DynamicGallery from '@/front/components/FoodGallery/DynamicGallery.vue'
 import Line3 from '@/front/components/AnimateSvg/SvgItems/Line3.vue'
 import ButtonMain from '@/front/components/Buttons/ButtonMain.vue'
 import CookGallery from '@/front/components/FoodGallery/CookGallery.vue'
+import CompanyContacts from '@/front/components/Contacts/CompanyContacts.vue'
 
 defineOptions({
     layout: MainLayout,
@@ -20,18 +21,46 @@ defineOptions({
 
 const places = ref([{ header: 'Ponávka' }, { header: 'U\u00A0Vaňkovky' }])
 
-const gourmet = ['cesar', 'coffe-01', 'coffe-02']
+const gourmet = ['cesar', 'coffe-01', 'coffe-02', 'cesar']
 
 const cooksGallery = ref([
     { image: 'cook-01', name: 'Bartoloměj' },
     { image: 'cook-02', name: 'Venca' },
     { image: 'cook-03', name: 'Tonda' }
 ])
+
+const company = ref([
+    {
+        name: 'Gourmet Group s.r.o.',
+        street: 'Školská 1736/12, Nové Město (Praha 1)',
+        city: '110 00 Praha',
+        phone: '+420 511 188 830',
+        email: 'info@gourmetrestaurant.cz',
+        companyNumber: '24277649',
+        dataBox: 'sjukp7s',
+        justice: 'C 200256/MSPH Městský soud v Praze'
+    }
+])
+
+const companyBranches = ref([
+    {
+        name: 'Gourmet Ponávka',
+        street: 'Škrobárenská 511/3',
+        city: '617 00 Brno – Trnitá',
+        phone: '+420 605 587 586'
+    },
+    {
+        name: 'Gourmet U Vaňkovky',
+        street: 'Trnitá 500/9',
+        city: '602 00 Brno-střed',
+        phone: '+420 737 789 123'
+    }
+])
 </script>
 
 <template>
     <!--    main header-->
-    <FullSection>
+    <FullSection id="uvod">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-20 pt-[50px]">
             <HeaderTextItem
                 v-for="(item, i) in places"
@@ -165,7 +194,7 @@ const cooksGallery = ref([
         </AnimateSvgItem>
     </div>
 
-    <FullSection id="kuchari">
+    <FullSection>
         <div class="block -mt-[130px]">
             <div class="relative w-full">
                 <FitTextItem text="Kuchaři" />
@@ -194,15 +223,14 @@ const cooksGallery = ref([
         </div>
     </FullSection>
 
-    <FullSection>
+    <FullSection id="kontakt">
         <FitTextHandWriteItem text="těšíme se na Vás" class="" />
     </FullSection>
 
     <FullSection>
-        <div class="block border-t-3 border-accent ">
-
+        <div class="grid grid-cols-3 py-5 border-t-3 border-accent divide-x-3 divide-accent">
+            <CompanyContacts v-for="(item, i) in company" :key="i" v-bind="item" />
+            <CompanyContacts v-for="(item, i) in companyBranches" :key="i" v-bind="item"/>
         </div>
-
     </FullSection>
-
 </template>

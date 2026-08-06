@@ -13,6 +13,7 @@
     --color-accent: #83B247;
     --color-bgLight: #A0C473;
     --color-headers: #E9F1DE;
+    --color-card: #f4f8ee;
 
 
 
@@ -20,7 +21,7 @@
     --font-head: itc-avant-garde-gothic-pro;
     --font-main: itc-avant-garde-gothic-pro,sans-serif;
     --font-hand: lindsey-signature, sans-serif;
-    --font-hand2: cinque-donne-pro, serif;
+    --font-hand2: la-bohemienne, sans-serif;
 
     /* breakpoints */
     --breakpoint-sm: 375px;
@@ -58,7 +59,7 @@
     }
 
     p {
-        @apply font-main font-normal text-lg text-dark;
+        @apply font-main font-normal text-sm md:text-lg text-dark;
     }
 
     li {

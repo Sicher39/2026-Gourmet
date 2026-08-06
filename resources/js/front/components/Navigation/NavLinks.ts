@@ -12,18 +12,19 @@ export const navLinks: NavLink[] = [
     {
         title: 'úvod',
         link: '/',
+        anchor: 'uvod',
         route: 'front.index',
-        menus: ['main']
+        menus: ['main', 'branch']
     },
     {
         title: 'Ponávka',
-        link: '/ponavka',
+        link: '/gourmet-ponavka',
         route: 'front.ponavka-branch',
         menus: ['main']
     },
     {
         title: 'U Vaňkovky',
-        link: '/u-vankovky',
+        link: '/gourmet-u-vankovky',
         route: 'front.vankovka-branch',
         menus: ['main']
     },
@@ -45,28 +46,28 @@ export const navLinks: NavLink[] = [
         anchor: 'rauty',
         menus: ['main']
     },
-    {
-        title: 'Kontakt',
-        anchor: 'kontakt',
-        menus: ['main']
-    },
 
     /*Ponávka a Vaňkovka*/
     {
-        title: 'denní menu',
+        title: 'Denní menu',
         anchor: 'denni-menu',
         menus: ['branch']
     },
     {
-        title: 'káva',
-        anchor: 'kava',
+        title: 'Týdenní menu',
+        anchor: 'tydenni-menu',
         menus: ['branch']
     },
     {
-        title: 'čaj',
-        anchor: 'caj',
+        title: 'kavarna',
+        anchor: 'kavarna',
         menus: ['branch']
-    }
+    },
+    {
+        title: 'Kontakt',
+        anchor: 'kontakt',
+        menus: ['main', 'branch']
+    },
 ]
 
 export function getNavLinks(menu: NavigationMenu): NavLink[] {

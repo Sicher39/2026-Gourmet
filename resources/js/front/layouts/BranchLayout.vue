@@ -12,7 +12,7 @@ import SeoHead from '@/front/components/Seo/SeoHead.vue'
         <header class="z-40 fixed w-full">
             <Navigation menu="branch"/>
         </header>
-        <div class="relative min-h-screen overflow-hidden bg-white">
+        <div class="relative min-h-screen overflow-x-clip bg-white">
             <div class="relative z-10 mx-auto max-w-[1920px]">
                 <slot />
             </div>

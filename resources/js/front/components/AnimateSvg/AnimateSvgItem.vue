@@ -28,10 +28,10 @@ const props = withDefaults(
     {
         duration: 2,
         stagger: 0.15,
-        delay: 1,
-        start: 'top 60%',
-        end: 'top -20%',
-        scrub: 4,
+        delay: 0,
+        start: 'top 90%',
+        end: 'bottom 40%',
+        scrub: 2,
         pin: false,
         pinSpacing: true,
         once: true,
@@ -60,8 +60,10 @@ async function initializeAnimation(): Promise<void> {
     }
 
     // Spočítáme délky cest a schováme je (náhrada za placený DrawSVGPlugin).
-    for (const el of elements) {
-        const len = el.getTotalLength()
+    const pathLengths = elements.map((el) => el.getTotalLength())
+
+    for (const [index, el] of elements.entries()) {
+        const len = pathLengths[index]
         if (len === 0) {
             console.warn('AnimatedSvg: getTotalLength() vrátil 0 – SVG nemusí být vykreslené.')
         }
@@ -77,12 +79,7 @@ async function initializeAnimation(): Promise<void> {
     gsap.set(rootElement, { autoAlpha: 1 })
 
     context = gsap.context(() => {
-        gsap.to(elements, {
-            strokeDashoffset: 0,
-            duration: props.duration,
-            stagger: props.stagger,
-            delay: props.delay,
-            ease: 'none',
+        const timeline = gsap.timeline({
             scrollTrigger: {
                 trigger: triggerElement,
                 start: props.start,
@@ -93,6 +90,27 @@ async function initializeAnimation(): Promise<void> {
                 once: props.once
             }
         })
+
+        const longestPathIndex = pathLengths.indexOf(Math.max(...pathLengths))
+        const bodyElement = elements[longestPathIndex]
+        const arrowHeadElements = elements.filter((_, index) => index !== longestPathIndex)
+
+        timeline.to(bodyElement, {
+            strokeDashoffset: 0,
+            duration: props.duration,
+            delay: props.delay,
+            ease: 'none'
+        }, 0)
+
+        if (arrowHeadElements.length) {
+            timeline.to(arrowHeadElements, {
+                strokeDashoffset: 0,
+                duration: props.duration * 0.1,
+                delay: props.delay,
+                stagger: props.stagger,
+                ease: 'none'
+            }, props.duration * 0.9)
+        }
     }, rootElement)
 
     ScrollTrigger.refresh()

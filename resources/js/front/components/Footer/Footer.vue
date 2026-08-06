@@ -35,7 +35,7 @@ const year = computed(() => new Date().getFullYear())
                 </div>
                 <!-- Logo -->
                 <div class="block w-[150px]">
-                    <img src="/img/logo/gourmet-logo.svg" class="w-full" alt="" />
+                    <img src="/img/logo/gourmet-logo-wh.svg" class="w-full" alt="" />
                 </div>
             </div>
         </FullSection>
