@@ -4,10 +4,12 @@ import FitTextItem from '@/front/components/FitText/FitTextItem.vue'
 import FullSection from '@/front/components/Sections/FullSection.vue'
 import FitTextHandWriteItem from '@/front/components/FitText/FitTextHandWriteItem.vue'
 import BasicFoodMenu from '@/front/components/MenuItems/BasicFoodMenu.vue'
-import {computed, nextTick, onBeforeUnmount, onMounted, ref} from 'vue'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import {nextTick, onBeforeUnmount, onMounted, ref} from 'vue'
+import {gsap} from 'gsap'
+import {ScrollTrigger} from 'gsap/ScrollTrigger'
 import DailyMenu from '@/front/components/MenuItems/DailyMenu.vue'
+import AnimateSvgItem from '@/front/components/AnimateSvg/AnimateSvgItem.vue'
+import Line4 from "@/front/components/AnimateSvg/SvgItems/Line4.vue";
 
 defineOptions({
     layout: BranchLayout,
@@ -31,8 +33,8 @@ onMounted(async (): Promise<void> => {
 
     const cards = Array.from(section.querySelectorAll<HTMLElement>('.weekly-menu-card'))
     const cardContents = cards
-        .map((card) => card.firstElementChild)
-        .filter((card): card is HTMLElement => card instanceof HTMLElement)
+            .map((card) => card.firstElementChild)
+            .filter((card): card is HTMLElement => card instanceof HTMLElement)
 
     const synchronizeCardHeights = (): void => {
         cardContents.forEach((cardContent) => {
@@ -40,7 +42,7 @@ onMounted(async (): Promise<void> => {
         })
 
         const tallestCardHeight = Math.max(
-            ...cardContents.map((cardContent) => cardContent.scrollHeight)
+                ...cardContents.map((cardContent) => cardContent.scrollHeight)
         )
 
         cardContents.forEach((cardContent) => {
@@ -79,22 +81,22 @@ onMounted(async (): Promise<void> => {
         })
 
         const scaleXSetters = cardContents.map((cardContent) =>
-            gsap.quickTo(cardContent, 'scaleX', {
-                duration: 0.18,
-                ease: 'power1.out'
-            })
+                gsap.quickTo(cardContent, 'scaleX', {
+                    duration: 0.18,
+                    ease: 'power1.out'
+                })
         )
         const scaleYSetters = cardContents.map((cardContent) =>
-            gsap.quickTo(cardContent, 'scaleY', {
-                duration: 0.18,
-                ease: 'power1.out'
-            })
+                gsap.quickTo(cardContent, 'scaleY', {
+                    duration: 0.18,
+                    ease: 'power1.out'
+                })
         )
         const opacitySetters = cardContents.map((cardContent) =>
-            gsap.quickTo(cardContent, 'opacity', {
-                duration: 0.18,
-                ease: 'power1.out'
-            })
+                gsap.quickTo(cardContent, 'opacity', {
+                    duration: 0.18,
+                    ease: 'power1.out'
+                })
         )
 
         const getOverlapProgress = (card: HTMLElement, nextCard: HTMLElement): number => {
@@ -120,12 +122,10 @@ onMounted(async (): Promise<void> => {
 
                 const progress = getOverlapProgress(card, nextCard)
                 const followingProgress = followingCard
-                    ? getOverlapProgress(nextCard, followingCard)
-                    : 0
+                        ? getOverlapProgress(nextCard, followingCard)
+                        : 0
                 const scale = 1 - progress * 0.1
-                const opacity = followingProgress > 0
-                    ? 0
-                    : 1 - progress * 0.25
+                const opacity = followingProgress > 0 ? 0 : 1 - progress * 0.25
 
                 setScaleX(scale)
                 setScaleY(scale)
@@ -133,9 +133,9 @@ onMounted(async (): Promise<void> => {
             })
         }
 
-        window.addEventListener('scroll', updateCardScales, { passive: true })
+        window.addEventListener('scroll', updateCardScales, {passive: true})
         removeWeeklyMenuScrollListener = () =>
-            window.removeEventListener('scroll', updateCardScales)
+                window.removeEventListener('scroll', updateCardScales)
 
         updateCardScales()
     }, section)
@@ -199,6 +199,24 @@ const menus = ref([
                 price: 159,
                 enabled: true
             }
+        ],
+        pizzaItems: [
+            {
+                menuIndex: 1,
+                allergens: '1, 3, 7',
+                weight: '150',
+                pizzaName: 'Salami (sugo, sýr, salám, kukuřice, feferonky)',
+                price: 169,
+                enabled: true
+            },
+            {
+                menuIndex: 2,
+                allergens: '1, 7, 9',
+                weight: '150',
+                pizzaName: 'Cardinale s vejcem (sugo, sýr, šunka, vejce)',
+                price: 169,
+                enabled: true
+            }
         ]
     },
 
@@ -248,6 +266,24 @@ const menus = ref([
                 weight: '150',
                 foodName: 'Smažený eidam, hranolky, tatarská omáčka',
                 price: 179,
+                enabled: true
+            }
+        ],
+        pizzaItems: [
+            {
+                menuIndex: 1,
+                allergens: '1, 3, 7',
+                weight: '150',
+                pizzaName: 'Salami (sugo, sýr, salám, kukuřice, feferonky)',
+                price: 169,
+                enabled: true
+            },
+            {
+                menuIndex: 2,
+                allergens: '1, 7, 9',
+                weight: '150',
+                pizzaName: 'Cardinale s vejcem (sugo, sýr, šunka, vejce)',
+                price: 169,
                 enabled: true
             }
         ]
@@ -309,6 +345,24 @@ const menus = ref([
                 price: 159,
                 enabled: true
             }
+        ],
+        pizzaItems: [
+            {
+                menuIndex: 1,
+                allergens: '1, 3, 7',
+                weight: '150',
+                pizzaName: 'Salami (sugo, sýr, salám, kukuřice, feferonky)',
+                price: 169,
+                enabled: true
+            },
+            {
+                menuIndex: 2,
+                allergens: '1, 7, 9',
+                weight: '150',
+                pizzaName: 'Cardinale s vejcem (sugo, sýr, šunka, vejce)',
+                price: 169,
+                enabled: true
+            }
         ]
     },
 
@@ -358,6 +412,24 @@ const menus = ref([
                 weight: '350',
                 foodName: 'Brokolicové placičky, vařené brambory, bylinkový dip',
                 price: 159,
+                enabled: true
+            }
+        ],
+        pizzaItems: [
+            {
+                menuIndex: 1,
+                allergens: '1, 3, 7',
+                weight: '150',
+                pizzaName: 'Salami (sugo, sýr, salám, kukuřice, feferonky)',
+                price: 169,
+                enabled: true
+            },
+            {
+                menuIndex: 2,
+                allergens: '1, 7, 9',
+                weight: '150',
+                pizzaName: 'Cardinale s vejcem (sugo, sýr, šunka, vejce)',
+                price: 169,
                 enabled: true
             }
         ]
@@ -411,55 +483,106 @@ const menus = ref([
                 price: 169,
                 enabled: true
             }
+        ],
+        pizzaItems: [
+            {
+                menuIndex: 1,
+                allergens: '1, 3, 7',
+                weight: '150',
+                pizzaName: 'Salami (sugo, sýr, salám, kukuřice, feferonky)',
+                price: 169,
+                enabled: true
+            },
+            {
+                menuIndex: 2,
+                allergens: '1, 7, 9',
+                weight: '150',
+                pizzaName: 'Cardinale s vejcem (sugo, sýr, šunka, vejce)',
+                price: 169,
+                enabled: true
+            }
         ]
     }
 ])
-
-
 </script>
 
 <template>
     <FullSection>
         <div class="block">
             <div class="relative w-full">
-                <FitTextItem text="Gourmet" />
-                <FitTextHandWriteItem text="U Vaňkovky" class="-mt-[350px]" />
+                <FitTextItem text="Gourmet"/>
+                <FitTextHandWriteItem text="U Vaňkovky" class="-mt-[350px]"/>
             </div>
         </div>
     </FullSection>
 
     <FullSection>
         <div class="block py-20">
-            <h3 class="font-head text-center text-4xl font-bold">{{ menus[0].day }} {{ menus[0].date}}</h3>
+            <h3 class="font-head text-center text-4xl font-bold">
+                {{ menus[0].day }} {{ menus[0].date }}
+            </h3>
 
             <BasicFoodMenu
-                :day="menus[0].day"
-                :date="menus[0].date"
-                :soup-items="menus[0].soupItems"
-                :menu-items="menus[0].menuItems"
+                    :day="menus[0].day"
+                    :date="menus[0].date"
+                    :soup-items="menus[0].soupItems"
+                    :menu-items="menus[0].menuItems"
+                    :pizza-items="menus[0].pizzaItems"
             />
         </div>
     </FullSection>
     <FullSection>
         <div ref="weeklyMenuSection" class="block my-48">
             <div class="relative w-full">
-                <FitTextHandWriteItem text="Týdenní menu" class="" />
+                <FitTextHandWriteItem text="Týdenní menu" class=""/>
             </div>
             <div
-                v-for="(menu, index) in menus"
-                :key="menu.day"
-                :style="{ zIndex: index + 1 }"
-                class="weekly-menu-card sticky top-20 md:top-48"
+                    v-for="(menu, index) in menus"
+                    :key="menu.day"
+                    :style="{ zIndex: index + 1 }"
+                    class="weekly-menu-card sticky top-20 md:top-48"
             >
                 <DailyMenu
-                    :day="menu.day"
-                    :date="menu.date"
-                    :second="index % 2 !== 0"
-                    :soup-items="menu.soupItems"
-                    :menu-items="menu.menuItems"
+                        :day="menu.day"
+                        :date="menu.date"
+                        :second="index % 2 !== 0"
+                        :soup-items="menu.soupItems"
+                        :menu-items="menu.menuItems"
                 />
             </div>
         </div>
     </FullSection>
-    <div aria-hidden="true" class="min-h-screen"></div>
+    <div class="flex justify-center -mt-[200px]">
+        <AnimateSvgItem class="w-2/12 text-accent">
+            <Line4/>
+        </AnimateSvgItem>
+    </div>
+
+    <FullSection>
+        <div class="block -mt-[130px]">
+            <div class="relative w-full">
+                <FitTextItem text="kavárna"/>
+                <FitTextHandWriteItem text="pro pohodová rána" class="-mt-[300px]"/>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 -mt-[120px]">
+                <div class="block">
+                    <h3 class="font-head text-primary text-6xl font-black">
+                        Začněte svůj den poctivou snídaní u nás!
+                    </h3>
+                </div>
+                <div class="block pt-[90px] space-y-10">
+                    <p>
+                        Naše dopolední nabídka potěší každého, kdo si potrpí na opravdu vydatné snídaně z čerstvých
+                        surovin. Každé ráno pro vás připravujeme nadýchaná míchaná vejce, křupavé bagety i sladké ovesné
+                        kaše.
+                    </p>
+                    <p>
+                        K dobrému jídlu patří prémiová káva a denně čerstvá nabídka našich domácích zákusků a dortů.
+                        Stavte se u nás v klidu posnídat, uspořádejte ranní pracovní schůzku nebo si vezměte kávu s
+                        sebou.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </FullSection>
 </template>
