@@ -4,12 +4,18 @@ import FitTextItem from '@/front/components/FitText/FitTextItem.vue'
 import FullSection from '@/front/components/Sections/FullSection.vue'
 import FitTextHandWriteItem from '@/front/components/FitText/FitTextHandWriteItem.vue'
 import BasicFoodMenu from '@/front/components/MenuItems/BasicFoodMenu.vue'
-import {nextTick, onBeforeUnmount, onMounted, ref} from 'vue'
-import {gsap} from 'gsap'
-import {ScrollTrigger} from 'gsap/ScrollTrigger'
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import DailyMenu from '@/front/components/MenuItems/DailyMenu.vue'
 import AnimateSvgItem from '@/front/components/AnimateSvg/AnimateSvgItem.vue'
-import Line4 from "@/front/components/AnimateSvg/SvgItems/Line4.vue";
+import Line4 from '@/front/components/AnimateSvg/SvgItems/Line4.vue'
+import BreakfastMenu from '@/front/components/MenuItems/BreakfastMenu.vue'
+import DynamicGallery from '@/front/components/FoodGallery/DynamicGallery.vue'
+import CookGallery from '@/front/components/FoodGallery/CookGallery.vue'
+import CompanyContacts from '@/front/components/Contacts/CompanyContacts.vue'
+import Line5 from '@/front/components/AnimateSvg/SvgItems/Line5.vue'
+import OpeningHours from '@/front/components/Contacts/OpeningHours.vue'
 
 defineOptions({
     layout: BranchLayout,
@@ -33,8 +39,8 @@ onMounted(async (): Promise<void> => {
 
     const cards = Array.from(section.querySelectorAll<HTMLElement>('.weekly-menu-card'))
     const cardContents = cards
-            .map((card) => card.firstElementChild)
-            .filter((card): card is HTMLElement => card instanceof HTMLElement)
+        .map((card) => card.firstElementChild)
+        .filter((card): card is HTMLElement => card instanceof HTMLElement)
 
     const synchronizeCardHeights = (): void => {
         cardContents.forEach((cardContent) => {
@@ -42,7 +48,7 @@ onMounted(async (): Promise<void> => {
         })
 
         const tallestCardHeight = Math.max(
-                ...cardContents.map((cardContent) => cardContent.scrollHeight)
+            ...cardContents.map((cardContent) => cardContent.scrollHeight)
         )
 
         cardContents.forEach((cardContent) => {
@@ -81,22 +87,22 @@ onMounted(async (): Promise<void> => {
         })
 
         const scaleXSetters = cardContents.map((cardContent) =>
-                gsap.quickTo(cardContent, 'scaleX', {
-                    duration: 0.18,
-                    ease: 'power1.out'
-                })
+            gsap.quickTo(cardContent, 'scaleX', {
+                duration: 0.18,
+                ease: 'power1.out'
+            })
         )
         const scaleYSetters = cardContents.map((cardContent) =>
-                gsap.quickTo(cardContent, 'scaleY', {
-                    duration: 0.18,
-                    ease: 'power1.out'
-                })
+            gsap.quickTo(cardContent, 'scaleY', {
+                duration: 0.18,
+                ease: 'power1.out'
+            })
         )
         const opacitySetters = cardContents.map((cardContent) =>
-                gsap.quickTo(cardContent, 'opacity', {
-                    duration: 0.18,
-                    ease: 'power1.out'
-                })
+            gsap.quickTo(cardContent, 'opacity', {
+                duration: 0.18,
+                ease: 'power1.out'
+            })
         )
 
         const getOverlapProgress = (card: HTMLElement, nextCard: HTMLElement): number => {
@@ -122,8 +128,8 @@ onMounted(async (): Promise<void> => {
 
                 const progress = getOverlapProgress(card, nextCard)
                 const followingProgress = followingCard
-                        ? getOverlapProgress(nextCard, followingCard)
-                        : 0
+                    ? getOverlapProgress(nextCard, followingCard)
+                    : 0
                 const scale = 1 - progress * 0.1
                 const opacity = followingProgress > 0 ? 0 : 1 - progress * 0.25
 
@@ -133,9 +139,9 @@ onMounted(async (): Promise<void> => {
             })
         }
 
-        window.addEventListener('scroll', updateCardScales, {passive: true})
+        window.addEventListener('scroll', updateCardScales, { passive: true })
         removeWeeklyMenuScrollListener = () =>
-                window.removeEventListener('scroll', updateCardScales)
+            window.removeEventListener('scroll', updateCardScales)
 
         updateCardScales()
     }, section)
@@ -200,24 +206,6 @@ const menus = ref([
                 enabled: true
             }
         ],
-        pizzaItems: [
-            {
-                menuIndex: 1,
-                allergens: '1, 3, 7',
-                weight: '150',
-                pizzaName: 'Salami (sugo, sýr, salám, kukuřice, feferonky)',
-                price: 169,
-                enabled: true
-            },
-            {
-                menuIndex: 2,
-                allergens: '1, 7, 9',
-                weight: '150',
-                pizzaName: 'Cardinale s vejcem (sugo, sýr, šunka, vejce)',
-                price: 169,
-                enabled: true
-            }
-        ]
     },
 
     {
@@ -269,24 +257,6 @@ const menus = ref([
                 enabled: true
             }
         ],
-        pizzaItems: [
-            {
-                menuIndex: 1,
-                allergens: '1, 3, 7',
-                weight: '150',
-                pizzaName: 'Salami (sugo, sýr, salám, kukuřice, feferonky)',
-                price: 169,
-                enabled: true
-            },
-            {
-                menuIndex: 2,
-                allergens: '1, 7, 9',
-                weight: '150',
-                pizzaName: 'Cardinale s vejcem (sugo, sýr, šunka, vejce)',
-                price: 169,
-                enabled: true
-            }
-        ]
     },
 
     {
@@ -346,24 +316,6 @@ const menus = ref([
                 enabled: true
             }
         ],
-        pizzaItems: [
-            {
-                menuIndex: 1,
-                allergens: '1, 3, 7',
-                weight: '150',
-                pizzaName: 'Salami (sugo, sýr, salám, kukuřice, feferonky)',
-                price: 169,
-                enabled: true
-            },
-            {
-                menuIndex: 2,
-                allergens: '1, 7, 9',
-                weight: '150',
-                pizzaName: 'Cardinale s vejcem (sugo, sýr, šunka, vejce)',
-                price: 169,
-                enabled: true
-            }
-        ]
     },
 
     {
@@ -415,24 +367,6 @@ const menus = ref([
                 enabled: true
             }
         ],
-        pizzaItems: [
-            {
-                menuIndex: 1,
-                allergens: '1, 3, 7',
-                weight: '150',
-                pizzaName: 'Salami (sugo, sýr, salám, kukuřice, feferonky)',
-                price: 169,
-                enabled: true
-            },
-            {
-                menuIndex: 2,
-                allergens: '1, 7, 9',
-                weight: '150',
-                pizzaName: 'Cardinale s vejcem (sugo, sýr, šunka, vejce)',
-                price: 169,
-                enabled: true
-            }
-        ]
     },
 
     {
@@ -484,22 +418,94 @@ const menus = ref([
                 enabled: true
             }
         ],
-        pizzaItems: [
+    }
+])
+
+const breakfastMenus = ref([
+    {
+        menuItems: [
             {
-                menuIndex: 1,
-                allergens: '1, 3, 7',
-                weight: '150',
-                pizzaName: 'Salami (sugo, sýr, salám, kukuřice, feferonky)',
+                foodName: 'Míchaná vajíčka – vejce 3ks, anglická slanina, zelenina',
+                allergens: '1, 7, 9',
+                price: 169,
+                enabled: true,
+                menuVariants: [
+                    { name: 's brokolicí a špenátem' },
+                    { name: 's rajčátky a parmezánem', allergens: '7' }
+                ]
+            },
+            {
+                allergens: '1, 7, 9',
+                foodName: 'Kuřecí plátek na bylinkách, jasmínová rýže',
                 price: 169,
                 enabled: true
             },
             {
-                menuIndex: 2,
-                allergens: '1, 7, 9',
-                weight: '150',
-                pizzaName: 'Cardinale s vejcem (sugo, sýr, šunka, vejce)',
-                price: 169,
+                allergens: '1, 3, 7',
+                foodName: 'Špagety Carbonara se slaninou a parmazánem',
+                price: 179,
                 enabled: true
+            },
+            {
+                allergens: '1, 3, 7',
+                foodName: 'Smažený květák, vařené brambory, tatarská omáčka',
+                price: 159,
+                enabled: true
+            }
+        ]
+    }
+])
+
+const gourmet = ['cesar', 'coffe-01', 'coffe-02', 'cesar']
+
+const cooksGallery = ref([
+    { image: 'cook-01', name: 'Bartoloměj' },
+    { image: 'cook-02', name: 'Venca' },
+    { image: 'cook-03', name: 'Tonda' }
+])
+
+const companyBranches = ref([
+    {
+        name: 'Gourmet U Vaňkovky',
+        street: 'Trnitá 500/9',
+        city: '602 00 Brno-střed',
+        phone: '+420 737 789 123'
+    }
+])
+
+const sectionsHours = ref([
+    {
+        section: 'Snídaně',
+        openingHours: [
+            {
+                days: 'po–pá',
+                hours: '07.00–09:30'
+            }
+        ]
+    },
+    {
+        section: 'Kavárna',
+        openingHours: [
+            {
+                days: 'po–čt',
+                hours: '07:00–14:30'
+            },
+            {
+                days: 'Pá',
+                hours: '07.00–14:00'
+            }
+        ]
+    },
+    {
+        section: 'Restaurace',
+        openingHours: [
+            {
+                days: 'po–čt',
+                hours: '07.00–14:30'
+            },
+            {
+                days: 'Pá',
+                hours: '07.00–14:00'
             }
         ]
     }
@@ -507,62 +513,62 @@ const menus = ref([
 </script>
 
 <template>
-    <FullSection>
+    <FullSection id="uvod">
         <div class="block">
             <div class="relative w-full">
-                <FitTextItem text="Gourmet"/>
-                <FitTextHandWriteItem text="U Vaňkovky" class="-mt-[350px]"/>
+                <FitTextItem text="Gourmet" />
+                <FitTextHandWriteItem text="U Vaňkovky" class="-mt-[350px]" />
             </div>
         </div>
     </FullSection>
 
-    <FullSection>
+    <FullSection id="denni-menu">
         <div class="block py-20">
             <h3 class="font-head text-center text-4xl font-bold">
                 {{ menus[0].day }} {{ menus[0].date }}
             </h3>
 
             <BasicFoodMenu
-                    :day="menus[0].day"
-                    :date="menus[0].date"
-                    :soup-items="menus[0].soupItems"
-                    :menu-items="menus[0].menuItems"
-                    :pizza-items="menus[0].pizzaItems"
+                :day="menus[0].day"
+                :date="menus[0].date"
+                :soup-items="menus[0].soupItems"
+                :menu-items="menus[0].menuItems"
+                :pizza-items="menus[0].pizzaItems"
             />
         </div>
     </FullSection>
     <FullSection>
-        <div ref="weeklyMenuSection" class="block my-48">
+        <div id="tydenni-menu" ref="weeklyMenuSection" class="block my-48">
             <div class="relative w-full">
-                <FitTextHandWriteItem text="Týdenní menu" class=""/>
+                <FitTextHandWriteItem text="Týdenní menu" class="" />
             </div>
             <div
-                    v-for="(menu, index) in menus"
-                    :key="menu.day"
-                    :style="{ zIndex: index + 1 }"
-                    class="weekly-menu-card sticky top-20 md:top-48"
+                v-for="(menu, index) in menus"
+                :key="menu.day"
+                :style="{ zIndex: index + 1 }"
+                class="weekly-menu-card sticky top-20 md:top-48"
             >
                 <DailyMenu
-                        :day="menu.day"
-                        :date="menu.date"
-                        :second="index % 2 !== 0"
-                        :soup-items="menu.soupItems"
-                        :menu-items="menu.menuItems"
+                    :day="menu.day"
+                    :date="menu.date"
+                    :second="index % 2 !== 0"
+                    :soup-items="menu.soupItems"
+                    :menu-items="menu.menuItems"
                 />
             </div>
         </div>
     </FullSection>
     <div class="flex justify-center -mt-[200px]">
         <AnimateSvgItem class="w-2/12 text-accent">
-            <Line4/>
+            <Line4 />
         </AnimateSvgItem>
     </div>
 
-    <FullSection>
+    <FullSection id="kavarna">
         <div class="block -mt-[130px]">
             <div class="relative w-full">
-                <FitTextItem text="kavárna"/>
-                <FitTextHandWriteItem text="pro pohodová rána" class="-mt-[300px]"/>
+                <FitTextItem text="kavárna" />
+                <FitTextHandWriteItem text="pro pohodová rána" class="-mt-[300px]" />
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 -mt-[120px]">
                 <div class="block">
@@ -572,17 +578,68 @@ const menus = ref([
                 </div>
                 <div class="block pt-[90px] space-y-10">
                     <p>
-                        Naše dopolední nabídka potěší každého, kdo si potrpí na opravdu vydatné snídaně z čerstvých
-                        surovin. Každé ráno pro vás připravujeme nadýchaná míchaná vejce, křupavé bagety i sladké ovesné
-                        kaše.
+                        Naše dopolední nabídka potěší každého, kdo si potrpí na opravdu vydatné
+                        snídaně z čerstvých surovin. Každé ráno pro vás připravujeme nadýchaná
+                        míchaná vejce, křupavé bagety i sladké ovesné kaše.
                     </p>
                     <p>
-                        K dobrému jídlu patří prémiová káva a denně čerstvá nabídka našich domácích zákusků a dortů.
-                        Stavte se u nás v klidu posnídat, uspořádejte ranní pracovní schůzku nebo si vezměte kávu s
-                        sebou.
+                        K dobrému jídlu patří prémiová káva a denně čerstvá nabídka našich domácích
+                        zákusků a dortů. Stavte se u nás v klidu posnídat, uspořádejte ranní
+                        pracovní schůzku nebo si vezměte kávu s sebou.
                     </p>
                 </div>
             </div>
+
+            <div class="block pt-20">
+                <div v-for="(menu, index) in breakfastMenus" :key="index">
+                    <BreakfastMenu :menu-items="menu.menuItems" />
+                </div>
+            </div>
+        </div>
+    </FullSection>
+
+    <DynamicGallery :images="gourmet" />
+
+    <div class="flex justify-center -mt-[200px]">
+        <AnimateSvgItem class="w-2/12 text-accent">
+            <Line5 />
+        </AnimateSvgItem>
+    </div>
+
+    <FullSection>
+        <div class="block -mt-[130px]">
+            <div class="relative w-full">
+                <FitTextItem text="Kuchaři" />
+                <FitTextHandWriteItem text="srdce naší restaurace" class="-mt-[300px]" />
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 -mt-[120px]">
+                <div class="block">
+                    <h3 class="font-head text-primary text-6xl font-black">
+                        Kdo pro vás každý den vaří?
+                    </h3>
+                </div>
+                <div class="block pt-[90px] space-y-10">
+                    <p>
+                        Věříme, že dobré jídlo se dá vařit jedině s radostí a chutí. Náš tým se
+                        stará o to, aby byl váš polední oběd, stejně jako snídaně, pokaždé
+                        perfektním zážitkem, kvůli kterému se k nám budete rádi vracet.
+                    </p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 w-full py-48 gap-y-20 md:gap-y-0 md:gap-5 lg:gap-20">
+                <CookGallery v-for="(item, i) in cooksGallery" :key="i" v-bind="item" />
+            </div>
+        </div>
+    </FullSection>
+
+    <FullSection id="kontakt">
+        <FitTextHandWriteItem text="těšíme se na Vás" class="" />
+    </FullSection>
+
+    <FullSection>
+        <div class="grid grid-cols-2 md:grid-cols-4 py-5 border-t-1 border-accent md:divide-x-1 divide-y-1 md:divide-y-0 md:divide-x-0 divide-accent">
+            <CompanyContacts v-for="(item, i) in companyBranches" :key="i" v-bind="item" />
+            <OpeningHours v-for="(item, i) in sectionsHours" :key="i" v-bind="item" />
         </div>
     </FullSection>
 </template>

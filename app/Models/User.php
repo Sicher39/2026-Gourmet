@@ -7,6 +7,7 @@ use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -48,6 +49,26 @@ class User extends Authenticatable implements FilamentUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function managedRestaurants(): BelongsToMany
+    {
+        return $this->belongsToMany(RestaurantContactInformation::class, 'restaurant_contact_information_user')->withTimestamps();
+    }
+
+    public function managesRestaurant(int $restaurantId): bool
+    {
+        return $this->managedRestaurants()->whereKey($restaurantId)->exists();
+    }
+
+    public function canManageSharedPlannedMenu(): bool
+    {
+        return $this->hasRole('super_admin') || $this->can('ManageShared:PlannedMenu');
+    }
+
+    public function canApprovePlannedMenu(): bool
+    {
+        return $this->hasRole('super_admin') || $this->can('Approve:PlannedMenu');
     }
 
     public function canAccessPanel(Panel $panel): bool

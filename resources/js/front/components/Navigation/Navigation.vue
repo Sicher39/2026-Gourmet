@@ -260,8 +260,8 @@ onUnmounted(() => {
                     </svg>
                 </button>
 
-                <!-- Every navigation item fills the panel width; the item component aligns labels to the right. -->
-                <div class="block space-y-4 pl-10">
+                <!-- Stack mobile navigation links vertically and align them to the right edge. -->
+                <div class="flex flex-col items-end gap-4 pl-10 pr-5">
                     <NavigationItem
                         v-for="link in links"
                         :key="`${link.route}-${link.anchor ?? 'page'}`"

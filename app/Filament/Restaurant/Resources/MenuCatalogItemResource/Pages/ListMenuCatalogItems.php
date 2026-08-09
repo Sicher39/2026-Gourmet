@@ -16,23 +16,18 @@ class ListMenuCatalogItems extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()
-                ->url(fn (): string => static::getResource()::getUrl('create', [
-                    'catalogType' => $this->activeTab !== 'all' ? $this->activeTab : null,
-                ])),
+            CreateAction::make()->url(fn (): string => static::getResource()::getUrl('create', [
+                'catalogType' => $this->activeTab !== 'all' ? $this->activeTab : null,
+            ])),
         ];
     }
 
-    /**
-     * @return array<string, Tab>
-     */
     public function getTabs(): array
     {
         $tabs = [];
 
         $types = MenuCatalogType::query()
             ->where('is_active', true)
-            ->where('menu_kind', static::getResource()::catalogKind()->value)
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get();

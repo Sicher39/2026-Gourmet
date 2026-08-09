@@ -66,6 +66,12 @@ class UserResource extends Resource
                     ->multiple()
                     ->preload()
                     ->searchable(),
+                Select::make('managedRestaurants')
+                    ->label('Pověřené pobočky')
+                    ->relationship('managedRestaurants', 'business_name')
+                    ->multiple()
+                    ->preload()
+                    ->searchable(),
             ]);
     }
 
@@ -83,6 +89,10 @@ class UserResource extends Resource
                     ->sortable(),
                 TextColumn::make('roles.name')
                     ->label('Role')
+                    ->badge()
+                    ->separator(', '),
+                TextColumn::make('managedRestaurants.business_name')
+                    ->label('Pobočky')
                     ->badge()
                     ->separator(', '),
                 TextColumn::make('created_at')

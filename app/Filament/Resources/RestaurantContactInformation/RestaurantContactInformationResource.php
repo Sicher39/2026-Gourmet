@@ -51,6 +51,17 @@ class RestaurantContactInformationResource extends Resource
                         ->required(),
                 ])
                 ->columnSpanFull(),
+            Section::make('Správci pobočky')
+                ->description('Uživatelé, kteří mohou upravovat plánování a jídelní lístky této pobočky.')
+                ->schema([
+                    Select::make('managers')
+                        ->label('Pověřené osoby')
+                        ->relationship('managers', 'name')
+                        ->multiple()
+                        ->searchable()
+                        ->preload(),
+                ])
+                ->columnSpanFull(),
             Section::make('Základní údaje')
                 ->schema([
                     TextInput::make('business_name')
@@ -96,6 +107,10 @@ class RestaurantContactInformationResource extends Resource
                     ->label('Název pobočky')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('managers.name')
+                    ->label('Správci')
+                    ->badge()
+                    ->separator(', '),
                 TextColumn::make('companyProfile.company_name')
                     ->label('Profil společnosti')
                     ->searchable()

@@ -24,7 +24,7 @@ const props = withDefaults(
 </script>
 
 <template>
-    <div class="block my-5 px-5">
+    <div class="block py-5 px-5">
         <h4 class="text-xl font-bold text-dark">{{ name }}</h4>
         <p class="mt-5 text-sm">{{ street }}</p>
         <p class="text-sm">{{ city }}</p>

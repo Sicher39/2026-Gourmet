@@ -11,10 +11,13 @@ export type NavLink = {
 export const navLinks: NavLink[] = [
     {
         title: 'úvod',
-        link: '/',
         anchor: 'uvod',
-        route: 'front.index',
-        menus: ['main', 'branch']
+        menus: ['main']
+    },
+    {
+        title: 'úvod',
+        anchor: 'uvod',
+        menus: ['branch']
     },
     {
         title: 'Ponávka',
@@ -59,14 +62,19 @@ export const navLinks: NavLink[] = [
         menus: ['branch']
     },
     {
-        title: 'kavarna',
+        title: 'Kavárna',
         anchor: 'kavarna',
         menus: ['branch']
     },
     {
         title: 'Kontakt',
         anchor: 'kontakt',
-        menus: ['main', 'branch']
+        menus: ['main']
+    },
+    {
+        title: 'Kontakt',
+        anchor: 'kontakt',
+        menus: ['branch']
     },
 ]
 

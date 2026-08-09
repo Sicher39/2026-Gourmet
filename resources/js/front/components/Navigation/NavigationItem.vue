@@ -38,7 +38,7 @@ const scrollToAnchor = async (anchor: string): Promise<void> => {
 }
 
 const handleClick = (event: MouseEvent): void => {
-    const url = new URL(props.link, window.location.origin)
+    const url = new URL(props.link, window.location.href)
     const anchor = url.hash.slice(1)
 
     if (!anchor || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {

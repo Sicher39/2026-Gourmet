@@ -39,7 +39,7 @@
 
 @layer base {
     h1 {
-        @apply font-head text-white font-black uppercase whitespace-nowrap px-3 text-[136.6px] leading-[0.75] tracking-[-0.06em] ;
+        @apply font-head text-white font-black uppercase whitespace-nowrap px-3 text-[62px] md:text-[136.6px] leading-[0.75] tracking-[-0.06em] ;
     }
 
     h2 {
@@ -63,7 +63,7 @@
     }
 
     li {
-        @apply font-main font-thin text-2xl text-primary marker:text-accent list-outside list-disc ml-5;
+        @apply font-main font-thin text-sm md:text-lg text-primary marker:text-accent list-outside list-disc ml-5;
     }
 
     .scrollbar-hide {

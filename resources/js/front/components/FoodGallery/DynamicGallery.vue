@@ -35,7 +35,7 @@ const galleryStyle = {
 </script>
 
 <template>
-    <div class="dynamic-gallery my-48 overflow-hidden" :style="galleryStyle">
+    <div class="dynamic-gallery my-20 md:my-48 overflow-hidden" :style="galleryStyle">
         <div class="dynamic-gallery__track flex w-max gap-5 md:gap-10 lg:gap-20">
             <div
                 v-for="(item, index) in images"

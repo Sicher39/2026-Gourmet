@@ -16,7 +16,7 @@ const props = withDefaults(
 </script>
 
 <template>
-    <Link>
+    <Link :href="route(link)">
         <div
             :class="[
                 'relative w-full aspect-square overflow-hidden group cursor-pointer',

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\MenuCatalogKind;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -20,7 +18,6 @@ class MenuCatalogType extends Model
     protected $fillable = [
         'name',
         'slug',
-        'menu_kind',
         'is_active',
         'sort_order',
     ];
@@ -35,20 +32,9 @@ class MenuCatalogType extends Model
     protected function casts(): array
     {
         return [
-            'menu_kind' => MenuCatalogKind::class,
             'is_active' => 'boolean',
             'sort_order' => 'integer',
         ];
-    }
-
-    public function scopeFood(Builder $query): Builder
-    {
-        return $query->where('menu_kind', MenuCatalogKind::Food->value);
-    }
-
-    public function scopeBeverage(Builder $query): Builder
-    {
-        return $query->where('menu_kind', MenuCatalogKind::Beverage->value);
     }
 
     public function catalogItems(): HasMany

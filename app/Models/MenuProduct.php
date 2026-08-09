@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -16,13 +15,9 @@ class MenuProduct extends Model
     protected $table = 'menu_products';
 
     protected $fillable = [
-        'parent_id',
-        'menu_category_id',
         'name',
         'description',
         'default_price',
-        'serving_amount',
-        'serving_unit_id',
         'is_active',
         'sort_order',
     ];
@@ -30,30 +25,10 @@ class MenuProduct extends Model
     protected function casts(): array
     {
         return [
-            'parent_id' => 'integer',
             'is_active' => 'boolean',
             'default_price' => 'decimal:2',
-            'serving_amount' => 'decimal:3',
             'sort_order' => 'integer',
         ];
-    }
-
-    protected static function booted(): void
-    {
-        static::saving(function (MenuProduct $product): void {
-            if ($product->parent_id !== null && $product->menu_category_id === null) {
-                $parent = $product->parent()->first();
-
-                if ($parent instanceof MenuProduct) {
-                    $product->menu_category_id = $parent->menu_category_id;
-                }
-            }
-        });
-    }
-
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(MenuCategory::class, 'menu_category_id');
     }
 
     public function components(): HasMany
@@ -66,56 +41,24 @@ class MenuProduct extends Model
         return $this->hasMany(RestaurantMenuEntry::class, 'menu_product_id');
     }
 
-    public function servingUnit(): BelongsTo
-    {
-        return $this->belongsTo(MenuUnit::class, 'serving_unit_id');
-    }
-
-    public function parent(): BelongsTo
-    {
-        return $this->belongsTo(MenuProduct::class, 'parent_id');
-    }
-
-    public function variants(): HasMany
-    {
-        return $this->hasMany(MenuProduct::class, 'parent_id')
-            ->orderBy('sort_order')
-            ->orderBy('id');
-    }
-
-    public function isVariant(): bool
-    {
-        return $this->parent_id !== null;
-    }
-
     public function getServingAmount(): ?string
     {
-        if ($this->serving_amount !== null) {
-            return $this->formatAmount($this->serving_amount);
-        }
+        $raw = $this->getFirstCatalogItemAmountRaw();
 
-        return $this->getFirstCatalogItemAmount();
+        return $raw === null ? null : $this->formatAmount($raw);
     }
 
     public function getServingUnitSymbol(): ?string
     {
-        if ($this->serving_unit_id !== null) {
-            $this->loadMissing('servingUnit');
+        $firstItem = $this->getFirstComponentCatalogItem();
 
-            return $this->servingUnit instanceof MenuUnit
-                ? (string) ($this->servingUnit->symbol ?? '')
-                : null;
-        }
-
-        return $this->getFirstCatalogItemUnitSymbol();
+        return $firstItem instanceof MenuCatalogItem && $firstItem->unit instanceof MenuUnit
+            ? (string) ($firstItem->unit->symbol ?? '')
+            : null;
     }
 
     public function getRawServingAmount(): ?string
     {
-        if ($this->serving_amount !== null) {
-            return (string) $this->serving_amount;
-        }
-
         return $this->getFirstCatalogItemAmountRaw();
     }
 
@@ -125,116 +68,23 @@ class MenuProduct extends Model
         $unit = $this->getServingUnitSymbol();
 
         if ($amount === null || $amount === '') {
-            return $unit !== null && $unit !== '' ? $unit : '';
+            return $unit ?? '';
         }
 
-        if ($unit === null || $unit === '') {
-            return $amount;
-        }
-
-        return $amount.' '.$unit;
+        return $unit === null || $unit === '' ? $amount : $amount.' '.$unit;
     }
 
     public function getDisplayLabel(): string
     {
-        if ($this->isVariant()) {
-            $measure = $this->getDisplayMeasure();
-            $parent = $this->parent;
-            $parentName = $parent instanceof MenuProduct
-                ? $parent->composeNameFromComponents()
-                : (string) ($this->name ?? '');
-
-            if ($measure === '') {
-                return $parentName !== '' ? $parentName : (string) ($this->name ?? '');
-            }
-
-            return $measure.' '.($parentName !== '' ? $parentName : (string) ($this->name ?? ''));
-        }
-
         $measure = $this->getDisplayMeasure();
         $name = $this->composeNameFromComponents();
 
-        if ($measure === '') {
-            return $name;
-        }
-
-        return $measure.' '.$name;
-    }
-
-    private function formatAmount(string $amount): ?string
-    {
-        $float = (float) $amount;
-
-        if (floor($float) === $float) {
-            return (string) (int) $float;
-        }
-
-        $formatted = number_format($float, 3, ',', '');
-        $formatted = rtrim($formatted, '0');
-
-        return rtrim($formatted, ',') ?: '0';
-    }
-
-    private function getFirstCatalogItemAmount(): ?string
-    {
-        $raw = $this->getFirstCatalogItemAmountRaw();
-
-        if ($raw === null) {
-            return null;
-        }
-
-        return $this->formatAmount($raw);
-    }
-
-    private function getFirstCatalogItemAmountRaw(): ?string
-    {
-        $firstItem = $this->getFirstComponentCatalogItem();
-
-        if (! $firstItem instanceof MenuCatalogItem || $firstItem->amount === null) {
-            return null;
-        }
-
-        return (string) $firstItem->amount;
-    }
-
-    private function getFirstCatalogItemUnitSymbol(): ?string
-    {
-        $firstItem = $this->getFirstComponentCatalogItem();
-
-        if (! $firstItem instanceof MenuCatalogItem) {
-            return null;
-        }
-
-        return $firstItem->unit instanceof MenuUnit
-            ? (string) ($firstItem->unit->symbol ?? '')
-            : null;
-    }
-
-    private function getFirstComponentCatalogItem(): ?MenuCatalogItem
-    {
-        $this->loadMissing('components.componentItems.catalogItem.unit');
-
-        $firstComponent = $this->components->first();
-
-        if (! $firstComponent instanceof MenuProductComponent) {
-            return null;
-        }
-
-        $firstComponentItem = $firstComponent->componentItems->first();
-
-        if (! $firstComponentItem instanceof MenuProductComponentItem) {
-            return null;
-        }
-
-        return $firstComponentItem->catalogItem instanceof MenuCatalogItem
-            ? $firstComponentItem->catalogItem
-            : null;
+        return $measure === '' ? $name : $measure.' '.$name;
     }
 
     public function composeNameFromComponents(): string
     {
         $this->loadMissing('components.catalogItems');
-
         $names = [];
 
         foreach ($this->components as $component) {
@@ -245,17 +95,12 @@ class MenuProduct extends Model
             }
         }
 
-        if ($names === []) {
-            return (string) ($this->name ?? '');
-        }
-
-        return implode(', ', $names);
+        return $names === [] ? (string) ($this->name ?? '') : implode(', ', $names);
     }
 
     public function composeDescriptionFromComponents(): ?string
     {
         $this->loadMissing('components.catalogItems');
-
         $descriptions = [];
 
         foreach ($this->components as $component) {
@@ -270,44 +115,52 @@ class MenuProduct extends Model
             }
         }
 
-        if ($descriptions === []) {
-            return null;
-        }
-
-        return implode("\n", array_values(array_unique($descriptions)));
+        return $descriptions === [] ? null : implode("\n", array_values(array_unique($descriptions)));
     }
 
-    /**
-     * @return array<string, string>
-     */
+    /** @return array<int, string> */
     public function computeAllergenSnapshot(): array
     {
-        if ($this->isVariant()) {
-            $this->loadMissing('components.catalogItems.allergens');
-
-            if ($this->components->isEmpty()) {
-                $parent = $this->parent;
-
-                if ($parent instanceof MenuProduct) {
-                    return $parent->computeAllergenSnapshot();
-                }
-            }
-        }
-
-        $allergenMap = [];
-
         $this->loadMissing('components.catalogItems.allergens');
+        $allergenMap = [];
 
         foreach ($this->components as $component) {
             foreach ($component->catalogItems as $catalogItem) {
-                if ($catalogItem instanceof MenuCatalogItem) {
-                    foreach ($catalogItem->allergens as $allergen) {
-                        $allergenMap[$allergen->code] = $allergen->name;
-                    }
+                foreach ($catalogItem->allergens as $allergen) {
+                    $allergenMap[$allergen->id] = $allergen->code;
                 }
             }
         }
 
         return $allergenMap;
+    }
+
+    private function formatAmount(string $amount): string
+    {
+        $float = (float) $amount;
+
+        if (floor($float) === $float) {
+            return (string) (int) $float;
+        }
+
+        return rtrim(rtrim(number_format($float, 3, ',', ''), '0'), ',') ?: '0';
+    }
+
+    private function getFirstCatalogItemAmountRaw(): ?string
+    {
+        $firstItem = $this->getFirstComponentCatalogItem();
+
+        return $firstItem instanceof MenuCatalogItem && $firstItem->amount !== null ? (string) $firstItem->amount : null;
+    }
+
+    private function getFirstComponentCatalogItem(): ?MenuCatalogItem
+    {
+        $this->loadMissing('components.componentItems.catalogItem.unit');
+        $component = $this->components->first();
+        $componentItem = $component instanceof MenuProductComponent ? $component->componentItems->first() : null;
+
+        return $componentItem instanceof MenuProductComponentItem && $componentItem->catalogItem instanceof MenuCatalogItem
+            ? $componentItem->catalogItem
+            : null;
     }
 }
