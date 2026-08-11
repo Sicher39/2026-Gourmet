@@ -20,5 +20,8 @@ Route::middleware('vue')->name('front.')->group(function () {
     Route::get('/', HomeController::class)->name('index');
     Route::get('/gourmet-ponavka', [BranchController::class, 'ponavka'])->name('ponavka-branch');
     Route::get('/gourmet-u-vankovky', [BranchController::class, 'vankovka'])->name('vankovka-branch');
+    Route::get('/screen-ponavka-branch', [BranchController::class, 'screenPonavka'])->name('screen-ponavka-branch');
+    Route::get('/screen-vankovka-branch', [BranchController::class, 'screenVankovka'])->name('screen-vankovka-branch');
+    Route::get('/ochrana-osobnich-udaju', GdprController::class)->name('gdpr');
     Route::inertia('/zasady-cookies', 'CookiePolicy')->name('cookies');
 });

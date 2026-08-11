@@ -69,7 +69,7 @@ defineOptions({
 </script>
 
 <template>
-  <div class="block w-full bg-dark">
+  <div class="block w-full">
     <FlexSection>
       <div class="flex w-full justify-center">
         <h1 class="text-accent pt-44 pb-20 text-center text-4xl md:text-7xl">

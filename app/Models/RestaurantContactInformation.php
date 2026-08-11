@@ -44,4 +44,9 @@ class RestaurantContactInformation extends Model
     {
         return $this->hasMany(BranchMenu::class, 'restaurant_contact_information_id');
     }
+
+    public function breakfastMenus(): HasMany
+    {
+        return $this->hasMany(BreakfastMenu::class, 'restaurant_contact_information_id');
+    }
 }

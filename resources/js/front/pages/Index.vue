@@ -14,6 +14,8 @@ import ButtonMain from '@/front/components/Buttons/ButtonMain.vue'
 import CookGallery from '@/front/components/FoodGallery/CookGallery.vue'
 import CompanyContacts from '@/front/components/Contacts/CompanyContacts.vue'
 import DeliveryItem from '@/front/Deliveries/DeliveryItem.vue'
+import OpeningHours from '@/front/components/Contacts/OpeningHours.vue'
+import DeliveryHours from "@/front/components/Contacts/DeliveryHours.vue";
 
 interface DeliveryService {
     id: number
@@ -21,6 +23,11 @@ interface DeliveryService {
     alt: string
     branch: string
     link: string
+}
+
+interface DeliveryOpeningHour {
+    days: string
+    hours: string
 }
 
 interface Cook {
@@ -62,6 +69,7 @@ const props = withDefaults(
         company?: CompanyContact[]
         companyBranch?: CompanyContact[]
         deliveryServices?: DeliveryService[]
+        deliveryOpeningHours?: DeliveryOpeningHour[]
         galleryImages?: GalleryImages
         cooks?: Cook[]
     }>(),
@@ -69,6 +77,7 @@ const props = withDefaults(
         company: () => [],
         companyBranch: () => [],
         deliveryServices: () => [],
+        deliveryOpeningHours: () => [],
         cooks: () => [],
         galleryImages: () => ({
             'gourmet-1': [
@@ -91,6 +100,7 @@ const company = props.company
 const companyBranches = props.companyBranch
 
 const deliveries = props.deliveryServices
+const deliveryOpeningHours = props.deliveryOpeningHours
 const cooksGallery = props.cooks
 const gourmetOne = props.galleryImages['gourmet-1']
 const gourmetTwo = props.galleryImages['gourmet-2']
@@ -144,10 +154,7 @@ const gourmetTwo = props.galleryImages['gourmet-2']
                         Objednejte si bleskový rozvoz přes Bolt Food nebo Foodoru přímo k vám domů
                         či do kanceláře.
                     </p>
-                    <p class="font-bold">
-                        Pondělí–čtvrtek: 10.45–14.15 <br />
-                        Pátek: 10.45–13.45
-                    </p>
+                    <DeliveryHours v-if="deliveryOpeningHours.length > 0" :opening-hours="deliveryOpeningHours" />
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-y-20 md:gap-y-0">
                         <DeliveryItem v-for="(item, i) in deliveries" :key="i" v-bind="item" />
                     </div>
@@ -191,7 +198,7 @@ const gourmetTwo = props.galleryImages['gourmet-2']
                         události pro více než 100 hostů.
                     </p>
                     <div class="flex justify-end">
-                        <ButtonMain>kontaktovat</ButtonMain>
+                        <ButtonMain href="#kontakt">kontaktovat</ButtonMain>
                     </div>
                     <div class="flex justify-start lg:hidden -mt-32">
                         <AnimateSvgItem class="w-8/12 -scale-x-100 text-accent">
@@ -231,7 +238,7 @@ const gourmetTwo = props.galleryImages['gourmet-2']
                         <span class="font-bold">5 pracovních dní předem.</span>
                     </p>
                     <div class="flex justify-end">
-                        <ButtonMain>kontaktovat</ButtonMain>
+                        <ButtonMain href="#kontakt">kontaktovat</ButtonMain>
                     </div>
                 </div>
             </div>

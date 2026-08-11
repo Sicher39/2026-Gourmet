@@ -54,12 +54,7 @@ class PlannedMenuService
         foreach ($item->day->plannedMenu->branches as $branch) {
             $item->branchVariants()->firstOrCreate(
                 ['planned_menu_branch_id' => $branch->getKey()],
-                [
-                    'price' => $item->default_price,
-                    'amount' => $item->amount,
-                    'menu_unit_id' => $item->menu_unit_id,
-                    'is_available' => true,
-                ],
+                ['is_available' => true],
             );
         }
     }
@@ -79,10 +74,10 @@ class PlannedMenuService
 
             $lockedMenu->load([
                 'branches.restaurant',
-                'days.items.product.components.catalogItems.allergens',
+                'days.items.catalogItem.allergens',
                 'days.items.unit',
-                'days.items.branchVariants.catalogItems.allergens',
-                'days.items.branchVariants.unit',
+                'days.items.branchVariants.sideItems.allergens',
+                'days.items.branchVariants.otherItems.allergens',
             ]);
 
             $this->validateForApproval($lockedMenu);
@@ -114,8 +109,9 @@ class PlannedMenuService
                             continue;
                         }
 
-                        $productAllergens = $plannedItem->product->computeAllergenSnapshot();
-                        $extraAllergens = $variant->catalogItems
+                        $baseAllergens = $plannedItem->catalogItem->allergens->pluck('code')->filter()->all();
+                        $localItems = $variant->sideItems->concat($variant->otherItems);
+                        $extraAllergens = $localItems
                             ->flatMap(fn (MenuCatalogItem $catalogItem) => $catalogItem->allergens->pluck('code'))
                             ->filter()
                             ->unique()
@@ -125,24 +121,27 @@ class PlannedMenuService
                         $branchItem = $branchDay->items()->create([
                             'source_planned_menu_item_id' => $plannedItem->getKey(),
                             'type' => $plannedItem->type,
-                            'menu_product_id' => $plannedItem->menu_product_id,
-                            'product_name_snapshot' => $plannedItem->product->composeNameFromComponents(),
-                            'amount' => $variant->amount,
-                            'menu_unit_id' => $variant->menu_unit_id,
-                            'unit_symbol_snapshot' => $variant->unit?->symbol,
-                            'price' => $variant->price,
+                            'menu_catalog_item_id' => $plannedItem->menu_catalog_item_id,
+                            'item_name_snapshot' => $plannedItem->catalogItem->name,
+                            'amount' => $plannedItem->amount,
+                            'menu_unit_id' => $plannedItem->menu_unit_id,
+                            'unit_symbol_snapshot' => $plannedItem->unit?->symbol,
+                            'price' => $plannedItem->default_price,
                             'is_available' => $variant->is_available,
                             'sort_order' => $plannedItem->sort_order,
-                            'allergens_snapshot' => collect(array_values($productAllergens))->merge($extraAllergens)->unique()->sort()->values()->all(),
+                            'allergens_snapshot' => collect($baseAllergens)->merge($extraAllergens)->unique()->sort()->values()->all(),
                         ]);
 
-                        foreach ($variant->catalogItems as $catalogItem) {
-                            $branchItem->catalogItems()->create([
-                                'menu_catalog_item_id' => $catalogItem->getKey(),
-                                'name_snapshot' => $catalogItem->name,
-                                'allergens_snapshot' => $catalogItem->allergens->pluck('code')->filter()->sort()->values()->all(),
-                                'sort_order' => $catalogItem->pivot->sort_order ?? 0,
-                            ]);
+                        foreach (['side' => $variant->sideItems, 'other' => $variant->otherItems] as $kind => $catalogItems) {
+                            foreach ($catalogItems as $sortOrder => $catalogItem) {
+                                $branchItem->catalogItems()->create([
+                                    'menu_catalog_item_id' => $catalogItem->getKey(),
+                                    'kind' => $kind,
+                                    'name_snapshot' => $catalogItem->name,
+                                    'allergens_snapshot' => $catalogItem->allergens->pluck('code')->filter()->sort()->values()->all(),
+                                    'sort_order' => $sortOrder,
+                                ]);
+                            }
                         }
                     }
                 }

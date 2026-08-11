@@ -60,7 +60,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('planned_menu_day_id')->constrained()->cascadeOnDelete();
             $table->string('type');
-            $table->foreignId('menu_product_id')->constrained('menu_products')->restrictOnDelete();
+            $table->foreignId('menu_catalog_item_id')->constrained('menu_catalog_items')->restrictOnDelete();
             $table->decimal('amount', 10, 3)->nullable();
             $table->foreignId('menu_unit_id')->nullable()->constrained('menu_units')->restrictOnDelete();
             $table->decimal('default_price', 10, 2);
@@ -72,19 +72,21 @@ return new class extends Migration
             $table->id();
             $table->foreignId('planned_menu_item_id')->constrained()->cascadeOnDelete();
             $table->foreignId('planned_menu_branch_id')->constrained()->cascadeOnDelete();
-            $table->decimal('price', 10, 2);
-            $table->decimal('amount', 10, 3)->nullable();
-            $table->foreignId('menu_unit_id')->nullable()->constrained('menu_units')->restrictOnDelete();
             $table->boolean('is_available')->default(true);
             $table->timestamps();
             $table->unique(['planned_menu_item_id', 'planned_menu_branch_id'], 'planned_item_branch_unique');
         });
 
-        Schema::create('planned_menu_item_branch_catalog_item', function (Blueprint $table): void {
+        Schema::create('planned_menu_item_branch_side_items', function (Blueprint $table): void {
             $table->foreignId('planned_menu_item_branch_id')->constrained()->cascadeOnDelete();
             $table->foreignId('menu_catalog_item_id')->constrained('menu_catalog_items')->restrictOnDelete();
-            $table->unsignedInteger('sort_order')->default(0);
-            $table->primary(['planned_menu_item_branch_id', 'menu_catalog_item_id'], 'planned_branch_catalog_primary');
+            $table->primary(['planned_menu_item_branch_id', 'menu_catalog_item_id'], 'planned_branch_side_primary');
+        });
+
+        Schema::create('planned_menu_item_branch_other_items', function (Blueprint $table): void {
+            $table->foreignId('planned_menu_item_branch_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('menu_catalog_item_id')->constrained('menu_catalog_items')->restrictOnDelete();
+            $table->primary(['planned_menu_item_branch_id', 'menu_catalog_item_id'], 'planned_branch_other_primary');
         });
 
         Schema::create('branch_menus', function (Blueprint $table): void {
@@ -115,8 +117,8 @@ return new class extends Migration
             $table->foreignId('branch_menu_day_id')->constrained()->cascadeOnDelete();
             $table->foreignId('source_planned_menu_item_id')->nullable()->constrained('planned_menu_items')->nullOnDelete();
             $table->string('type');
-            $table->foreignId('menu_product_id')->nullable()->constrained('menu_products')->nullOnDelete();
-            $table->string('product_name_snapshot');
+            $table->foreignId('menu_catalog_item_id')->nullable()->constrained('menu_catalog_items')->nullOnDelete();
+            $table->string('item_name_snapshot');
             $table->decimal('amount', 10, 3)->nullable();
             $table->foreignId('menu_unit_id')->nullable()->constrained('menu_units')->nullOnDelete();
             $table->string('unit_symbol_snapshot')->nullable();
@@ -131,6 +133,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('branch_menu_item_id')->constrained()->cascadeOnDelete();
             $table->foreignId('menu_catalog_item_id')->nullable()->constrained('menu_catalog_items')->nullOnDelete();
+            $table->string('kind');
             $table->string('name_snapshot');
             $table->jsonb('allergens_snapshot')->default('[]');
             $table->unsignedInteger('sort_order')->default(0);
@@ -163,7 +166,8 @@ return new class extends Migration
         Schema::dropIfExists('branch_menu_items');
         Schema::dropIfExists('branch_menu_days');
         Schema::dropIfExists('branch_menus');
-        Schema::dropIfExists('planned_menu_item_branch_catalog_item');
+        Schema::dropIfExists('planned_menu_item_branch_other_items');
+        Schema::dropIfExists('planned_menu_item_branch_side_items');
         Schema::dropIfExists('planned_menu_item_branches');
         Schema::dropIfExists('planned_menu_items');
         Schema::dropIfExists('planned_menu_days');

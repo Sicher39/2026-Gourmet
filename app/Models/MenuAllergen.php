@@ -34,4 +34,9 @@ class MenuAllergen extends Model
     {
         return $this->belongsToMany(MenuCatalogItem::class, 'menu_allergen_menu_catalog_item', 'menu_allergen_id', 'menu_catalog_item_id');
     }
+
+    public function breakfastCatalogItems(): BelongsToMany
+    {
+        return $this->belongsToMany(BreakfastCatalogItem::class, 'breakfast_catalog_item_menu_allergen');
+    }
 }

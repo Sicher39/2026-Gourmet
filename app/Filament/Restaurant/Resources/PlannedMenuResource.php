@@ -6,15 +6,17 @@ namespace App\Filament\Restaurant\Resources;
 
 use App\Enums\MenuItemType;
 use App\Filament\Restaurant\Resources\PlannedMenuResource\Pages;
-use App\Models\MenuProduct;
+use App\Models\MenuCatalogItem;
 use App\Models\NonCookingDay;
 use App\Models\PlannedMenu;
 use App\Models\PlannedMenuBranch;
 use App\Models\PlannedMenuDay;
+use App\Models\PlannedMenuItem;
 use App\Models\PlannedMenuItemBranch;
 use App\Models\User;
 use BackedEnum;
 use Carbon\CarbonImmutable;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
@@ -29,10 +31,14 @@ use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Support\HtmlString;
 use UnitEnum;
 
 class PlannedMenuResource extends Resource
@@ -119,10 +125,26 @@ class PlannedMenuResource extends Resource
 
     private static function dayTab(string $label, int $offset): Tab
     {
-        return Tab::make($label)
+        return Tab::make(function ($livewire) use ($label, $offset): string {
+            $plannedMenu = $livewire->getRecord();
+
+            return static::dayTabLabel(
+                $plannedMenu instanceof PlannedMenu ? $plannedMenu : null,
+                $label,
+                $offset,
+            );
+        })
+            ->icon(function ($livewire) use ($offset): ?string {
+                $plannedMenu = $livewire->getRecord();
+
+                return $plannedMenu instanceof PlannedMenu && static::isNonCookingDay($plannedMenu, $offset)
+                    ? 'heroicon-o-exclamation-triangle'
+                    : null;
+            })
             ->schema([
                 Repeater::make("day_{$offset}")
                     ->hiddenLabel()
+                    ->defaultItems(0)
                     ->relationship(
                         name: 'days',
                         modifyQueryUsing: fn (Builder $query): Builder => $query
@@ -136,14 +158,6 @@ class PlannedMenuResource extends Resource
                     ->itemHeaders(false)
                     ->schema([
                         Hidden::make('date'),
-                        TextInput::make('date_display')
-                            ->label('Datum')
-                            ->formatStateUsing(fn ($state, ?PlannedMenuDay $record): string => $record?->date?->format('d.m.Y') ?? '')
-                            ->dehydrated(false)
-                            ->disabled(),
-                        Toggle::make('is_non_cooking_day')
-                            ->label('Tento den se nevaří')
-                            ->disabled(),
                         Callout::make('Tento den se nevaří')
                             ->description(function (?PlannedMenuDay $record): string {
                                 if (! $record instanceof PlannedMenuDay) {
@@ -163,21 +177,34 @@ class PlannedMenuResource extends Resource
                             ->columnSpanFull(),
                         Repeater::make('items')
                             ->label('Polévky a menu')
-                            ->relationship()
+                            ->relationship(
+                                modifyQueryUsing: fn (Builder $query): Builder => $query->orderByRaw(
+                                    'CASE WHEN planned_menu_items.type = ? THEN 0 ELSE 1 END',
+                                    [MenuItemType::Soup->value],
+                                ),
+                                modifyRecordsUsing: fn (EloquentCollection $records): EloquentCollection => $records
+                                    ->sortBy(fn (PlannedMenuItem $item): string => sprintf(
+                                        '%d-%010d',
+                                        $item->type === MenuItemType::Soup ? 0 : 1,
+                                        $item->sort_order,
+                                    )),
+                            )
+                            ->defaultItems(0)
                             ->hidden(fn (?PlannedMenuDay $record): bool => $record?->is_non_cooking_day === true)
                             ->orderColumn('sort_order')
                             ->addActionLabel('Přidat polévku nebo menu')
                             ->addable(fn (): bool => static::currentUserCanManageShared())
                             ->deletable(fn (): bool => static::currentUserCanManageShared())
                             ->reorderable(fn (): bool => static::currentUserCanManageShared())
-                            ->itemLabel(function (array $state): string {
-                                $type = MenuItemType::tryFrom((string) ($state['type'] ?? ''))?->label() ?? 'Položka';
-                                $product = isset($state['menu_product_id'])
-                                    ? MenuProduct::query()->find($state['menu_product_id'])?->name
-                                    : null;
-
-                                return $product ? $type.': '.$product : $type;
-                            })
+                            ->collapsible()
+                            ->collapsed()
+                            ->collapseAllAction(fn (Action $action): Action => $action->label('Skrýt vše'))
+                            ->expandAllAction(fn (Action $action): Action => $action->label('Otevřít vše'))
+                            ->itemLabel(fn (array $state, string $key, Repeater $component): HtmlString => static::menuItemLabel(
+                                state: $state,
+                                itemKey: $key,
+                                repeaterState: $component->getState(),
+                            ))
                             ->schema(static::menuItemSchema())
                             ->columns(2)
                             ->columnSpanFull(),
@@ -187,6 +214,77 @@ class PlannedMenuResource extends Resource
             ]);
     }
 
+    private static function dayTabLabel(?PlannedMenu $plannedMenu, string $label, int $offset): string
+    {
+        if (! $plannedMenu instanceof PlannedMenu || $plannedMenu->week_start === null) {
+            return $label;
+        }
+
+        $date = CarbonImmutable::parse($plannedMenu->week_start)->addDays($offset);
+
+        return $label.' '.$date->format('j. n.');
+    }
+
+    private static function isNonCookingDay(?PlannedMenu $plannedMenu, int $offset): bool
+    {
+        if (! $plannedMenu instanceof PlannedMenu || $plannedMenu->week_start === null) {
+            return false;
+        }
+
+        $date = CarbonImmutable::parse($plannedMenu->week_start)->addDays($offset)->toDateString();
+
+        return $plannedMenu->days()->whereDate('date', $date)->where('is_non_cooking_day', true)->exists();
+    }
+
+    /**
+     * @param  array<string, mixed>  $state
+     * @param  array<string, array<string, mixed>>  $repeaterState
+     */
+    private static function menuItemLabel(array $state, string $itemKey, array $repeaterState): HtmlString
+    {
+        $type = MenuItemType::tryFrom((string) ($state['type'] ?? ''));
+        $typeLabel = $type?->label() ?? 'Položka';
+        $typeNumber = 0;
+
+        foreach ($repeaterState as $key => $itemState) {
+            if (($itemState['type'] ?? null) === $type?->value) {
+                $typeNumber++;
+            }
+
+            if ((string) $key === $itemKey) {
+                break;
+            }
+        }
+
+        $catalogItemName = isset($state['menu_catalog_item_id'])
+            ? MenuCatalogItem::query()->find($state['menu_catalog_item_id'])?->name
+            : null;
+        $badgeColor = match ($type) {
+            MenuItemType::Soup => '#f59e0b',
+            MenuItemType::Main => '#10b981',
+            default => '#64748b',
+        };
+        $badgeBackground = match ($type) {
+            MenuItemType::Soup => 'rgba(245, 158, 11, 0.16)',
+            MenuItemType::Main => 'rgba(16, 185, 129, 0.16)',
+            default => 'rgba(100, 116, 139, 0.16)',
+        };
+        $numberedType = $type instanceof MenuItemType ? $typeLabel.' '.max(1, $typeNumber) : $typeLabel;
+        $name = filled($catalogItemName) ? ' – '.e((string) $catalogItemName) : '';
+
+        return new HtmlString(
+            '<span style="display:inline-flex;align-items:center;border-radius:9999px;padding:0.125rem 0.5rem;font-weight:600;color:'
+            .$badgeColor.';background-color:'.$badgeBackground.'">'.e($numberedType).'</span>'
+            .'<span style="margin-left:0.35rem">'.$name.'</span>',
+        );
+    }
+
+    /** @param array<string, mixed> $item */
+    private static function menuItemTypeSortOrder(array $item): int
+    {
+        return ($item['type'] ?? null) === MenuItemType::Soup->value ? 0 : 1;
+    }
+
     /** @return array<int, mixed> */
     private static function menuItemSchema(): array
     {
@@ -194,13 +292,65 @@ class PlannedMenuResource extends Resource
             Select::make('type')
                 ->label('Typ')
                 ->options(collect(MenuItemType::cases())->mapWithKeys(fn (MenuItemType $type): array => [$type->value => $type->label()])->all())
+                ->live()
+                ->afterStateUpdated(function (Get $get, Set $set): void {
+                    $set('menu_catalog_item_id', null);
+
+                    $items = $get('../');
+
+                    if (! is_array($items) || collect($items)->contains(fn (mixed $item): bool => ! is_array($item))) {
+                        return;
+                    }
+
+                    uasort($items, fn (array $firstItem, array $secondItem): int => static::menuItemTypeSortOrder($firstItem)
+                        <=> static::menuItemTypeSortOrder($secondItem));
+
+                    $set('../', $items);
+                })
                 ->required()
                 ->disabled(fn (): bool => ! static::currentUserCanManageShared()),
-            Select::make('menu_product_id')
-                ->label('Hlavní jídlo / polévka')
-                ->relationship('product', 'name', fn (Builder $query) => $query->where('menu_products.is_active', true)->orderBy('menu_products.name'))
+            Select::make('menu_catalog_item_id')
+                ->label('Základní položka')
+                ->relationship('catalogItem', 'name', function (Builder $query, Get $get): Builder {
+                    $currentCatalogItemId = $get('menu_catalog_item_id');
+                    $usedCatalogItemIds = collect($get('../') ?? [])
+                        ->pluck('menu_catalog_item_id')
+                        ->filter()
+                        ->reject(fn (mixed $catalogItemId): bool => (string) $catalogItemId === (string) $currentCatalogItemId)
+                        ->unique()
+                        ->values()
+                        ->all();
+
+                    return $query
+                        ->where('menu_catalog_items.is_active', true)
+                        ->whereHas('catalogType', function (Builder $query) use ($get): void {
+                            $query->where('slug', $get('type') === MenuItemType::Soup->value ? 'polevky' : 'hlavni-jidla');
+                        })
+                        ->when(
+                            $usedCatalogItemIds !== [],
+                            fn (Builder $query): Builder => $query->whereNotIn('menu_catalog_items.id', $usedCatalogItemIds),
+                        )
+                        ->orderBy('menu_catalog_items.name');
+                })
                 ->searchable()
                 ->preload()
+                ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                ->live()
+                ->afterStateUpdated(function (mixed $state, Set $set): void {
+                    $catalogItem = MenuCatalogItem::query()->find($state);
+
+                    if (! $catalogItem instanceof MenuCatalogItem) {
+                        $set('default_price', null);
+                        $set('amount', null);
+                        $set('menu_unit_id', null);
+
+                        return;
+                    }
+
+                    $set('default_price', $catalogItem->default_price);
+                    $set('amount', $catalogItem->amount);
+                    $set('menu_unit_id', $catalogItem->menu_unit_id);
+                })
                 ->required()
                 ->disabled(fn (): bool => ! static::currentUserCanManageShared()),
             TextInput::make('default_price')
@@ -251,29 +401,22 @@ class PlannedMenuResource extends Resource
                     : 'Provozovna')
                 ->schema([
                     Hidden::make('planned_menu_branch_id'),
-                    TextInput::make('price')
-                        ->label('Cena')
-                        ->numeric()
-                        ->step(0.01)
-                        ->minValue(0)
-                        ->required()
-                        ->disabled(fn (?PlannedMenuItemBranch $record): bool => ! static::currentUserCanEditVariant($record)),
-                    TextInput::make('amount')
-                        ->label('Množství')
-                        ->numeric()
-                        ->step(0.001)
-                        ->minValue(0)
-                        ->disabled(fn (?PlannedMenuItemBranch $record): bool => ! static::currentUserCanEditVariant($record)),
-                    Select::make('menu_unit_id')
-                        ->label('Jednotka')
-                        ->relationship('unit', 'name', fn (Builder $query) => $query->where('menu_units.is_active', true)->orderBy('menu_units.sort_order'))
+                    Select::make('sideItems')
+                        ->label('Přílohy')
+                        ->relationship('sideItems', 'name', fn (Builder $query) => $query
+                            ->where('menu_catalog_items.is_active', true)
+                            ->whereHas('catalogType', fn (Builder $query) => $query->where('slug', 'prilohy'))
+                            ->orderBy('menu_catalog_items.sort_order')
+                            ->orderBy('menu_catalog_items.name'))
+                        ->multiple()
                         ->searchable()
                         ->preload()
                         ->disabled(fn (?PlannedMenuItemBranch $record): bool => ! static::currentUserCanEditVariant($record)),
-                    Select::make('catalogItems')
-                        ->label('Přílohy, omáčky a další komponenty')
-                        ->relationship('catalogItems', 'name', fn (Builder $query) => $query
+                    Select::make('otherItems')
+                        ->label('Ostatní')
+                        ->relationship('otherItems', 'name', fn (Builder $query) => $query
                             ->where('menu_catalog_items.is_active', true)
+                            ->whereHas('catalogType', fn (Builder $query) => $query->where('slug', 'omacky-a-ostatni'))
                             ->orderBy('menu_catalog_items.sort_order')
                             ->orderBy('menu_catalog_items.name'))
                         ->multiple()

@@ -72,6 +72,7 @@ class OpeningHourResource extends Resource
             Section::make('Zobrazit na stránkách')->schema([
                 Toggle::make('show_on_ponavka')->label('Gourmet Ponávka'),
                 Toggle::make('show_on_vankovka')->label('Gourmet U Vaňkovky'),
+                Toggle::make('show_on_delivery')->label('Rozvoz na úvodní stránce'),
             ])->columns(2),
         ]);
     }
@@ -89,6 +90,7 @@ class OpeningHourResource extends Resource
                     ->wrap(),
                 IconColumn::make('show_on_ponavka')->label('Ponávka')->boolean(),
                 IconColumn::make('show_on_vankovka')->label('Vaňkovka')->boolean(),
+                IconColumn::make('show_on_delivery')->label('Rozvoz')->boolean(),
                 TextColumn::make('sort_order')->label('Pořadí')->sortable(),
             ])
             ->defaultSort('sort_order')

@@ -44,7 +44,7 @@ class MenuCatalogItemResource extends Resource
         return $schema->components([
             Section::make('Komponenta jídla')->schema([
                 Select::make('menu_catalog_type_id')->label('Skupina komponent')->relationship('catalogType', 'name', fn (Builder $query) => $query->where('is_active', true)->orderBy('sort_order')->orderBy('name'))->searchable()->preload()->required(),
-                TextInput::make('name')->label('Název')->required()->maxLength(255),
+                TextInput::make('name')->label('Název')->required()->maxLength(255)->columnSpanFull(),
                 TextInput::make('amount')->label('Množství')->numeric()->step(0.001),
                 Select::make('menu_unit_id')->label('Jednotka')->options(static::unitOptions())->searchable(),
                 Select::make('allergens')->label('Alergeny')->relationship('allergens', 'name', fn (Builder $query) => $query->orderBy('sort_order'))->getOptionLabelFromRecordUsing(fn (MenuAllergen $record): string => static::allergenLabel($record))->multiple()->searchable()->preload(),
@@ -61,6 +61,7 @@ class MenuCatalogItemResource extends Resource
             TextColumn::make('catalogType.name')->label('Skupina')->badge()->sortable(),
             TextColumn::make('amount')->label('Množství')->numeric(3)->sortable(),
             TextColumn::make('unit.symbol')->label('Jednotka')->sortable(),
+            TextColumn::make('default_price')->label('Výchozí cena')->money('CZK')->sortable(),
             IconColumn::make('is_active')->label('Aktivní')->boolean()->sortable(),
             TextColumn::make('allergens_count')->label('Alergenů')->state(fn (MenuCatalogItem $record): int => $record->allergens()->count()),
             TextColumn::make('sort_order')->label('Pořadí')->sortable()->toggleable(),

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\BranchMenu;
+use App\Models\User as AuthUser;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class BranchMenuPolicy
@@ -19,7 +19,8 @@ class BranchMenuPolicy
 
     public function view(AuthUser $authUser, BranchMenu $branchMenu): bool
     {
-        return $authUser->can('View:BranchMenu');
+        return $authUser->can('View:BranchMenu')
+            && ($authUser->canManageSharedPlannedMenu() || $authUser->managesRestaurant($branchMenu->restaurant_contact_information_id));
     }
 
     public function create(AuthUser $authUser): bool
@@ -29,7 +30,9 @@ class BranchMenuPolicy
 
     public function update(AuthUser $authUser, BranchMenu $branchMenu): bool
     {
-        return $authUser->can('Update:BranchMenu');
+        return $branchMenu->isEditable()
+            && $authUser->can('Update:BranchMenu')
+            && ($authUser->canManageSharedPlannedMenu() || $authUser->managesRestaurant($branchMenu->restaurant_contact_information_id));
     }
 
     public function delete(AuthUser $authUser, BranchMenu $branchMenu): bool

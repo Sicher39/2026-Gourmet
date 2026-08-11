@@ -25,7 +25,7 @@ class NonCookingDayResource extends Resource
     protected static ?string $navigationLabel = 'Nevařící dny';
     protected static ?string $modelLabel = 'nevařící den';
     protected static ?string $pluralModelLabel = 'nevařící dny';
-    protected static ?int $navigationSort = 12;
+    protected static ?int $navigationSort = 80;
 
     public static function form(Schema $schema): Schema
     {

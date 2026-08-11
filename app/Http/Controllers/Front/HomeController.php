@@ -9,6 +9,7 @@ use App\Models\CompanyProfile;
 use App\Models\Cook;
 use App\Models\DeliveryService;
 use App\Models\DynamicGallery;
+use App\Models\OpeningHour;
 use App\Models\RestaurantContactInformation;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -22,6 +23,7 @@ class HomeController extends Controller
         $company = [];
         $companyBranch = [];
         $deliveryServices = [];
+        $deliveryOpeningHours = [];
         $galleryImages = [];
         $cooks = [];
 
@@ -58,6 +60,20 @@ class HomeController extends Controller
                         ->implode(' '),
                     'phone' => $branch->phone ?? '',
                     'email' => $branch->email ?? '',
+                ])
+                ->all();
+        }
+
+        if (Schema::hasTable('opening_hours') && Schema::hasColumn('opening_hours', 'show_on_delivery')) {
+            $deliveryOpeningHours = OpeningHour::query()
+                ->where('show_on_delivery', true)
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->get()
+                ->flatMap(fn (OpeningHour $openingHour): array => $openingHour->opening_hours)
+                ->map(fn (array $openingHour): array => [
+                    'days' => (string) ($openingHour['days'] ?? ''),
+                    'hours' => (string) ($openingHour['hours'] ?? ''),
                 ])
                 ->all();
         }
@@ -107,6 +123,7 @@ class HomeController extends Controller
             'company' => $company,
             'companyBranch' => $companyBranch,
             'deliveryServices' => $deliveryServices,
+            'deliveryOpeningHours' => $deliveryOpeningHours,
             'galleryImages' => $galleryImages,
             'cooks' => $cooks,
         ]);

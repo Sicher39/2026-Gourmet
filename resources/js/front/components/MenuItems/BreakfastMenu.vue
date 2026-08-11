@@ -9,7 +9,7 @@ type MenuVariant = {
 type MenuItem = {
     allergens?: string
     foodName: string
-    price: number
+    price: number | string
     enabled: boolean
     menuVariants?: MenuVariant[]
 }
@@ -41,7 +41,7 @@ const visibleMenuItems = computed(() => props.menuItems.filter((food) => food.en
                     <ul v-if="food.menuVariants?.length" class="text-sm text-primary">
                         <li v-for="(variant, index) in food.menuVariants" :key="index">
                             {{ variant.name }}
-                            <span v-if="variant.allergens">({{ variant.allergens }})</span>
+                            <span v-if="variant.allergens"> – ({{ variant.allergens }})</span>
                         </li>
                     </ul>
                 </div>

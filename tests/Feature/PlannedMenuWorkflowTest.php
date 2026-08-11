@@ -8,7 +8,8 @@ use App\Enums\MenuItemType;
 use App\Enums\PlannedMenuStatus;
 use App\Models\BranchMenu;
 use App\Models\CompanyProfile;
-use App\Models\MenuProduct;
+use App\Models\MenuCatalogItem;
+use App\Models\MenuCatalogType;
 use App\Models\NonCookingDay;
 use App\Models\PlannedMenu;
 use App\Models\RestaurantContactInformation;
@@ -55,15 +56,22 @@ class PlannedMenuWorkflowTest extends TestCase
         ]);
         $service = app(PlannedMenuService::class);
         $service->initialize($plannedMenu);
-        $product = MenuProduct::query()->create(['name' => 'Vepřový řízek', 'default_price' => 169, 'is_active' => true]);
+        $catalogType = MenuCatalogType::query()->create(['name' => 'Hlavní jídla', 'slug' => 'hlavni-jidla', 'is_active' => true]);
+        $catalogItem = MenuCatalogItem::query()->create([
+            'menu_catalog_type_id' => $catalogType->getKey(),
+            'name' => 'Vepřový řízek',
+            'default_price' => 169,
+            'is_active' => true,
+        ]);
 
         foreach ($plannedMenu->fresh()->days as $day) {
-            $day->items()->create([
+            $item = $day->items()->create([
                 'type' => MenuItemType::Main,
-                'menu_product_id' => $product->getKey(),
+                'menu_catalog_item_id' => $catalogItem->getKey(),
                 'default_price' => 169,
                 'sort_order' => 1,
             ]);
+            $service->createMissingBranchVariants($item);
         }
 
         $approvedMenu = $service->approve($plannedMenu, $user);

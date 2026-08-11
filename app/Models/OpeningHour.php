@@ -13,6 +13,7 @@ class OpeningHour extends Model
         'opening_hours',
         'show_on_ponavka',
         'show_on_vankovka',
+        'show_on_delivery',
         'sort_order',
     ];
 
@@ -22,6 +23,7 @@ class OpeningHour extends Model
             'opening_hours' => 'array',
             'show_on_ponavka' => 'boolean',
             'show_on_vankovka' => 'boolean',
+            'show_on_delivery' => 'boolean',
             'sort_order' => 'integer',
         ];
     }

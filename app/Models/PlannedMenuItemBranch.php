@@ -10,11 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class PlannedMenuItemBranch extends Model
 {
-    protected $fillable = ['planned_menu_item_id', 'planned_menu_branch_id', 'price', 'amount', 'menu_unit_id', 'is_available'];
+    protected $fillable = ['planned_menu_item_id', 'planned_menu_branch_id', 'is_available'];
 
     protected function casts(): array
     {
-        return ['price' => 'decimal:2', 'amount' => 'decimal:3', 'is_available' => 'boolean'];
+        return ['is_available' => 'boolean'];
     }
 
     public function item(): BelongsTo
@@ -27,13 +27,13 @@ class PlannedMenuItemBranch extends Model
         return $this->belongsTo(PlannedMenuBranch::class, 'planned_menu_branch_id');
     }
 
-    public function unit(): BelongsTo
+    public function sideItems(): BelongsToMany
     {
-        return $this->belongsTo(MenuUnit::class, 'menu_unit_id');
+        return $this->belongsToMany(MenuCatalogItem::class, 'planned_menu_item_branch_side_items');
     }
 
-    public function catalogItems(): BelongsToMany
+    public function otherItems(): BelongsToMany
     {
-        return $this->belongsToMany(MenuCatalogItem::class, 'planned_menu_item_branch_catalog_item')->withPivot('sort_order')->orderByPivot('sort_order');
+        return $this->belongsToMany(MenuCatalogItem::class, 'planned_menu_item_branch_other_items');
     }
 }

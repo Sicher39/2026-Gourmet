@@ -50,6 +50,7 @@ const props = withDefaults(
 const resolvedAddress = computed(() => props.address || props.adress)
 
 const contextLabels: Record<string, string> = {
+    customer_inquiries: 'Poptávky a zákaznická komunikace',
     restaurant_reservation: 'Rezervace a plnění smluv',
     customer_communication: 'Komunikace se zákazníky',
     legal_accounting: 'Právní a účetní povinnosti',

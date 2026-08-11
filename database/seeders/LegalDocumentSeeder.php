@@ -39,8 +39,8 @@ class LegalDocumentSeeder extends Seeder
 <h2>Jaké údaje zpracováváme</h2>
 <p>Zpracováváme pouze údaje nezbytné pro:</p>
 <ul>
-    <li>vytvoření a správu rezervace stolu (jméno, kontaktní údaje, termín návštěvy),</li>
-    <li>komunikaci se zákazníky ohledně jejich rezervací a dotazů,</li>
+    <li>vyřízení poptávek cateringu, rautů, rozvozu a dalších služeb (jméno, kontaktní údaje a obsah poptávky),</li>
+    <li>komunikaci se zákazníky ohledně jejich dotazů a poptávek,</li>
     <li>plnění zákonných povinností (účetnictví, daňová evidence),</li>
     <li>evidenci udělených souhlasů a zajištění bezpečnosti systémů.</li>
 </ul>
@@ -48,19 +48,18 @@ class LegalDocumentSeeder extends Seeder
 <h2>Právní základ zpracování</h2>
 <p>Osobní údaje zpracováváme na základě:</p>
 <ul>
-    <li><strong>plnění smlouvy</strong> – pro vyřízení vaší rezervace,</li>
-    <li><strong>oprávněného zájmu</strong> – pro zákaznickou komunikaci, evidenci souhlasů a bezpečnostní logy,</li>
+    <li><strong>oprávněného zájmu</strong> – pro vyřízení vašich dotazů a poptávek, zákaznickou komunikaci, evidenci souhlasů a bezpečnostní logy,</li>
     <li><strong>právní povinnosti</strong> – pro vedení účetnictví a daňové evidence,</li>
     <li><strong>souhlasu</strong> – pro analytické a marketingové nástroje (pouze pokud jste souhlas udělili prostřednictvím cookie lišty).</li>
 </ul>
 
 <h2>Komu údaje předáváme</h2>
-<p>Osobní údaje předáváme pouze zpracovatelům, kteří zajišťují technický provoz webu, rezervačního systému, hostingových a komunikačních služeb. Bez vašeho souhlasu nepředáváme údaje třetím stranám pro marketingové účely.</p>
+<p>Osobní údaje předáváme pouze zpracovatelům, kteří zajišťují technický provoz webu, hostingových a komunikačních služeb. Bez vašeho souhlasu nepředáváme údaje třetím stranám pro marketingové účely.</p>
 
 <h2>Doba uchování</h2>
 <p>Údaje uchováváme po dobu nezbytně nutnou pro daný účel zpracování:</p>
 <ul>
-    <li>rezervační údaje – po dobu trvání rezervačního vztahu a přiměřenou dobu po jeho ukončení,</li>
+    <li>údaje z poptávek a komunikace – po dobu nezbytnou pro jejich vyřízení a přiměřenou dobu poté,</li>
     <li>účetní doklady – po dobu stanovenou platnými právními předpisy,</li>
     <li>záznamy souhlasů – po dobu trvání souhlasu a přiměřenou dobu po jeho odvolání,</li>
     <li>bezpečnostní logy – po dobu nezbytnou pro zajištění bezpečnosti systému.</li>
@@ -101,7 +100,7 @@ HTML,
 <h2>Jaké kategorie cookies používáme</h2>
 
 <h3>Nezbytné cookies</h3>
-<p>Tyto cookies jsou nutné pro správné fungování webu, zajištění bezpečnosti a technickou realizaci rezervací. Není možné je vypnout – bez nich by web nefungoval správně. Patří sem například session cookies, CSRF ochrana a technické identifikátory potřebné pro provoz rezervačního systému.</p>
+<p>Tyto cookies jsou nutné pro správné fungování webu, zajištění bezpečnosti a technické doručení obsahu. Není možné je vypnout – bez nich by web nefungoval správně. Patří sem například session cookies, CSRF ochrana a technické identifikátory potřebné pro provoz webu.</p>
 <p><strong>Právní základ:</strong> oprávněný zájem správce na zajištění funkčnosti a bezpečnosti webu.</p>
 
 <h3>Analytické cookies</h3>

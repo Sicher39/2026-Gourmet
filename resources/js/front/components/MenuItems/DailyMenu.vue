@@ -1,30 +1,15 @@
 <script setup lang="ts">
+import type { DailyFoodItem, DailySoupItem } from '@/front/types/branch-menu'
 import { computed } from 'vue'
-
-type SoupItem = {
-    soupIndex: number
-    allergens: string
-    weight: string
-    soupName: string
-    price: number
-    enabled: boolean
-}
-
-type MenuItem = {
-    menuIndex: number
-    allergens: string
-    weight: string
-    foodName: string
-    price: number
-    enabled: boolean
-}
 
 const props = defineProps<{
     day: string
     date: string
     second?: boolean
-    soupItems: SoupItem[]
-    menuItems: MenuItem[]
+    isNonCookingDay?: boolean
+    nonCookingMessage?: string | null
+    soupItems: DailySoupItem[]
+    menuItems: DailyFoodItem[]
 }>()
 
 const visibleSoups = computed(() => props.soupItems.filter((soup) => soup.enabled))
@@ -46,8 +31,20 @@ const visibleMenuItems = computed(() => props.menuItems.filter((food) => food.en
             </h3>
         </div>
 
+        <div
+            v-if="props.isNonCookingDay"
+            class="col-span-12 mt-8 lg:col-span-9 lg:mt-0 xl:col-span-8"
+        >
+            <p class="font-head text-2xl font-bold uppercase text-primary">
+                {{ props.nonCookingMessage ?? 'Tento den nevaříme' }}
+            </p>
+        </div>
+
         <!-- soups and meals -->
-        <div class="weekly-menu-items-viewport col-span-12 mt-5 overflow-hidden lg:col-span-9 xl:col-span-8 lg:mt-0">
+        <div
+            v-else
+            class="weekly-menu-items-viewport col-span-12 mt-5 overflow-hidden lg:col-span-9 xl:col-span-8 lg:mt-0"
+        >
             <div class="weekly-menu-items divide-y divide-accent">
                 <div
                     v-for="soup in visibleSoups"
@@ -62,7 +59,7 @@ const visibleMenuItems = computed(() => props.menuItems.filter((food) => food.en
 
                     <div class="col-span-2 md:col-span-1">
                         <p class="font-light text-primary">
-                            {{ soup.weight }}&nbsp;l
+                            {{ soup.weight }}&nbsp;{{ soup.unit }}
                         </p>
                     </div>
 
@@ -90,7 +87,7 @@ const visibleMenuItems = computed(() => props.menuItems.filter((food) => food.en
 
                     <div class="col-span-2 md:col-span-1">
                         <p class="font-light text-primary">
-                            {{ food.weight }}&nbsp;g
+                            {{ food.weight }}&nbsp;{{ food.unit }}
                         </p>
                     </div>
 

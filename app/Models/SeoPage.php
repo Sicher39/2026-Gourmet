@@ -13,11 +13,11 @@ class SeoPage extends Model
 {
     public const KEY_GLOBAL = 'global';
 
-    private const DEFAULT_SITE_NAME = 'U Sejmona pod hájkem';
+    private const DEFAULT_SITE_NAME = 'Gourmet Restaurant';
 
-    private const DEFAULT_TITLE = 'U Sejmona pod hájkem | Restaurace a občerstvení';
+    private const DEFAULT_TITLE = 'Gourmet Restaurant Brno | Ponávka a U Vaňkovky';
 
-    private const DEFAULT_DESCRIPTION = 'Restaurace U Sejmona pod hájkem nabízí příjemné posezení. Aktuální nabídku jídel a nápojů najdete v našem jídelním a nápojovém lístku.';
+    private const DEFAULT_DESCRIPTION = 'Gourmet Restaurant v Brně: polední menu, kavárna, rozvoz, catering a rauty. Navštivte nás na Ponávce nebo U Vaňkovky.';
 
     private const DEFAULT_ROBOTS = 'index, follow';
 
@@ -27,7 +27,7 @@ class SeoPage extends Model
 
     private const DEFAULT_SCHEMA_CONTEXT = 'https://schema.org';
 
-    private const DEFAULT_OG_IMAGE_PATH = '/img/logo/BK-u-sajmona-top.svg';
+    private const DEFAULT_OG_IMAGE_PATH = '/img/logo/gourmet-logo.svg';
 
     protected $fillable = [
         'key',
@@ -193,98 +193,74 @@ class SeoPage extends Model
      */
     public static function frontPageDefinitions(): array
     {
-        $businessName = 'U Sejmona pod hájkem';
-
         return [
             [
                 'key' => 'front-index',
-                'page_name' => 'Domů',
+                'page_name' => 'Gourmet Restaurant Brno',
                 'route_name' => 'front.index',
                 'path' => '/',
-                'schema_type' => 'WebPage',
+                'schema_type' => 'WebSite',
                 'overrides' => [
-                    'seo_title' => 'U Sejmona pod hájkem | Restaurace',
-                    'seo_description' => 'Restaurace U Sejmona pod hájkem – aktuální nabídku najdete v jídelním a nápojovém lístku.',
-                    'seo_keywords' => ['restaurace', 'U Sejmona pod hájkem', 'jídlo', 'pití', 'posezení'],
-                    'business_name' => $businessName,
-                    'aeo_summary' => 'Restaurace U Sejmona pod hájkem – aktuální nabídku najdete v jídelním a nápojovém lístku.',
-                    'aeo_search_intent' => 'Informační – hledání restaurace, jídelního lístku a kontaktů.',
-                    'aeo_entities' => ['Restaurace U Sejmona pod hájkem', 'restaurace', 'jídelní lístek', 'nápojový lístek'],
+                    'seo_title' => 'Gourmet Restaurant Brno | Ponávka a U Vaňkovky',
+                    'seo_description' => 'Gourmet Restaurant v Brně: polední menu, kavárna, rozvoz, catering a rauty. Navštivte pobočku Ponávka nebo U Vaňkovky.',
+                    'seo_keywords' => ['Gourmet Restaurant Brno', 'restaurace Brno', 'polední menu Brno', 'catering Brno', 'rauty Brno', 'rozvoz jídla Brno', 'Ponávka', 'U Vaňkovky'],
+                    'business_name' => 'Gourmet Restaurant',
+                    'area_served' => ['Brno', 'Brno-střed', 'Trnitá', 'Ponávka'],
+                    'available_languages' => ['cs'],
+                    'offers_online' => true,
+                    'aeo_summary' => 'Gourmet Restaurant provozuje dvě pobočky v Brně – na Ponávce a U Vaňkovky. Nabízí polední menu, kavárnu, rozvoz, catering a rauty.',
+                    'aeo_search_intent' => 'Lokální a komerční – hledání restaurace, poledního menu, cateringu nebo rozvozu v Brně.',
+                    'aeo_entities' => ['Gourmet Restaurant', 'Brno', 'Ponávka', 'U Vaňkovky', 'catering', 'rauty', 'rozvoz'],
                     'aeo_faq' => [
-                        ['question' => 'Kde se restaurace nachází?', 'answer' => 'Přesnou adresu a mapu naleznete na stránce Kontakt.'],
-                        ['question' => 'Jaká je otevírací doba?', 'answer' => 'Aktuální otevírací dobu naleznete na našem webu nebo nás kontaktujte telefonicky.'],
+                        ['question' => 'Kde najdu Gourmet Restaurant v Brně?', 'answer' => 'Gourmet Restaurant má pobočky na Ponávce a U Vaňkovky. Aktuální kontakty a otevírací dobu najdete u jednotlivých poboček.'],
+                        ['question' => 'Nabízí Gourmet Restaurant catering a rauty?', 'answer' => 'Ano. Gourmet připravuje catering a rauty pro firemní i soukromé akce; poptávku můžete zaslat přes uvedené kontakty.'],
+                        ['question' => 'Má Gourmet Restaurant rozvoz?', 'answer' => 'Aktuální možnosti rozvozu a dostupné rozvozové služby jsou uvedeny na hlavní stránce.'],
                     ],
                 ],
             ],
             [
-                'key' => 'front-drink-menu',
-                'page_name' => 'Nápojový lístek',
-                'route_name' => 'front.drinkMenu',
-                'path' => '/napojovy-listek',
-                'schema_type' => 'WebPage',
+                'key' => 'front-ponavka',
+                'page_name' => 'Gourmet Ponávka',
+                'route_name' => 'front.ponavka-branch',
+                'path' => '/gourmet-ponavka',
+                'schema_type' => 'Restaurant',
                 'overrides' => [
-                    'seo_title' => 'Nápojový lístek | U Sejmona pod hájkem',
-                    'seo_description' => 'Prohlédněte si aktuální nabídku nápojů – od točeného piva přes vína až po nealkoholické nápoje.',
-                    'seo_keywords' => ['nápojový lístek', 'pivo', 'víno', 'nealko', 'U Sejmona pod hájkem'],
-                    'business_name' => $businessName,
-                    'aeo_summary' => 'Nápojový lístek restaurace U Sejmona pod hájkem – aktuální nabídku najdete v lístku.',
-                    'aeo_search_intent' => 'Informační – hledání nabídky nápojů v restauraci.',
-                    'aeo_entities' => ['Nápojový lístek', 'Restaurace U Sejmona pod hájkem', 'pivo', 'víno', 'nápoje'],
-                    'aeo_faq' => [
-                        ['question' => 'Jaké pivo čepujete?', 'answer' => 'Aktuální nabídku čepovaných piv naleznete na našem nápojovém lístku.'],
-                        ['question' => 'Máte i nealkoholické nápoje?', 'answer' => 'Aktuální nabídku najdete v nápojovém lístku.'],
-                    ],
+                    'seo_title' => 'Gourmet Ponávka | Polední menu a kavárna v Brně',
+                    'seo_description' => 'Gourmet Ponávka na Škrobárenské v Brně: polední menu, kavárna a rozvoz. Zjistěte aktuální nabídku, otevírací dobu a kontakt.',
+                    'seo_keywords' => ['Gourmet Ponávka', 'restaurace Ponávka', 'polední menu Ponávka', 'polední menu Škrobárenská', 'kavárna Ponávka', 'rozvoz Ponávka'],
+                    'business_name' => 'Gourmet Ponávka',
+                    'street_address' => 'Škrobárenská 511/3',
+                    'address_locality' => 'Brno – Trnitá',
+                    'postal_code' => '617 00',
+                    'address_country' => 'CZ',
+                    'area_served' => ['Brno', 'Trnitá', 'Ponávka'],
+                    'available_languages' => ['cs'],
+                    'offers_online' => true,
+                    'aeo_summary' => 'Gourmet Ponávka je restaurace a kavárna na Škrobárenské v Brně. Nabízí polední menu a rozvoz podle aktuální nabídky.',
+                    'aeo_search_intent' => 'Lokální – hledání poledního menu, kavárny, rozvozu a kontaktu na Ponávce.',
+                    'aeo_entities' => ['Gourmet Ponávka', 'Škrobárenská 511/3', 'Brno – Trnitá', 'polední menu', 'kavárna'],
                 ],
             ],
             [
-                'key' => 'front-food-menu',
-                'page_name' => 'Jídelní lístek',
-                'route_name' => 'front.foodMenu',
-                'path' => '/jidelni-listek',
-                'schema_type' => 'WebPage',
+                'key' => 'front-vankovka',
+                'page_name' => 'Gourmet U Vaňkovky',
+                'route_name' => 'front.vankovka-branch',
+                'path' => '/gourmet-u-vankovky',
+                'schema_type' => 'Restaurant',
                 'overrides' => [
-                    'seo_title' => 'Jídelní lístek | U Sejmona pod hájkem',
-                    'seo_description' => 'Objevte naši nabídku jídel. Aktuální jídelní lístek najdete na našem webu.',
-                    'seo_keywords' => ['jídelní lístek', 'restaurace', 'česká kuchyně', 'U Sejmona pod hájkem'],
-                    'business_name' => $businessName,
-                    'aeo_summary' => 'Jídelní lístek restaurace U Sejmona pod hájkem – aktuální nabídku najdete v lístku.',
-                    'aeo_search_intent' => 'Informační – hledání jídelního lístku a nabídky jídel v restauraci.',
-                    'aeo_entities' => ['Jídelní lístek', 'Restaurace U Sejmona pod hájkem', 'česká kuchyně', 'jídlo'],
-                    'aeo_faq' => [
-                        ['question' => 'Nabízíte i bezmasá jídla?', 'answer' => 'Aktuální nabídku najdete v jídelním lístku.'],
-                    ],
-                ],
-            ],
-            [
-                'key' => 'front-contact',
-                'page_name' => 'Kontakt',
-                'route_name' => 'front.contact',
-                'path' => '/kontakt',
-                'schema_type' => 'ContactPage',
-                'overrides' => [
-                    'seo_title' => 'Kontakt | U Sejmona pod hájkem',
-                    'seo_description' => 'Kontaktujte nás – telefonicky, e-mailem nebo osobně. Těšíme se na vaši návštěvu v restauraci U Sejmona pod hájkem.',
-                    'seo_keywords' => ['kontakt', 'restaurace', 'telefon', 'adresa', 'U Sejmona pod hájkem'],
-                    'business_name' => $businessName,
-                    'aeo_summary' => 'Kontaktní informace restaurace U Sejmona pod hájkem – adresa, telefon, e-mail.',
-                    'aeo_search_intent' => 'Informační – hledání kontaktních údajů a adresy restaurace.',
-                    'aeo_entities' => ['Kontakt', 'Restaurace U Sejmona pod hájkem', 'adresa', 'telefon'],
-                ],
-            ],
-            [
-                'key' => 'front-reservation-terms',
-                'page_name' => 'Podmínky rezervací',
-                'route_name' => 'front.reservationTerms',
-                'path' => '/podminky-rezervace',
-                'schema_type' => 'WebPage',
-                'overrides' => [
-                    'seo_title' => 'Podmínky rezervací | U Sejmona pod hájkem',
-                    'seo_description' => 'Seznamte se s podmínkami rezervace stolu v restauraci U Sejmona pod hájkem, včetně pravidel změn a zrušení rezervace.',
-                    'seo_keywords' => ['podmínky rezervací', 'rezervace stolu', 'storno rezervace', 'restaurace', 'U Sejmona pod hájkem'],
-                    'business_name' => $businessName,
-                    'aeo_summary' => 'Podmínky rezervací určují pravidla rezervace stolu, změn termínu, storna a související komunikace se zákazníkem restaurace U Sejmona pod hájkem.',
-                    'aeo_search_intent' => 'Informační – hledání pravidel pro rezervaci stolu v restauraci.',
-                    'aeo_entities' => ['Podmínky rezervací', 'Rezervace stolu', 'Restaurace U Sejmona pod hájkem', 'storno rezervace'],
+                    'seo_title' => 'Gourmet U Vaňkovky | Polední menu a kavárna v Brně',
+                    'seo_description' => 'Gourmet U Vaňkovky v Brně: polední menu a kavárna v blízkosti centra. Zjistěte aktuální nabídku, otevírací dobu a kontakt.',
+                    'seo_keywords' => ['Gourmet U Vaňkovky', 'restaurace U Vaňkovky', 'polední menu Vaňkovka', 'polední menu Brno-střed', 'kavárna Vaňkovka'],
+                    'business_name' => 'Gourmet U Vaňkovky',
+                    'street_address' => 'Trnitá 500/9',
+                    'address_locality' => 'Brno-střed',
+                    'postal_code' => '602 00',
+                    'address_country' => 'CZ',
+                    'area_served' => ['Brno', 'Brno-střed', 'U Vaňkovky'],
+                    'available_languages' => ['cs'],
+                    'aeo_summary' => 'Gourmet U Vaňkovky je restaurace a kavárna v Brně-střed na ulici Trnitá. Nabízí polední menu podle aktuální nabídky.',
+                    'aeo_search_intent' => 'Lokální – hledání poledního menu, kavárny a kontaktu v oblasti U Vaňkovky.',
+                    'aeo_entities' => ['Gourmet U Vaňkovky', 'Trnitá 500/9', 'Brno-střed', 'polední menu', 'kavárna'],
                 ],
             ],
             [
@@ -294,29 +270,13 @@ class SeoPage extends Model
                 'path' => '/ochrana-osobnich-udaju',
                 'schema_type' => 'WebPage',
                 'overrides' => [
-                    'seo_title' => 'Ochrana osobních údajů | U Sejmona pod hájkem',
-                    'seo_description' => 'Informace o zpracování osobních údajů v souladu s GDPR. Zjistěte, jak chráníme vaše soukromí v restauraci U Sejmona pod hájkem.',
-                    'seo_keywords' => ['GDPR', 'ochrana osobních údajů', 'soukromí', 'U Sejmona pod hájkem'],
-                    'business_name' => $businessName,
-                    'aeo_summary' => 'Zásady ochrany osobních údajů restaurace U Sejmona pod hájkem dle nařízení GDPR.',
-                    'aeo_search_intent' => 'Informační – hledání informací o zpracování osobních údajů.',
-                    'aeo_entities' => ['GDPR', 'Ochrana osobních údajů', 'Restaurace U Sejmona pod hájkem'],
-                ],
-            ],
-            [
-                'key' => 'front-galleries',
-                'page_name' => 'Galerie',
-                'route_name' => 'front.galleries',
-                'path' => '/galerie',
-                'schema_type' => 'WebPage',
-                'overrides' => [
-                    'seo_title' => 'Galerie | U Sejmona pod hájkem',
-                    'seo_description' => 'Prohlédněte si fotografie z naší restaurace.',
-                    'seo_keywords' => ['galerie', 'fotografie', 'restaurace', 'U Sejmona pod hájkem'],
-                    'business_name' => $businessName,
-                    'aeo_summary' => 'Fotogalerie restaurace U Sejmona pod hájkem – snímky interiéru.',
-                    'aeo_search_intent' => 'Informační – prohlížení fotografií restaurace.',
-                    'aeo_entities' => ['Galerie', 'Fotografie', 'Restaurace U Sejmona pod hájkem'],
+                    'seo_title' => 'Ochrana osobních údajů | Gourmet Restaurant',
+                    'seo_description' => 'Informace o zpracování a ochraně osobních údajů na webu Gourmet Restaurant v souladu s GDPR.',
+                    'seo_keywords' => ['Gourmet Restaurant GDPR', 'ochrana osobních údajů', 'soukromí', 'GDPR'],
+                    'business_name' => 'Gourmet Restaurant',
+                    'aeo_summary' => 'Zásady ochrany osobních údajů společnosti Gourmet Group s.r.o. pro web Gourmet Restaurant.',
+                    'aeo_search_intent' => 'Informační – ochrana osobních údajů a GDPR.',
+                    'aeo_entities' => ['Gourmet Restaurant', 'GDPR', 'ochrana osobních údajů'],
                 ],
             ],
             [
@@ -326,33 +286,13 @@ class SeoPage extends Model
                 'path' => '/zasady-cookies',
                 'schema_type' => 'WebPage',
                 'overrides' => [
-                    'seo_title' => 'Zásady cookies | U Sejmona pod hájkem',
-                    'seo_description' => 'Informace o používání cookies na webu restaurace U Sejmona pod hájkem. Přečtěte si, jak a proč cookies používáme.',
-                    'seo_keywords' => ['cookies', 'zásady cookies', 'soukromí', 'U Sejmona pod hájkem'],
-                    'business_name' => $businessName,
-                    'aeo_summary' => 'Zásady používání cookies na webu restaurace U Sejmona pod hájkem.',
-                    'aeo_search_intent' => 'Informační – hledání informací o cookies.',
-                    'aeo_entities' => ['Cookies', 'Zásady cookies', 'Restaurace U Sejmona pod hájkem'],
-                ],
-            ],
-            [
-                'key' => 'reservation',
-                'page_name' => 'Rezervace',
-                'route_name' => 'restaurant.reservation',
-                'path' => '/reservation',
-                'schema_type' => 'WebPage',
-                'overrides' => [
-                    'seo_title' => 'Rezervace | U Sejmona pod hájkem',
-                    'seo_description' => 'Zarezervujte si stůl v restauraci U Sejmona pod hájkem. Rychlá a snadná online rezervace na pár kliknutí.',
-                    'seo_keywords' => ['rezervace', 'restaurace', 'stůl', 'online rezervace', 'U Sejmona pod hájkem'],
-                    'business_name' => $businessName,
-                    'aeo_summary' => 'Online rezervace stolu v restauraci U Sejmona pod hájkem – rychle a pohodlně.',
-                    'aeo_search_intent' => 'Transakční – rezervace stolu v restauraci.',
-                    'aeo_entities' => ['Rezervace', 'Restaurace U Sejmona pod hájkem', 'online rezervace'],
-                    'aeo_faq' => [
-                        ['question' => 'Jak mohu zrušit rezervaci?', 'answer' => 'Rezervaci můžete zrušit prostřednictvím odkazu v potvrzovacím e-mailu nebo nás kontaktujte telefonicky.'],
-                        ['question' => 'Jak dopředu mohu rezervovat?', 'answer' => 'Rezervaci lze provést dle aktuální dostupnosti uvedené v rezervačním formuláři.'],
-                    ],
+                    'seo_title' => 'Zásady cookies | Gourmet Restaurant',
+                    'seo_description' => 'Informace o používání cookies a správě souhlasů na webu Gourmet Restaurant.',
+                    'seo_keywords' => ['Gourmet Restaurant cookies', 'zásady cookies', 'nastavení cookies', 'soukromí'],
+                    'business_name' => 'Gourmet Restaurant',
+                    'aeo_summary' => 'Zásady používání cookies a správy souhlasů na webu Gourmet Restaurant.',
+                    'aeo_search_intent' => 'Informační – cookies, nastavení a odvolání souhlasu.',
+                    'aeo_entities' => ['Gourmet Restaurant', 'cookies', 'nastavení cookies'],
                 ],
             ],
         ];
@@ -967,6 +907,8 @@ class SeoPage extends Model
         $supportedTypes = [
             'localbusiness',
             'professionalservice',
+            'restaurant',
+            'foodestablishment',
             'person',
             'website',
             'webpage',

@@ -8,12 +8,16 @@ enum MenuItemType: string
 {
     case Soup = 'soup';
     case Main = 'main';
+    case Pizza = 'pizza';
+    case Grill = 'grill';
 
     public function label(): string
     {
         return match ($this) {
             self::Soup => 'Polévka',
             self::Main => 'Menu',
+            self::Pizza => 'Pizza',
+            self::Grill => 'Grill',
         };
     }
 }

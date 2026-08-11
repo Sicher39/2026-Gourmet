@@ -34,9 +34,9 @@ export interface SeoPayload {
 
 export type SeoProps = SeoPayload
 
-const DEFAULT_SITE_NAME = 'U Sejmona pod hájkem'
-const DEFAULT_OG_IMAGE = '/img/logo/BK-u-sajmona-top.svg'
-const DEFAULT_TITLE = 'U Sejmona pod hájkem | Restaurace a občerstvení'
+const DEFAULT_SITE_NAME = 'Gourmet Restaurant'
+const DEFAULT_OG_IMAGE = '/img/logo/gourmet-logo.svg'
+const DEFAULT_TITLE = 'Gourmet Restaurant Brno | Ponávka a U Vaňkovky'
 const DEFAULT_OG_LOCALE = 'cs_CZ'
 
 const props = defineProps<{

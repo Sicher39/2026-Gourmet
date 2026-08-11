@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\MenuItemType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -24,6 +25,8 @@ class BranchMenuDay extends Model
 
     public function items(): HasMany
     {
-        return $this->hasMany(BranchMenuItem::class)->orderBy('type')->orderBy('sort_order');
+        return $this->hasMany(BranchMenuItem::class)
+            ->orderByRaw('CASE WHEN type = ? THEN 0 ELSE 1 END', [MenuItemType::Soup->value])
+            ->orderBy('sort_order');
     }
 }

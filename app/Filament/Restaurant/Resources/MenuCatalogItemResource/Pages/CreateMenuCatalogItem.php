@@ -4,10 +4,16 @@ namespace App\Filament\Restaurant\Resources\MenuCatalogItemResource\Pages;
 
 use App\Filament\Restaurant\Resources\MenuCatalogItemResource;
 use Filament\Resources\Pages\CreateRecord;
+use Filament\Support\Enums\Width;
 
 class CreateMenuCatalogItem extends CreateRecord
 {
     protected static string $resource = MenuCatalogItemResource::class;
+
+    public function getMaxContentWidth(): Width
+    {
+        return Width::Full;
+    }
 
     protected function fillForm(): void
     {

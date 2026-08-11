@@ -25,9 +25,12 @@ class BranchMenuItemCatalogItem extends Model
             $item->name_snapshot = $catalogItem->name;
             $item->allergens_snapshot = $catalogItem->allergens->pluck('code')->filter()->sort()->values()->all();
         });
+
+        static::saved(fn (BranchMenuItemCatalogItem $item) => $item->branchMenuItem?->refreshAllergenSnapshot());
+        static::deleted(fn (BranchMenuItemCatalogItem $item) => $item->branchMenuItem?->refreshAllergenSnapshot());
     }
 
-    protected $fillable = ['branch_menu_item_id', 'menu_catalog_item_id', 'name_snapshot', 'allergens_snapshot', 'sort_order'];
+    protected $fillable = ['branch_menu_item_id', 'menu_catalog_item_id', 'kind', 'name_snapshot', 'allergens_snapshot', 'sort_order'];
 
     protected function casts(): array
     {

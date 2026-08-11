@@ -4,7 +4,13 @@ import FitTextItem from '@/front/components/FitText/FitTextItem.vue'
 import FullSection from '@/front/components/Sections/FullSection.vue'
 import FitTextHandWriteItem from '@/front/components/FitText/FitTextHandWriteItem.vue'
 import BasicFoodMenu from '@/front/components/MenuItems/BasicFoodMenu.vue'
-import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import type {
+    BreakfastMenuPayload,
+    BranchMenuDay,
+    BranchMenuPayload
+} from '@/front/types/branch-menu'
+import { router } from '@inertiajs/vue3'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import DailyMenu from '@/front/components/MenuItems/DailyMenu.vue'
@@ -46,30 +52,41 @@ interface OpeningHoursSection {
     openingHours: OpeningHour[]
 }
 
-const props = withDefaults(defineProps<{
-    galleryImages?: string[]
-    cooks?: Cook[]
-    companyBranch?: CompanyContact[]
-    openingHours?: OpeningHoursSection[]
-}>(), {
-    galleryImages: () => [
-        '/img/actions/cesar.webp',
-        '/img/actions/coffe-01.webp',
-        '/img/actions/coffe-02.webp',
-        '/img/actions/cesar.webp'
-    ],
-    cooks: () => [],
-    companyBranch: () => [],
-    openingHours: () => []
-})
+const props = withDefaults(
+    defineProps<{
+        galleryImages?: string[]
+        cooks?: Cook[]
+        companyBranch?: CompanyContact[]
+        openingHours?: OpeningHoursSection[]
+        branchMenu?: BranchMenuPayload | null
+        breakfastMenu?: BreakfastMenuPayload | null
+    }>(),
+    {
+        galleryImages: () => [
+            '/img/actions/cesar.webp',
+            '/img/actions/coffe-01.webp',
+            '/img/actions/coffe-02.webp',
+            '/img/actions/cesar.webp'
+        ],
+        cooks: () => [],
+        companyBranch: () => [],
+        openingHours: () => []
+    }
+)
 
 const weeklyMenuSection = ref<HTMLElement | null>(null)
 let weeklyMenuContext: gsap.Context | null = null
 let removeWeeklyMenuResizeListener: (() => void) | null = null
 let removeWeeklyMenuScrollListener: (() => void) | null = null
 let removeWeeklyMenuItemsScrollListener: (() => void) | null = null
+let menuRefreshInterval: ReturnType<typeof setInterval> | null = null
 
 onMounted(async (): Promise<void> => {
+    menuRefreshInterval = setInterval((): void => {
+        router.reload({
+            only: ['branchMenu', 'breakfastMenu']
+        })
+    }, 60_000)
     await nextTick()
     await document.fonts.ready
 
@@ -90,6 +107,7 @@ onMounted(async (): Promise<void> => {
         .map((card) => card.querySelector<HTMLElement>('.weekly-menu-items'))
         .filter((items): items is HTMLElement => items instanceof HTMLElement)
     const overflowReadingDistance = 120
+    const cardGap = 60
     let stickyTop = 80
 
     const updateOverflowingMenuItems = (): void => {
@@ -186,7 +204,7 @@ onMounted(async (): Promise<void> => {
             }px`
 
             if (!isLastCard) {
-                card.style.marginBottom = `-${visualCardHeight}px`
+                card.style.marginBottom = `-${visualCardHeight - cardGap}px`
             }
         })
 
@@ -289,6 +307,10 @@ onMounted(async (): Promise<void> => {
 })
 
 onBeforeUnmount((): void => {
+    if (menuRefreshInterval !== null) {
+        clearInterval(menuRefreshInterval)
+        menuRefreshInterval = null
+    }
     removeWeeklyMenuResizeListener?.()
     removeWeeklyMenuResizeListener = null
     removeWeeklyMenuScrollListener?.()
@@ -299,329 +321,20 @@ onBeforeUnmount((): void => {
     weeklyMenuContext = null
 })
 
-const menus = ref([
-    {
-        day: 'Pondělí',
-        date: '22. 6. 2026',
-
-        soupItems: [
-            {
-                soupIndex: 1,
-                allergens: '1, 3, 9',
-                weight: '330',
-                soupName: 'Hovězí vývar s masem, zeleninou a nudlemi',
-                price: 39,
-                enabled: true
-            }
-        ],
-
-        menuItems: [
-            {
-                menuIndex: 1,
-                allergens: '1, 3, 7',
-                weight: '150',
-                foodName: 'Vepřový řízek, vařené brambory, citron',
-                price: 169,
-                enabled: true
-            },
-            {
-                menuIndex: 2,
-                allergens: '1, 7, 9',
-                weight: '150',
-                foodName: 'Kuřecí plátek na bylinkách, jasmínová rýže',
-                price: 169,
-                enabled: true
-            },
-            {
-                menuIndex: 3,
-                allergens: '1, 3, 7',
-                weight: '350',
-                foodName: 'Špagety Carbonara se slaninou a parmazánem',
-                price: 179,
-                enabled: true
-            },
-            {
-                menuIndex: 4,
-                allergens: '1, 3, 7',
-                weight: '350',
-                foodName: 'Smažený květák, vařené brambory, tatarská omáčka',
-                price: 159,
-                enabled: true
-            }
-        ]
-    },
-
-    {
-        day: 'Úterý',
-        date: '23. 6. 2026',
-
-        soupItems: [
-            {
-                soupIndex: 1,
-                allergens: '1, 7',
-                weight: '330',
-                soupName: 'Bramborový krém s krutony',
-                price: 39,
-                enabled: true
-            }
-        ],
-
-        menuItems: [
-            {
-                menuIndex: 1,
-                allergens: '1, 3, 7',
-                weight: '150',
-                foodName: 'Moravský vrabec, dušený špenát, bramborový knedlík',
-                price: 179,
-                enabled: true
-            },
-            {
-                menuIndex: 2,
-                allergens: '1, 7, 9',
-                weight: '150',
-                foodName: 'Kuřecí prsa na žampionech, dušená rýže',
-                price: 169,
-                enabled: true
-            },
-            {
-                menuIndex: 3,
-                allergens: '1, 3, 7',
-                weight: '350',
-                foodName: 'Zapečené těstoviny se šunkou a sýrem, okurkový salát',
-                price: 159,
-                enabled: true
-            },
-            {
-                menuIndex: 4,
-                allergens: '1, 3, 7',
-                weight: '150',
-                foodName: 'Smažený eidam, hranolky, tatarská omáčka',
-                price: 179,
-                enabled: true
-            }
-        ]
-    },
-
-    {
-        day: 'Středa',
-        date: '24. 6. 2026',
-
-        soupItems: [
-            {
-                soupIndex: 1,
-                allergens: '1, 9',
-                weight: '330',
-                soupName: 'Čočková polévka s uzeninou',
-                price: 39,
-                enabled: true
-            },
-            {
-                soupIndex: 2,
-                allergens: '7, 9',
-                weight: '330',
-                soupName: 'Zeleninový krém se zakysanou smetanou',
-                price: 45,
-                enabled: true
-            }
-        ],
-
-        menuItems: [
-            {
-                menuIndex: 1,
-                allergens: '1, 7, 9',
-                weight: '150',
-                foodName: 'Hovězí na červeném víně, bramborová kaše',
-                price: 189,
-                enabled: true
-            },
-            {
-                menuIndex: 2,
-                allergens: '1, 3, 7',
-                weight: '150',
-                foodName: 'Kuřecí řízek v kukuřičné strouhance, šťouchané brambory',
-                price: 179,
-                enabled: false
-            },
-            {
-                menuIndex: 3,
-                allergens: '1, 3, 7',
-                weight: '350',
-                foodName: 'Bramborové noky se špenátem, kuřecím masem a smetanou',
-                price: 179,
-                enabled: true
-            },
-            {
-                menuIndex: 4,
-                allergens: '1, 7',
-                weight: '350',
-                foodName: 'Zeleninové rizoto s parmazánem',
-                price: 159,
-                enabled: true
-            }
-        ]
-    },
-
-    {
-        day: 'Čtvrtek',
-        date: '25. 6. 2026',
-
-        soupItems: [
-            {
-                soupIndex: 1,
-                allergens: '1, 3, 9',
-                weight: '330',
-                soupName: 'Kuřecí vývar s masem, zeleninou a kapáním',
-                price: 39,
-                enabled: true
-            }
-        ],
-
-        menuItems: [
-            {
-                menuIndex: 1,
-                allergens: '1, 3, 7',
-                weight: '150',
-                foodName: 'Svíčková na smetaně, houskový knedlík, brusinky',
-                price: 189,
-                enabled: true
-            },
-            {
-                menuIndex: 2,
-                allergens: '1, 7, 9',
-                weight: '150',
-                foodName: 'Vepřová panenka, pepřová omáčka, americké brambory',
-                price: 199,
-                enabled: true
-            },
-            {
-                menuIndex: 3,
-                allergens: '1, 3, 7',
-                weight: '350',
-                foodName: 'Lasagne Bolognese zapečené se sýrem',
-                price: 179,
-                enabled: true
-            },
-            {
-                menuIndex: 4,
-                allergens: '1, 3, 7',
-                weight: '350',
-                foodName: 'Brokolicové placičky, vařené brambory, bylinkový dip',
-                price: 159,
-                enabled: true
-            },
-            {
-                menuIndex: 5,
-                allergens: '1, 7',
-                weight: '130',
-                foodName: 'Kuřecí prsíčka na pomerančích, jasmínová rýže',
-                price: 169,
-                enabled: true
-            },
-            {
-                menuIndex: 6,
-                allergens: '1, 7',
-                weight: '130',
-                foodName: 'Kuřecí prsíčka na pomerančích, jasmínová rýže',
-                price: 169,
-                enabled: true
-            },
-            {
-                menuIndex: 7,
-                allergens: '1, 7',
-                weight: '130',
-                foodName: 'Kuřecí prsíčka na pomerančích, jasmínová rýže',
-                price: 169,
-                enabled: true
-            }
-        ]
-    },
-
-    {
-        day: 'Pátek',
-        date: '26. 6. 2026',
-
-        soupItems: [
-            {
-                soupIndex: 1,
-                allergens: '1, 3, 9',
-                weight: '330',
-                soupName: 'Hovězí vývar s masem a nudlemi',
-                price: 39,
-                enabled: true
-            }
-        ],
-
-        menuItems: [
-            {
-                menuIndex: 1,
-                allergens: '1, 3, 7',
-                weight: '130',
-                foodName: 'Moravský vrabec, dušený špenát, bramborový knedlík',
-                price: 169,
-                enabled: true
-            },
-            {
-                menuIndex: 2,
-                allergens: '1, 7',
-                weight: '130',
-                foodName: 'Kuřecí prsíčka na pomerančích, jasmínová rýže',
-                price: 169,
-                enabled: false
-            },
-            {
-                menuIndex: 3,
-                allergens: '1, 3, 7',
-                weight: '150',
-                foodName: 'Smažený řízek, bramborový salát, citron',
-                price: 179,
-                enabled: false
-            },
-            {
-                menuIndex: 4,
-                allergens: '1, 3, 7',
-                weight: '140',
-                foodName: 'Smažený karbanátek, bramborová kaše, okurka',
-                price: 169,
-                enabled: true
-            }
-        ]
-    }
-])
-
-const breakfastMenus = ref([
-    {
-        menuItems: [
-            {
-                foodName: 'Míchaná vajíčka – vejce 3ks, anglická slanina, zelenina',
-                allergens: '1, 7, 9',
-                price: 169,
-                enabled: true,
-                menuVariants: [
-                    { name: 's brokolicí a špenátem' },
-                    { name: 's rajčátky a parmezánem', allergens: '7' }
-                ]
-            },
-            {
-                allergens: '1, 7, 9',
-                foodName: 'Kuřecí plátek na bylinkách, jasmínová rýže',
-                price: 169,
-                enabled: true
-            },
-            {
-                allergens: '1, 3, 7',
-                foodName: 'Špagety Carbonara se slaninou a parmazánem',
-                price: 179,
-                enabled: true
-            },
-            {
-                allergens: '1, 3, 7',
-                foodName: 'Smažený květák, vařené brambory, tatarská omáčka',
-                price: 159,
-                enabled: true
-            }
-        ]
-    }
-])
+const emptyToday: BranchMenuDay = {
+    day: '',
+    date: '',
+    isNonCookingDay: true,
+    nonCookingMessage: 'Dnes nevaříme',
+    soupItems: [],
+    menuItems: [],
+    pizzaItems: [],
+    grillItems: []
+}
+const todayMenu = computed<BranchMenuDay>(() => props.branchMenu?.today ?? emptyToday)
+const menus = computed<BranchMenuDay[]>(() => props.branchMenu?.upcoming ?? [])
+const specialtyMenu = computed(() => todayMenu.value)
+const breakfastMenuItems = computed(() => props.breakfastMenu?.items ?? [])
 
 const gourmet = props.galleryImages
 
@@ -644,15 +357,18 @@ const sectionsHours = props.openingHours
     <FullSection id="denni-menu">
         <div class="block">
             <h3 class="font-head text-center text-4xl font-bold">
-                {{ menus[0].day }} {{ menus[0].date }}
+                {{ todayMenu.day }} {{ todayMenu.date }}
             </h3>
 
             <BasicFoodMenu
-                :day="menus[0].day"
-                :date="menus[0].date"
-                :soup-items="menus[0].soupItems"
-                :menu-items="menus[0].menuItems"
-                :pizza-items="menus[0].pizzaItems"
+                :day="todayMenu.day"
+                :date="todayMenu.date"
+                :is-non-cooking-day="todayMenu.isNonCookingDay"
+                :non-cooking-message="todayMenu.nonCookingMessage"
+                :soup-items="todayMenu.soupItems"
+                :menu-items="todayMenu.menuItems"
+                :pizza-items="specialtyMenu.pizzaItems"
+                :grill-items="specialtyMenu.grillItems"
             />
         </div>
     </FullSection>
@@ -671,6 +387,8 @@ const sectionsHours = props.openingHours
                     :day="menu.day"
                     :date="menu.date"
                     :second="index % 2 !== 0"
+                    :is-non-cooking-day="menu.isNonCookingDay"
+                    :non-cooking-message="menu.nonCookingMessage"
                     :soup-items="menu.soupItems"
                     :menu-items="menu.menuItems"
                 />
@@ -715,8 +433,8 @@ const sectionsHours = props.openingHours
             </div>
 
             <div class="block md:pt-20">
-                <div v-for="(menu, index) in breakfastMenus" :key="index">
-                    <BreakfastMenu :menu-items="menu.menuItems" />
+                <div v-if="breakfastMenuItems.length > 0">
+                    <BreakfastMenu :menu-items="breakfastMenuItems" />
                 </div>
             </div>
         </div>

@@ -42,10 +42,6 @@ class MenuCatalogType extends Model
         return $this->hasMany(MenuCatalogItem::class, 'menu_catalog_type_id');
     }
 
-    public function productComponents(): HasMany
-    {
-        return $this->hasMany(MenuProductComponent::class, 'menu_catalog_type_id');
-    }
 
     private static function uniqueSlugForName(string $name, mixed $ignoreId = null): string
     {

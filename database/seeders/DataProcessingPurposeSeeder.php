@@ -28,13 +28,13 @@ class DataProcessingPurposeSeeder extends Seeder
      */
     private const PURPOSES = [
         [
-            'name' => 'Zpracování rezervací a plnění smluv',
-            'context' => 'restaurant_reservation',
-            'description' => 'Zpracování osobních údajů nezbytných pro vytvoření, správu a komunikaci rezervace stolu. Zahrnuje jméno, kontaktní údaje, datum a čas návštěvy, počet hostů a případné speciální požadavky. Bez těchto údajů nelze rezervaci potvrdit ani realizovat.',
-            'personal_data_categories' => "Identifikační údaje (jméno, příjmení)\nKontaktní údaje (telefon, e‑mail)\nÚdaje o rezervaci (termín, počet hostů, poznámky)",
-            'legal_basis' => LegalBasis::Contract,
-            'retention_period' => 'Po dobu trvání rezervačního vztahu a po dobu nezbytně nutnou pro vyřízení případných reklamací či sporů, nejdéle však po dobu stanovenou platnými právními předpisy.',
-            'recipients' => "Správce (provozovatel restaurace dle profilu společnosti)\nZpracovatelé zajišťující provoz rezervačního systému a hosting",
+            'name' => 'Poptávky cateringu, rozvozu a zákaznická komunikace',
+            'context' => 'customer_inquiries',
+            'description' => 'Zpracování osobních údajů nezbytných pro vyřízení dotazu nebo poptávky služeb Gourmetu, zejména cateringu, rautu, rozvozu nebo jiné zákaznické komunikace. Zahrnuje jméno, kontaktní údaje, obsah zprávy a údaje nutné k přípravě nabídky či odpovědi.',
+            'personal_data_categories' => "Identifikační údaje (jméno, příjmení)\nKontaktní údaje (telefon, e-mail)\nObsah poptávky nebo komunikace",
+            'legal_basis' => LegalBasis::LegitimateInterest,
+            'retention_period' => 'Po dobu nezbytně nutnou pro vyřízení poptávky či komunikace a dále po přiměřenou dobu pro ochranu právních nároků správce.',
+            'recipients' => "Správce (provozovatel Gourmetu dle profilu společnosti)\nPoskytovatelé hostingu, e-mailových a komunikačních služeb",
             'third_country_transfer' => null,
             'is_active' => true,
             'priority' => 10,
@@ -42,7 +42,7 @@ class DataProcessingPurposeSeeder extends Seeder
         [
             'name' => 'Komunikace se zákazníky',
             'context' => 'customer_communication',
-            'description' => 'Zpracování kontaktních údajů pro účely komunikace se zákazníky v souvislosti s jejich rezervacemi, dotazy a případnými změnami. Zahrnuje potvrzovací a připomínkové zprávy i odpovědi na dotazy zaslané prostřednictvím dostupných komunikačních kanálů.',
+            'description' => 'Zpracování kontaktních údajů pro účely komunikace se zákazníky v souvislosti s jejich dotazy, poptávkami a případnými změnami. Zahrnuje odpovědi na zprávy zaslané prostřednictvím dostupných komunikačních kanálů.',
             'personal_data_categories' => "Kontaktní údaje (telefon, e‑mail)\nObsah komunikace (zprávy, dotazy)",
             'legal_basis' => LegalBasis::LegitimateInterest,
             'retention_period' => 'Po dobu nezbytně nutnou pro vyřízení komunikace a dále po dobu odpovídající oprávněnému zájmu správce na vedení evidence zákaznické komunikace.',

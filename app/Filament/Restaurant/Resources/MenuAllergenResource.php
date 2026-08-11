@@ -33,7 +33,7 @@ class MenuAllergenResource extends Resource
 
     protected static ?string $navigationLabel = 'Alergeny';
 
-    protected static ?int $navigationSort = 40;
+    protected static ?int $navigationSort = 60;
 
     public static function form(Schema $schema): Schema
     {

@@ -15,13 +15,10 @@ class SitemapController extends Controller
     {
         $entries = [
             ['path' => '/', 'route' => 'front.index'],
-            ['path' => '/napojovy-listek', 'route' => 'front.drinkMenu'],
-            ['path' => '/jidelni-listek', 'route' => 'front.foodMenu'],
-            ['path' => '/kontakt', 'route' => 'front.contact'],
-            ['path' => '/podminky-rezervace', 'route' => 'front.reservationTerms'],
+            ['path' => '/gourmet-ponavka', 'route' => 'front.ponavka-branch'],
+            ['path' => '/gourmet-u-vankovky', 'route' => 'front.vankovka-branch'],
             ['path' => '/ochrana-osobnich-udaju', 'route' => 'front.gdpr'],
             ['path' => '/zasady-cookies', 'route' => 'front.cookies'],
-            ['path' => '/restaurant/reservation', 'route' => 'restaurant.reservation'],
         ];
 
         $seoPagesByPath = [];

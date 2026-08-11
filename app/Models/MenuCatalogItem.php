@@ -7,7 +7,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MenuCatalogItem extends Model
@@ -22,6 +21,7 @@ class MenuCatalogItem extends Model
         'name',
         'description',
         'amount',
+        'default_price',
         'is_active',
         'sort_order',
     ];
@@ -31,6 +31,7 @@ class MenuCatalogItem extends Model
         return [
             'is_active' => 'boolean',
             'amount' => 'decimal:3',
+            'default_price' => 'decimal:2',
             'sort_order' => 'integer',
         ];
     }
@@ -48,10 +49,5 @@ class MenuCatalogItem extends Model
     public function allergens(): BelongsToMany
     {
         return $this->belongsToMany(MenuAllergen::class, 'menu_allergen_menu_catalog_item', 'menu_catalog_item_id', 'menu_allergen_id');
-    }
-
-    public function productComponentItems(): HasMany
-    {
-        return $this->hasMany(MenuProductComponentItem::class, 'menu_catalog_item_id');
     }
 }

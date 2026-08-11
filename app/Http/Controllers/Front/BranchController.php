@@ -9,12 +9,19 @@ use App\Models\Cook;
 use App\Models\DynamicGallery;
 use App\Models\OpeningHour;
 use App\Models\RestaurantContactInformation;
+use App\Services\Menu\BreakfastMenuFrontendService;
+use App\Services\Menu\BranchMenuFrontendService;
 use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class BranchController extends Controller
 {
+    public function __construct(
+        private readonly BranchMenuFrontendService $branchMenuFrontendService,
+        private readonly BreakfastMenuFrontendService $breakfastMenuFrontendService,
+    ) {}
+
     public function ponavka(): Response
     {
         return Inertia::render('PonavkaBranch', [
@@ -33,9 +40,21 @@ class BranchController extends Controller
         ]);
     }
 
-    /**
-     * @return array<int, string>
-     */
+    public function screenPonavka(): Response
+    {
+        return Inertia::render('ScreenPonavkaBranch', [
+            'branchMenu' => $this->branchMenuFor('Gourmet Ponávka'),
+        ]);
+    }
+
+    public function screenVankovka(): Response
+    {
+        return Inertia::render('ScreenVankovkaBranch', [
+            'branchMenu' => $this->branchMenuFor('Gourmet U Vaňkovky'),
+        ]);
+    }
+
+    /** @return array<int, string> */
     private function galleryImages(string $handle): array
     {
         if (! Schema::hasTable('dynamic_galleries')) {
@@ -48,9 +67,7 @@ class BranchController extends Controller
             ->first()?->imageUrls() ?? [];
     }
 
-    /**
-     * @return array<int, array{id: int, name: string, image: string}>
-     */
+    /** @return array<int, array{id: int, name: string, image: string}> */
     private function cooksFor(string $visibilityColumn): array
     {
         if (! Schema::hasTable('cooks')) {
@@ -72,19 +89,26 @@ class BranchController extends Controller
     }
 
     /**
-     * @return array{companyBranch: array<int, array{name: string, street: string, city: string, phone: string, email: string}>, openingHours: array<int, array{section: string, openingHours: array<int, array{days: string, hours: string}>}>}
+     * @return array{
+     *     companyBranch: array<int, array{name: string, street: string, city: string, phone: string, email: string}>,
+     *     openingHours: array<int, array{section: string, openingHours: array<int, array{days: string, hours: string}>}>,
+     *     branchMenu: ?array<string, mixed>,
+     *     breakfastMenu: ?array<string, mixed>
+     * }
      */
     private function contactDataFor(string $branchName, string $visibilityColumn): array
     {
         $companyBranch = [];
         $openingHours = [];
+        $branchMenu = null;
+        $breakfastMenu = null;
 
         if (Schema::hasTable('restaurant_contact_information')) {
             $branch = RestaurantContactInformation::query()
                 ->where('business_name', $branchName)
                 ->first();
 
-            if ($branch !== null) {
+            if ($branch instanceof RestaurantContactInformation) {
                 $companyBranch[] = [
                     'name' => $branch->business_name,
                     'street' => $branch->street ?? '',
@@ -94,6 +118,10 @@ class BranchController extends Controller
                     'phone' => $branch->phone ?? '',
                     'email' => $branch->email ?? '',
                 ];
+                $branchMenu = $this->branchMenuFrontendService->forRestaurant($branch, onlyWebVisible: true);
+                $breakfastMenu = Schema::hasTable('breakfast_menus')
+                    ? $this->breakfastMenuFrontendService->forRestaurant($branch)
+                    : null;
             }
         }
 
@@ -110,6 +138,22 @@ class BranchController extends Controller
                 ->all();
         }
 
-        return compact('companyBranch', 'openingHours');
+        return compact('companyBranch', 'openingHours', 'branchMenu', 'breakfastMenu');
+    }
+
+    /** @return ?array<string, mixed> */
+    private function branchMenuFor(string $branchName): ?array
+    {
+        if (! Schema::hasTable('restaurant_contact_information')) {
+            return null;
+        }
+
+        $branch = RestaurantContactInformation::query()
+            ->where('business_name', $branchName)
+            ->first();
+
+        return $branch instanceof RestaurantContactInformation
+            ? $this->branchMenuFrontendService->forRestaurant($branch)
+            : null;
     }
 }

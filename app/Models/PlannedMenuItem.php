@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PlannedMenuItem extends Model
 {
-    protected $fillable = ['planned_menu_day_id', 'type', 'menu_product_id', 'amount', 'menu_unit_id', 'default_price', 'sort_order'];
+    protected $fillable = ['planned_menu_day_id', 'type', 'menu_catalog_item_id', 'amount', 'menu_unit_id', 'default_price', 'sort_order'];
 
     protected function casts(): array
     {
@@ -23,9 +23,9 @@ class PlannedMenuItem extends Model
         return $this->belongsTo(PlannedMenuDay::class, 'planned_menu_day_id');
     }
 
-    public function product(): BelongsTo
+    public function catalogItem(): BelongsTo
     {
-        return $this->belongsTo(MenuProduct::class, 'menu_product_id');
+        return $this->belongsTo(MenuCatalogItem::class, 'menu_catalog_item_id');
     }
 
     public function unit(): BelongsTo
