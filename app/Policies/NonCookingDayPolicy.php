@@ -4,38 +4,67 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\NonCookingDay;
-use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class NonCookingDayPolicy
 {
-    public function before(User $user): ?bool
+    use HandlesAuthorization;
+    
+    public function viewAny(AuthUser $authUser): bool
     {
-        return $user->hasRole('super_admin') ? true : null;
+        return $authUser->can('ViewAny:NonCookingDay');
     }
 
-    public function viewAny(User $user): bool
+    public function view(AuthUser $authUser, NonCookingDay $nonCookingDay): bool
     {
-        return $user->can('ViewAny:NonCookingDay');
+        return $authUser->can('View:NonCookingDay');
     }
 
-    public function view(User $user, NonCookingDay $nonCookingDay): bool
+    public function create(AuthUser $authUser): bool
     {
-        return $user->can('View:NonCookingDay');
+        return $authUser->can('Create:NonCookingDay');
     }
 
-    public function create(User $user): bool
+    public function update(AuthUser $authUser, NonCookingDay $nonCookingDay): bool
     {
-        return $user->can('Create:NonCookingDay');
+        return $authUser->can('Update:NonCookingDay');
     }
 
-    public function update(User $user, NonCookingDay $nonCookingDay): bool
+    public function delete(AuthUser $authUser, NonCookingDay $nonCookingDay): bool
     {
-        return $user->can('Update:NonCookingDay');
+        return $authUser->can('Delete:NonCookingDay');
     }
 
-    public function delete(User $user, NonCookingDay $nonCookingDay): bool
+    public function restore(AuthUser $authUser, NonCookingDay $nonCookingDay): bool
     {
-        return $user->can('Delete:NonCookingDay');
+        return $authUser->can('Restore:NonCookingDay');
     }
+
+    public function forceDelete(AuthUser $authUser, NonCookingDay $nonCookingDay): bool
+    {
+        return $authUser->can('ForceDelete:NonCookingDay');
+    }
+
+    public function forceDeleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('ForceDeleteAny:NonCookingDay');
+    }
+
+    public function restoreAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('RestoreAny:NonCookingDay');
+    }
+
+    public function replicate(AuthUser $authUser, NonCookingDay $nonCookingDay): bool
+    {
+        return $authUser->can('Replicate:NonCookingDay');
+    }
+
+    public function reorder(AuthUser $authUser): bool
+    {
+        return $authUser->can('Reorder:NonCookingDay');
+    }
+
 }

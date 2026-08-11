@@ -31,3 +31,4 @@ createInertiaApp({
 router.on('success', (event) => {
     transformPageProps(event.detail.page.props);
 });
+

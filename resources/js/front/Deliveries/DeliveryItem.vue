@@ -19,7 +19,7 @@ const props = withDefaults(
     <a :href="`${link}`" target="_blank">
         <div class="flex justify-start md:justify-start w-full">
             <div class="w-fit">
-                <img :src="`/img/logo/${img}.svg`" class="w-1/2" :alt="`logo ${img}`" />
+                <img :src="img" class="w-1/2" :alt="alt" />
                 <p class="text-center md:text-left">{{ branch }}</p>
             </div>
         </div>

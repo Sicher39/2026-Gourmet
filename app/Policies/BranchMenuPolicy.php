@@ -4,35 +4,67 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\BranchMenu;
-use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class BranchMenuPolicy
 {
-    public function before(User $user): ?bool
+    use HandlesAuthorization;
+    
+    public function viewAny(AuthUser $authUser): bool
     {
-        return $user->hasRole('super_admin') ? true : null;
+        return $authUser->can('ViewAny:BranchMenu');
     }
 
-    public function viewAny(User $user): bool
+    public function view(AuthUser $authUser, BranchMenu $branchMenu): bool
     {
-        return $user->can('ViewAny:BranchMenu');
+        return $authUser->can('View:BranchMenu');
     }
 
-    public function view(User $user, BranchMenu $branchMenu): bool
+    public function create(AuthUser $authUser): bool
     {
-        return $user->can('View:BranchMenu') && $user->managesRestaurant($branchMenu->restaurant_contact_information_id);
+        return $authUser->can('Create:BranchMenu');
     }
 
-    public function update(User $user, BranchMenu $branchMenu): bool
+    public function update(AuthUser $authUser, BranchMenu $branchMenu): bool
     {
-        return $branchMenu->isEditable()
-            && $user->can('Update:BranchMenu')
-            && $user->managesRestaurant($branchMenu->restaurant_contact_information_id);
+        return $authUser->can('Update:BranchMenu');
     }
 
-    public function delete(User $user, BranchMenu $branchMenu): bool
+    public function delete(AuthUser $authUser, BranchMenu $branchMenu): bool
     {
-        return false;
+        return $authUser->can('Delete:BranchMenu');
     }
+
+    public function restore(AuthUser $authUser, BranchMenu $branchMenu): bool
+    {
+        return $authUser->can('Restore:BranchMenu');
+    }
+
+    public function forceDelete(AuthUser $authUser, BranchMenu $branchMenu): bool
+    {
+        return $authUser->can('ForceDelete:BranchMenu');
+    }
+
+    public function forceDeleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('ForceDeleteAny:BranchMenu');
+    }
+
+    public function restoreAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('RestoreAny:BranchMenu');
+    }
+
+    public function replicate(AuthUser $authUser, BranchMenu $branchMenu): bool
+    {
+        return $authUser->can('Replicate:BranchMenu');
+    }
+
+    public function reorder(AuthUser $authUser): bool
+    {
+        return $authUser->can('Reorder:BranchMenu');
+    }
+
 }

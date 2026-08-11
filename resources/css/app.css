@@ -39,7 +39,7 @@
 
 @layer base {
     h1 {
-        @apply font-head text-white font-black uppercase whitespace-nowrap px-3 text-[62px] md:text-[136.6px] leading-[0.75] tracking-[-0.06em] ;
+        @apply font-head text-white font-black uppercase whitespace-nowrap text-[61px] md:text-[59px] lg:text-[72.8px] xl:text-[94.5px] 2xl:text-[105.7px] 3xl:text-[136.6px] leading-[0.75] tracking-[-0.06em] ;
     }
 
     h2 {
@@ -59,11 +59,11 @@
     }
 
     p {
-        @apply font-main font-normal text-sm md:text-lg text-dark;
+        @apply font-main font-normal text-sm xl:text-lg text-dark;
     }
 
     li {
-        @apply font-main font-thin text-sm md:text-lg text-primary marker:text-accent list-outside list-disc ml-5;
+        @apply font-main font-thin text-sm xl:text-lg text-primary marker:text-accent list-outside list-disc ml-5;
     }
 
     .scrollbar-hide {

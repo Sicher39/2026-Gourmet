@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Compliance\ConsentController;
 use App\Http\Controllers\Compliance\CookieConfigController;
+use App\Http\Controllers\Front\BranchController;
 use App\Http\Controllers\Front\ContactController;
 use App\Http\Controllers\Front\EventGalleryController;
 use App\Http\Controllers\Front\GdprController;
@@ -17,7 +18,7 @@ Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 
 Route::middleware('vue')->name('front.')->group(function () {
     Route::get('/', HomeController::class)->name('index');
-    Route::inertia('/gourmet-ponavka', 'PonavkaBranch')->name('ponavka-branch');
-    Route::inertia('/gourmet-u-vankovky', 'VankovkaBranch')->name('vankovka-branch');
+    Route::get('/gourmet-ponavka', [BranchController::class, 'ponavka'])->name('ponavka-branch');
+    Route::get('/gourmet-u-vankovky', [BranchController::class, 'vankovka'])->name('vankovka-branch');
     Route::inertia('/zasady-cookies', 'CookiePolicy')->name('cookies');
 });

@@ -31,9 +31,9 @@ class BranchMenuResource extends Resource
     protected static ?string $model = BranchMenu::class;
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-building-storefront';
     protected static string|UnitEnum|null $navigationGroup = 'Menu a lístky';
-    protected static ?string $navigationLabel = 'Jídelní lístky poboček';
-    protected static ?string $modelLabel = 'jídelní lístek pobočky';
-    protected static ?string $pluralModelLabel = 'jídelní lístky poboček';
+    protected static ?string $navigationLabel = 'Jídelní lístky provozoven';
+    protected static ?string $modelLabel = 'jídelní lístek provozovny';
+    protected static ?string $pluralModelLabel = 'jídelní lístky provozoven';
     protected static ?int $navigationSort = 11;
 
     public static function getEloquentQuery(): Builder
@@ -52,7 +52,7 @@ class BranchMenuResource extends Resource
     {
         return $schema->components([
             Section::make('Jídelní lístek')->schema([
-                TextInput::make('branch_name_snapshot')->label('Pobočka')->disabled(),
+                TextInput::make('branch_name_snapshot')->label('Provozovna')->disabled(),
                 TextInput::make('week_start')->label('Od')->formatStateUsing(fn ($state): string => CarbonImmutable::parse($state)->format('d.m.Y'))->disabled(),
                 TextInput::make('week_end')->label('Do')->formatStateUsing(fn ($state): string => CarbonImmutable::parse($state)->format('d.m.Y'))->disabled(),
                 TextInput::make('status')->label('Stav')->formatStateUsing(fn ($state): string => $state->label())->disabled(),
@@ -104,7 +104,7 @@ class BranchMenuResource extends Resource
             TextColumn::make('week_end')->label('Do')->date('d.m.Y')->sortable(),
             TextColumn::make('status')->label('Stav')->badge()->formatStateUsing(fn ($state): string => $state->label()),
         ])->filters([
-            SelectFilter::make('restaurant_contact_information_id')->label('Pobočka')->relationship('restaurant', 'business_name'),
+            SelectFilter::make('restaurant_contact_information_id')->label('Provozovna')->relationship('restaurant', 'business_name'),
         ])->recordActions([
             ViewAction::make(),
             EditAction::make()->visible(fn (BranchMenu $record): bool => $record->isEditable()),

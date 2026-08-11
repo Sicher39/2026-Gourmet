@@ -21,6 +21,8 @@ class CompanyProfile extends Model
         'email',
         'phone',
         'bank_account',
+        'data_box_id',
+        'justice',
         'logo',
         'logo_dark',
         'gdpr_effective_date',

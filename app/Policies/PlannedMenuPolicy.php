@@ -4,43 +4,67 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\PlannedMenu;
-use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class PlannedMenuPolicy
 {
-    public function before(User $user): ?bool
+    use HandlesAuthorization;
+    
+    public function viewAny(AuthUser $authUser): bool
     {
-        return $user->hasRole('super_admin') ? true : null;
+        return $authUser->can('ViewAny:PlannedMenu');
     }
 
-    public function viewAny(User $user): bool
+    public function view(AuthUser $authUser, PlannedMenu $plannedMenu): bool
     {
-        return $user->can('ViewAny:PlannedMenu');
+        return $authUser->can('View:PlannedMenu');
     }
 
-    public function view(User $user, PlannedMenu $plannedMenu): bool
+    public function create(AuthUser $authUser): bool
     {
-        return $user->can('View:PlannedMenu');
+        return $authUser->can('Create:PlannedMenu');
     }
 
-    public function create(User $user): bool
+    public function update(AuthUser $authUser, PlannedMenu $plannedMenu): bool
     {
-        return $user->canManageSharedPlannedMenu() && $user->can('Create:PlannedMenu');
+        return $authUser->can('Update:PlannedMenu');
     }
 
-    public function update(User $user, PlannedMenu $plannedMenu): bool
+    public function delete(AuthUser $authUser, PlannedMenu $plannedMenu): bool
     {
-        if (! $plannedMenu->isDraft() || ! $user->can('Update:PlannedMenu')) {
-            return false;
-        }
-
-        return $user->canManageSharedPlannedMenu()
-            || $plannedMenu->branches()->whereHas('restaurant.managers', fn ($query) => $query->whereKey($user->getKey()))->exists();
+        return $authUser->can('Delete:PlannedMenu');
     }
 
-    public function delete(User $user, PlannedMenu $plannedMenu): bool
+    public function restore(AuthUser $authUser, PlannedMenu $plannedMenu): bool
     {
-        return $plannedMenu->isDraft() && $user->canManageSharedPlannedMenu() && $user->can('Delete:PlannedMenu');
+        return $authUser->can('Restore:PlannedMenu');
     }
+
+    public function forceDelete(AuthUser $authUser, PlannedMenu $plannedMenu): bool
+    {
+        return $authUser->can('ForceDelete:PlannedMenu');
+    }
+
+    public function forceDeleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('ForceDeleteAny:PlannedMenu');
+    }
+
+    public function restoreAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('RestoreAny:PlannedMenu');
+    }
+
+    public function replicate(AuthUser $authUser, PlannedMenu $plannedMenu): bool
+    {
+        return $authUser->can('Replicate:PlannedMenu');
+    }
+
+    public function reorder(AuthUser $authUser): bool
+    {
+        return $authUser->can('Reorder:PlannedMenu');
+    }
+
 }

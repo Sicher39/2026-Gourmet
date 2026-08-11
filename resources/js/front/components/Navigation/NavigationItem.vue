@@ -12,6 +12,8 @@ const emit = defineEmits<{
     click: []
 }>()
 
+const isAnchorLink = props.link.includes('#')
+
 const waitForPageUnlock = async (): Promise<void> => {
     await nextTick()
     await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()))
@@ -35,6 +37,15 @@ const scrollToAnchor = async (anchor: string): Promise<void> => {
         left: 0,
         behavior: 'smooth'
     })
+}
+
+const handleNavigationSuccess = async (): Promise<void> => {
+    if (isAnchorLink) {
+        return
+    }
+
+    await waitForPageUnlock()
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
 }
 
 const handleClick = (event: MouseEvent): void => {
@@ -75,16 +86,18 @@ const handleClick = (event: MouseEvent): void => {
     <span class="contents" @click.capture="handleClick">
         <Link
             :href="props.link"
+            :preserve-scroll="isAnchorLink"
             class="inline-flex w-fit items-center justify-end"
+            @success="handleNavigationSuccess"
         >
             <div class="group block w-fit">
                 <div class="flex w-fit items-start justify-end md:justify-start">
                     <p
                         class=""
                         :class="[
-                            'text-right text-xl lg:text-xl uppercase font-normal group-hover:pl-10 lg:group-hover:px-10 duration-700',
+                            'text-right text-xl lg:text-sm 2xl:text-xl uppercase font-normal group-hover:pl-10 lg:group-hover:px-5 duration-700',
                             props.active
-                                ? 'pl-10 lg:px-10'
+                                ? 'pl-10 lg:px-5'
                                 : 'px-2'
                         ]"
                     >

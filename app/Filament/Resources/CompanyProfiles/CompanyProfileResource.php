@@ -96,6 +96,12 @@ class CompanyProfileResource extends Resource
                     TextInput::make('bank_account')
                         ->label('Bankovní účet')
                         ->maxLength(255),
+                    TextInput::make('data_box_id')
+                        ->label('Datová schránka')
+                        ->maxLength(255),
+                    TextInput::make('justice')
+                        ->label('Justice')
+                        ->maxLength(255),
                     FileUpload::make('logo')
                         ->label('Logo (světlé pozadí)')
                         ->image()
@@ -143,6 +149,8 @@ class CompanyProfileResource extends Resource
                 TextColumn::make('email')->label('E-mail'),
                 TextColumn::make('phone')->label('Telefon'),
                 TextColumn::make('bank_account')->label('Bankovní účet'),
+                TextColumn::make('data_box_id')->label('Datová schránka'),
+                TextColumn::make('justice')->label('Justice'),
                 TextColumn::make('gdpr_effective_date')->label('GDPR od')->date('d.m.Y'),
             ])
             ->recordActions([

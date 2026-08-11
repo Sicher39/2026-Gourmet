@@ -12,12 +12,12 @@ const props = withDefaults(
 </script>
 
 <template>
-    <div
-        class="relative w-full aspect-square bg-cover"
-        :style="{
-            backgroundImage: `url('/img/cook/${props.image}.webp')`
-        }"
-    >
+    <div class="relative w-full aspect-square overflow-hidden">
+        <img
+            :src="props.image"
+            :alt="props.name"
+            class="absolute inset-0 h-full w-full object-cover object-center"
+        >
         <div class="absolute bottom-2 -left-2">
             <img src="/img/svg/knife.svg" class="w-8/12" alt="">
         </div>

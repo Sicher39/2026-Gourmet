@@ -7,6 +7,8 @@ const props = withDefaults(
         phone?: string
         email?: string
         companyNumber?: string
+        vat?: string
+        bankAccount?: string
         dataBox?: string
         justice?: string
     }>(),
@@ -17,6 +19,8 @@ const props = withDefaults(
         phone: '',
         email: '',
         companyNumber: '',
+        vat: '',
+        bankAccount: '',
         dataBox: '',
         justice: ''
     }
@@ -38,6 +42,14 @@ const props = withDefaults(
 
         <template v-if="companyNumber !== ''">
             <p class="mt-2 text-sm">IČ:{{ companyNumber }}</p>
+        </template>
+
+        <template v-if="vat !== ''">
+            <p class="mt-2 text-sm">DIČ:{{ vat }}</p>
+        </template>
+
+        <template v-if="bankAccount !== ''">
+            <p class="mt-2 text-sm">Účet:{{ bankAccount }}</p>
         </template>
 
         <template v-if="dataBox !== ''">

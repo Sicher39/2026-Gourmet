@@ -5,18 +5,12 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\MenuItemType;
-use App\Services\Menu\PlannedMenuService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PlannedMenuItem extends Model
 {
-    protected static function booted(): void
-    {
-        static::created(fn (PlannedMenuItem $item) => app(PlannedMenuService::class)->createMissingBranchVariants($item));
-    }
-
     protected $fillable = ['planned_menu_day_id', 'type', 'menu_product_id', 'amount', 'menu_unit_id', 'default_price', 'sort_order'];
 
     protected function casts(): array

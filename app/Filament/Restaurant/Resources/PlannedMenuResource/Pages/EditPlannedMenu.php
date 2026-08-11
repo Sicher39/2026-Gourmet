@@ -16,6 +16,27 @@ class EditPlannedMenu extends EditRecord
 {
     protected static string $resource = PlannedMenuResource::class;
 
+    private bool $isApproving = false;
+
+    public function mount(int|string $record): void
+    {
+        parent::mount($record);
+
+        if ($this->record->isDraft()) {
+            app(PlannedMenuService::class)->initialize($this->record);
+            $this->fillForm();
+        }
+    }
+
+    protected function afterSave(): void
+    {
+        app(PlannedMenuService::class)->initialize($this->record);
+
+        if (! $this->isApproving) {
+            $this->redirect(PlannedMenuResource::getUrl('edit', ['record' => $this->record]));
+        }
+    }
+
     protected function getHeaderActions(): array
     {
         return [
@@ -37,6 +58,7 @@ class EditPlannedMenu extends EditRecord
                         return;
                     }
 
+                    $this->isApproving = true;
                     $this->save(shouldRedirect: false, shouldSendSavedNotification: false);
                     app(PlannedMenuService::class)->approve($this->record->refresh(), $user);
                     Notification::make()->success()->title('Jídelní lístek byl odsouhlasen')->send();

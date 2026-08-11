@@ -22,10 +22,52 @@ defineOptions({
     inheritAttrs: false
 })
 
+interface Cook {
+    id: number
+    image: string
+    name: string
+}
+
+interface CompanyContact {
+    name: string
+    street: string
+    city: string
+    phone: string
+    email: string
+}
+
+interface OpeningHour {
+    days: string
+    hours: string
+}
+
+interface OpeningHoursSection {
+    section: string
+    openingHours: OpeningHour[]
+}
+
+const props = withDefaults(defineProps<{
+    galleryImages?: string[]
+    cooks?: Cook[]
+    companyBranch?: CompanyContact[]
+    openingHours?: OpeningHoursSection[]
+}>(), {
+    galleryImages: () => [
+        '/img/actions/cesar.webp',
+        '/img/actions/coffe-01.webp',
+        '/img/actions/coffe-02.webp',
+        '/img/actions/cesar.webp'
+    ],
+    cooks: () => [],
+    companyBranch: () => [],
+    openingHours: () => []
+})
+
 const weeklyMenuSection = ref<HTMLElement | null>(null)
 let weeklyMenuContext: gsap.Context | null = null
 let removeWeeklyMenuResizeListener: (() => void) | null = null
 let removeWeeklyMenuScrollListener: (() => void) | null = null
+let removeWeeklyMenuItemsScrollListener: (() => void) | null = null
 
 onMounted(async (): Promise<void> => {
     await nextTick()
@@ -39,21 +81,116 @@ onMounted(async (): Promise<void> => {
 
     const cards = Array.from(section.querySelectorAll<HTMLElement>('.weekly-menu-card'))
     const cardContents = cards
-        .map((card) => card.firstElementChild)
+        .map((card) => card.querySelector<HTMLElement>('.weekly-menu-card-surface'))
         .filter((card): card is HTMLElement => card instanceof HTMLElement)
+    const itemViewports = cards
+        .map((card) => card.querySelector<HTMLElement>('.weekly-menu-items-viewport'))
+        .filter((viewport): viewport is HTMLElement => viewport instanceof HTMLElement)
+    const menuItems = cards
+        .map((card) => card.querySelector<HTMLElement>('.weekly-menu-items'))
+        .filter((items): items is HTMLElement => items instanceof HTMLElement)
+    const overflowReadingDistance = 120
+    let stickyTop = 80
+
+    const updateOverflowingMenuItems = (): void => {
+        cards.forEach((card, index) => {
+            const cardContent = cardContents[index]
+            const itemViewport = itemViewports[index]
+            const items = menuItems[index]
+
+            if (!cardContent || !itemViewport || !items) {
+                return
+            }
+
+            const overflowHeight = Math.max(0, items.scrollHeight - itemViewport.clientHeight)
+
+            if (overflowHeight === 0) {
+                items.style.transform = ''
+
+                return
+            }
+
+            const scrollDistance = stickyTop - card.getBoundingClientRect().top
+            const itemOffset = Math.min(overflowHeight, Math.max(0, scrollDistance))
+
+            items.style.transform = `translate3d(0, -${itemOffset}px, 0)`
+        })
+    }
 
     const synchronizeCardHeights = (): void => {
+        stickyTop = window.matchMedia('(min-width: 768px)').matches ? 100 : 55
+
+        cards.forEach((card) => {
+            card.style.height = ''
+            card.style.marginBottom = ''
+            card.style.paddingTop = ''
+            card.style.position = ''
+        })
         cardContents.forEach((cardContent) => {
             cardContent.style.height = ''
+            cardContent.style.top = ''
+        })
+        itemViewports.forEach((viewport) => {
+            viewport.style.height = ''
+        })
+        menuItems.forEach((items) => {
+            items.style.transform = ''
         })
 
-        const tallestCardHeight = Math.max(
+        const availableCardHeight = Math.max(320, window.innerHeight - stickyTop - 32)
+        const tallestNaturalHeight = Math.max(
             ...cardContents.map((cardContent) => cardContent.scrollHeight)
         )
+        const visualCardHeight = Math.min(tallestNaturalHeight, availableCardHeight)
 
         cardContents.forEach((cardContent) => {
-            cardContent.style.height = `${tallestCardHeight}px`
+            cardContent.style.height = `${visualCardHeight}px`
+            cardContent.style.top = `${stickyTop}px`
         })
+
+        itemViewports.forEach((viewport, index) => {
+            const cardContent = cardContents[index]
+
+            if (!cardContent) {
+                return
+            }
+
+            const cardRect = cardContent.getBoundingClientRect()
+            const viewportRect = viewport.getBoundingClientRect()
+            const viewportHeight = Math.max(
+                120,
+                visualCardHeight - (viewportRect.top - cardRect.top) - 40
+            )
+
+            viewport.style.height = `${viewportHeight}px`
+        })
+
+        cards.forEach((card, index) => {
+            const itemViewport = itemViewports[index]
+            const items = menuItems[index]
+
+            if (!itemViewport || !items) {
+                return
+            }
+
+            const overflowHeight = Math.max(0, items.scrollHeight - itemViewport.clientHeight)
+            const readingDistance = overflowHeight > 0 ? overflowReadingDistance : 0
+            const isLastCard = index === cards.length - 1
+
+            card.style.position = 'relative'
+            card.style.height = `${
+                visualCardHeight +
+                overflowHeight +
+                readingDistance +
+                (isLastCard ? 0 : visualCardHeight)
+            }px`
+
+            if (!isLastCard) {
+                card.style.marginBottom = `-${visualCardHeight}px`
+            }
+        })
+
+        updateOverflowingMenuItems()
     }
 
     synchronizeCardHeights()
@@ -68,7 +205,10 @@ onMounted(async (): Promise<void> => {
     }
 
     window.addEventListener('resize', handleResize)
+    window.addEventListener('scroll', updateOverflowingMenuItems, { passive: true })
     removeWeeklyMenuResizeListener = () => window.removeEventListener('resize', handleResize)
+    removeWeeklyMenuItemsScrollListener = () =>
+        window.removeEventListener('scroll', updateOverflowingMenuItems)
 
     if (prefersReducedMotion) {
         return
@@ -106,33 +246,34 @@ onMounted(async (): Promise<void> => {
         )
 
         const getOverlapProgress = (card: HTMLElement, nextCard: HTMLElement): number => {
-            const cardRect = card.getBoundingClientRect()
-            const nextCardRect = nextCard.getBoundingClientRect()
-            const shrinkingDistance = cardRect.height / 2
-            const overlapPastHalf = cardRect.top + shrinkingDistance - nextCardRect.top
+            const shrinkingDistance = card.clientHeight / 2
+            const nextCardTop = nextCard.getBoundingClientRect().top
+            const overlapPastHalf = stickyTop + shrinkingDistance - nextCardTop
 
             return Math.min(1, Math.max(0, overlapPastHalf / shrinkingDistance))
         }
 
         const updateCardScales = (): void => {
-            cards.forEach((card, index) => {
-                const nextCard = cards[index + 1]
-                const followingCard = cards[index + 2]
+            cardContents.forEach((cardContent, index) => {
+                const nextCardContent = cardContents[index + 1]
+                const followingCardContent = cardContents[index + 2]
                 const setScaleX = scaleXSetters[index]
                 const setScaleY = scaleYSetters[index]
                 const setOpacity = opacitySetters[index]
 
-                if (!nextCard || !setScaleX || !setScaleY || !setOpacity) {
+                if (!nextCardContent || !setScaleX || !setScaleY || !setOpacity) {
                     return
                 }
 
-                const progress = getOverlapProgress(card, nextCard)
-                const followingProgress = followingCard
-                    ? getOverlapProgress(nextCard, followingCard)
+                const progress = getOverlapProgress(cardContent, nextCardContent)
+                const followingProgress = followingCardContent
+                    ? getOverlapProgress(nextCardContent, followingCardContent)
                     : 0
                 const scale = 1 - progress * 0.1
-                const opacity = followingProgress > 0 ? 0 : 1 - progress * 0.25
+                const isFullyCovered = progress >= 1 || followingProgress > 0
+                const opacity = isFullyCovered ? 0 : 1 - progress
 
+                cardContent.style.visibility = isFullyCovered ? 'hidden' : 'visible'
                 setScaleX(scale)
                 setScaleY(scale)
                 setOpacity(opacity)
@@ -152,6 +293,8 @@ onBeforeUnmount((): void => {
     removeWeeklyMenuResizeListener = null
     removeWeeklyMenuScrollListener?.()
     removeWeeklyMenuScrollListener = null
+    removeWeeklyMenuItemsScrollListener?.()
+    removeWeeklyMenuItemsScrollListener = null
     weeklyMenuContext?.revert()
     weeklyMenuContext = null
 })
@@ -205,7 +348,7 @@ const menus = ref([
                 price: 159,
                 enabled: true
             }
-        ],
+        ]
     },
 
     {
@@ -256,7 +399,7 @@ const menus = ref([
                 price: 179,
                 enabled: true
             }
-        ],
+        ]
     },
 
     {
@@ -315,7 +458,7 @@ const menus = ref([
                 price: 159,
                 enabled: true
             }
-        ],
+        ]
     },
 
     {
@@ -365,8 +508,32 @@ const menus = ref([
                 foodName: 'Brokolicové placičky, vařené brambory, bylinkový dip',
                 price: 159,
                 enabled: true
+            },
+            {
+                menuIndex: 5,
+                allergens: '1, 7',
+                weight: '130',
+                foodName: 'Kuřecí prsíčka na pomerančích, jasmínová rýže',
+                price: 169,
+                enabled: true
+            },
+            {
+                menuIndex: 6,
+                allergens: '1, 7',
+                weight: '130',
+                foodName: 'Kuřecí prsíčka na pomerančích, jasmínová rýže',
+                price: 169,
+                enabled: true
+            },
+            {
+                menuIndex: 7,
+                allergens: '1, 7',
+                weight: '130',
+                foodName: 'Kuřecí prsíčka na pomerančích, jasmínová rýže',
+                price: 169,
+                enabled: true
             }
-        ],
+        ]
     },
 
     {
@@ -417,7 +584,7 @@ const menus = ref([
                 price: 169,
                 enabled: true
             }
-        ],
+        ]
     }
 ])
 
@@ -456,74 +623,26 @@ const breakfastMenus = ref([
     }
 ])
 
-const gourmet = ['cesar', 'coffe-01', 'coffe-02', 'cesar']
+const gourmet = props.galleryImages
 
-const cooksGallery = ref([
-    { image: 'cook-01', name: 'Bartoloměj' },
-    { image: 'cook-02', name: 'Venca' },
-    { image: 'cook-03', name: 'Tonda' }
-])
+const cooksGallery = props.cooks
 
-const companyBranches = ref([
-    {
-        name: 'Gourmet U Vaňkovky',
-        street: 'Trnitá 500/9',
-        city: '602 00 Brno-střed',
-        phone: '+420 737 789 123'
-    }
-])
-
-const sectionsHours = ref([
-    {
-        section: 'Snídaně',
-        openingHours: [
-            {
-                days: 'po–pá',
-                hours: '07.00–09:30'
-            }
-        ]
-    },
-    {
-        section: 'Kavárna',
-        openingHours: [
-            {
-                days: 'po–čt',
-                hours: '07:00–14:30'
-            },
-            {
-                days: 'Pá',
-                hours: '07.00–14:00'
-            }
-        ]
-    },
-    {
-        section: 'Restaurace',
-        openingHours: [
-            {
-                days: 'po–čt',
-                hours: '07.00–14:30'
-            },
-            {
-                days: 'Pá',
-                hours: '07.00–14:00'
-            }
-        ]
-    }
-])
+const companyBranches = props.companyBranch
+const sectionsHours = props.openingHours
 </script>
 
 <template>
     <FullSection id="uvod">
         <div class="block">
-            <div class="relative w-full">
+            <div class="relative w-full mt-32 md:mt-10">
                 <FitTextItem text="Gourmet" />
-                <FitTextHandWriteItem text="U Vaňkovky" class="-mt-[350px]" />
+                <FitTextHandWriteItem text="U Vaňkovky" class="-mt-20 lg:-mt-48 2xl:-mt-[350px]" />
             </div>
         </div>
     </FullSection>
 
     <FullSection id="denni-menu">
-        <div class="block py-20">
+        <div class="block">
             <h3 class="font-head text-center text-4xl font-bold">
                 {{ menus[0].day }} {{ menus[0].date }}
             </h3>
@@ -538,7 +657,7 @@ const sectionsHours = ref([
         </div>
     </FullSection>
     <FullSection>
-        <div id="tydenni-menu" ref="weeklyMenuSection" class="block my-48">
+        <div id="tydenni-menu" ref="weeklyMenuSection" class="block md:mb-48 xl:my-48">
             <div class="relative w-full">
                 <FitTextHandWriteItem text="Týdenní menu" class="" />
             </div>
@@ -546,7 +665,7 @@ const sectionsHours = ref([
                 v-for="(menu, index) in menus"
                 :key="menu.day"
                 :style="{ zIndex: index + 1 }"
-                class="weekly-menu-card sticky top-20 md:top-48"
+                class="weekly-menu-card relative"
             >
                 <DailyMenu
                     :day="menu.day"
@@ -558,25 +677,30 @@ const sectionsHours = ref([
             </div>
         </div>
     </FullSection>
-    <div class="flex justify-center -mt-[200px]">
-        <AnimateSvgItem class="w-2/12 text-accent">
+    <div class="flex justify-center md:-mt-[200px]">
+        <AnimateSvgItem class="w-5/12 lg:w-2/12 text-accent">
             <Line4 />
         </AnimateSvgItem>
     </div>
 
     <FullSection id="kavarna">
-        <div class="block -mt-[130px]">
+        <div class="block md:-mt-[70px] xl:-mt-[70px] 3xl:-mt-[130px]">
             <div class="relative w-full">
                 <FitTextItem text="kavárna" />
-                <FitTextHandWriteItem text="pro pohodová rána" class="-mt-[300px]" />
+                <FitTextHandWriteItem
+                    text="pro pohodová rána"
+                    class="-mt-[70px] md:-mt-[150px] xl:-mt-[240px] 2xl:-mt-[270px] 3xl:-mt-[300px]"
+                />
             </div>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 -mt-[120px]">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 2xl:-mt-[120px]">
                 <div class="block">
-                    <h3 class="font-head text-primary text-6xl font-black">
+                    <h3
+                        class="font-head text-primary text-3xl md:text-6xl lg:text-4xl 2xl:text-6xl font-black"
+                    >
                         Začněte svůj den poctivou snídaní u nás!
                     </h3>
                 </div>
-                <div class="block pt-[90px] space-y-10">
+                <div class="block xl space-y-10 lg:pt-10">
                     <p>
                         Naše dopolední nabídka potěší každého, kdo si potrpí na opravdu vydatné
                         snídaně z čerstvých surovin. Každé ráno pro vás připravujeme nadýchaná
@@ -590,7 +714,7 @@ const sectionsHours = ref([
                 </div>
             </div>
 
-            <div class="block pt-20">
+            <div class="block md:pt-20">
                 <div v-for="(menu, index) in breakfastMenus" :key="index">
                     <BreakfastMenu :menu-items="menu.menuItems" />
                 </div>
@@ -598,36 +722,46 @@ const sectionsHours = ref([
         </div>
     </FullSection>
 
-    <DynamicGallery :images="gourmet" />
+    <div class="block -mt-48">
+        <DynamicGallery :images="gourmet" />
+    </div>
 
-    <div class="flex justify-center -mt-[200px]">
-        <AnimateSvgItem class="w-2/12 text-accent">
+    <div class="flex justify-center -mt-20 md:-mt-[200px]">
+        <AnimateSvgItem class="w-5/12 lg:w-2/12 text-accent">
             <Line5 />
         </AnimateSvgItem>
     </div>
 
-    <FullSection>
-        <div class="block -mt-[130px]">
+    <FullSection v-if="cooksGallery.length > 0">
+        <div class="block -mt-[40px] md:-mt-[70px] 2xl:-mt-[110px] 3xl:-mt-[130px]">
             <div class="relative w-full">
                 <FitTextItem text="Kuchaři" />
-                <FitTextHandWriteItem text="srdce naší restaurace" class="-mt-[300px]" />
+                <FitTextHandWriteItem
+                    text="srdce naší pobočky"
+                    class="-mt-[70px] md:-mt-[120px] lg:-mt-[160px] xl:-mt-[200px] 3xl:-mt-[300px]"
+                />
             </div>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 -mt-[120px]">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 3xl:-mt-[120px]">
                 <div class="block">
-                    <h3 class="font-head text-primary text-6xl font-black">
-                        Kdo pro vás každý den vaří?
+                    <h3
+                        class="font-head text-primary md:text-6xl lg:text-4xl 2xl:text-6xl font-black"
+                    >
+                        Kdo se o vás stará U&nbsp;Vaňkovky?
                     </h3>
                 </div>
-                <div class="block pt-[90px] space-y-10">
+                <div class="block lg:pt-10 xl:pt-[90px] space-y-10">
                     <p>
-                        Věříme, že dobré jídlo se dá vařit jedině s radostí a chutí. Náš tým se
-                        stará o to, aby byl váš polední oběd, stejně jako snídaně, pokaždé
-                        perfektním zážitkem, kvůli kterému se k nám budete rádi vracet.
+                        U Vaňkovky pro vás vaří a servíruje sehraná parta profíků, která dbá na
+                        perfektní čerstvost a detail každého talíře. Postarají se o to, aby měl váš
+                        polední oběd i ranní káva skvělé tempo, stálou chuť a přátelskou atmosféru.
                     </p>
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 w-full py-48 gap-y-20 md:gap-y-0 md:gap-5 lg:gap-20">
-                <CookGallery v-for="(item, i) in cooksGallery" :key="i" v-bind="item" />
+
+            <div
+                class="grid grid-cols-1 md:grid-cols-3 w-full py-20 md:py-48 gap-y-20 md:gap-y-0 md:gap-5 lg:gap-20"
+            >
+                <CookGallery v-for="item in cooksGallery" :key="item.id" v-bind="item" />
             </div>
         </div>
     </FullSection>
@@ -637,7 +771,9 @@ const sectionsHours = ref([
     </FullSection>
 
     <FullSection>
-        <div class="grid grid-cols-2 md:grid-cols-4 py-5 border-t-1 border-accent md:divide-x-1 divide-y-1 md:divide-y-0 md:divide-x-0 divide-accent">
+        <div
+            class="grid grid-cols-2 md:grid-cols-4 py-5 border-t-1 border-accent md:divide-x-1 md:divide-x-0 divide-accent"
+        >
             <CompanyContacts v-for="(item, i) in companyBranches" :key="i" v-bind="item" />
             <OpeningHours v-for="(item, i) in sectionsHours" :key="i" v-bind="item" />
         </div>

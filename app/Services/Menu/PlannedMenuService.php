@@ -23,14 +23,11 @@ class PlannedMenuService
     public function initialize(PlannedMenu $plannedMenu): void
     {
         DB::transaction(function () use ($plannedMenu): void {
-            $plannedMenu->branches()->delete();
-            $plannedMenu->days()->delete();
-
             foreach (RestaurantContactInformation::query()->orderBy('business_name')->get() as $restaurant) {
-                $plannedMenu->branches()->create([
-                    'restaurant_contact_information_id' => $restaurant->getKey(),
-                    'branch_name_snapshot' => $restaurant->business_name,
-                ]);
+                $plannedMenu->branches()->firstOrCreate(
+                    ['restaurant_contact_information_id' => $restaurant->getKey()],
+                    ['branch_name_snapshot' => $restaurant->business_name],
+                );
             }
 
             $weekStart = CarbonImmutable::parse($plannedMenu->week_start);
@@ -42,10 +39,10 @@ class PlannedMenuService
 
             for ($offset = 0; $offset < 5; $offset++) {
                 $date = $weekStart->addDays($offset)->toDateString();
-                $plannedMenu->days()->create([
-                    'date' => $date,
-                    'is_non_cooking_day' => in_array($date, $nonCookingDates, true),
-                ]);
+                $plannedMenu->days()->firstOrCreate(
+                    ['date' => $date],
+                    ['is_non_cooking_day' => in_array($date, $nonCookingDates, true)],
+                );
             }
         });
     }

@@ -35,14 +35,14 @@ const galleryStyle = {
 </script>
 
 <template>
-    <div class="dynamic-gallery my-20 md:my-48 overflow-hidden" :style="galleryStyle">
-        <div class="dynamic-gallery__track flex w-max gap-5 md:gap-10 lg:gap-20">
+    <div v-if="images.length > 0" class="dynamic-gallery my-20 md:my-48 overflow-hidden" :style="galleryStyle">
+        <div class="dynamic-gallery__track flex w-max gap-5 md:gap-10 2xl:gap-20">
             <div
                 v-for="(item, index) in images"
                 :key="`${item}-${index}`"
                 class="dynamic-gallery__item aspect-square shrink-0 bg-cover bg-center"
                 :style="{
-                    backgroundImage: `url('/img/actions/${item}.webp')`
+                    backgroundImage: `url('${item}')`
                 }"
             />
             <div
@@ -51,7 +51,7 @@ const galleryStyle = {
                 aria-hidden="true"
                 class="dynamic-gallery__item aspect-square shrink-0 bg-cover bg-center"
                 :style="{
-                    backgroundImage: `url('/img/actions/${item}.webp')`
+                    backgroundImage: `url('${item}')`
                 }"
             />
         </div>
