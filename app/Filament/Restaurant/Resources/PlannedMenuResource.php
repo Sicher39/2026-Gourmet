@@ -57,6 +57,12 @@ class PlannedMenuResource extends Resource
 
     protected static ?int $navigationSort = 10;
 
+    /** @var array<int, string> */
+    private static array $menuCatalogItemNames = [];
+
+    /** @var array<int, string>|null */
+    private static ?array $plannedBranchNames = null;
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -256,9 +262,10 @@ class PlannedMenuResource extends Resource
             }
         }
 
-        $catalogItemName = isset($state['menu_catalog_item_id'])
-            ? MenuCatalogItem::query()->find($state['menu_catalog_item_id'])?->name
-            : null;
+        $catalogItemName = static::menuCatalogItemName(
+            catalogItemId: $state['menu_catalog_item_id'] ?? null,
+            repeaterState: $repeaterState,
+        );
         $badgeColor = match ($type) {
             MenuItemType::Soup => '#f59e0b',
             MenuItemType::Main => '#10b981',
@@ -279,10 +286,49 @@ class PlannedMenuResource extends Resource
         );
     }
 
+    /**
+     * @param  array<string, array<string, mixed>>  $repeaterState
+     */
+    private static function menuCatalogItemName(mixed $catalogItemId, array $repeaterState): ?string
+    {
+        if (! filled($catalogItemId)) {
+            return null;
+        }
+
+        $catalogItemIds = collect($repeaterState)
+            ->pluck('menu_catalog_item_id')
+            ->filter()
+            ->map(fn (mixed $id): int => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+        $missingCatalogItemIds = array_diff($catalogItemIds, array_keys(static::$menuCatalogItemNames));
+
+        if ($missingCatalogItemIds !== []) {
+            static::$menuCatalogItemNames += MenuCatalogItem::query()
+                ->whereKey($missingCatalogItemIds)
+                ->pluck('name', 'id')
+                ->mapWithKeys(fn (string $name, int|string $id): array => [(int) $id => $name])
+                ->all();
+        }
+
+        return static::$menuCatalogItemNames[(int) $catalogItemId] ?? null;
+    }
+
     /** @param array<string, mixed> $item */
     private static function menuItemTypeSortOrder(array $item): int
     {
         return ($item['type'] ?? null) === MenuItemType::Soup->value ? 0 : 1;
+    }
+
+    private static function plannedBranchName(mixed $plannedMenuBranchId): string
+    {
+        static::$plannedBranchNames ??= PlannedMenuBranch::query()
+            ->pluck('branch_name_snapshot', 'id')
+            ->mapWithKeys(fn (string $name, int|string $id): array => [(int) $id => $name])
+            ->all();
+
+        return static::$plannedBranchNames[(int) $plannedMenuBranchId] ?? '';
     }
 
     /** @return array<int, mixed> */
@@ -334,6 +380,7 @@ class PlannedMenuResource extends Resource
                 })
                 ->searchable()
                 ->preload()
+                ->optionsLimit(50)
                 ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                 ->live()
                 ->afterStateUpdated(function (mixed $state, Set $set): void {
@@ -397,7 +444,7 @@ class PlannedMenuResource extends Resource
                 ->collapsible()
                 ->collapsed()
                 ->itemLabel(fn (array $state): string => isset($state['planned_menu_branch_id'])
-                    ? 'Provozovna – '.((string) PlannedMenuBranch::query()->find($state['planned_menu_branch_id'])?->branch_name_snapshot)
+                    ? 'Provozovna – '.static::plannedBranchName($state['planned_menu_branch_id'])
                     : 'Provozovna')
                 ->schema([
                     Hidden::make('planned_menu_branch_id'),
@@ -410,7 +457,6 @@ class PlannedMenuResource extends Resource
                             ->orderBy('menu_catalog_items.name'))
                         ->multiple()
                         ->searchable()
-                        ->preload()
                         ->disabled(fn (?PlannedMenuItemBranch $record): bool => ! static::currentUserCanEditVariant($record)),
                     Select::make('otherItems')
                         ->label('Ostatní')
@@ -421,7 +467,6 @@ class PlannedMenuResource extends Resource
                             ->orderBy('menu_catalog_items.name'))
                         ->multiple()
                         ->searchable()
-                        ->preload()
                         ->disabled(fn (?PlannedMenuItemBranch $record): bool => ! static::currentUserCanEditVariant($record)),
                     Toggle::make('is_available')
                         ->label('Dostupné na provozovně')
