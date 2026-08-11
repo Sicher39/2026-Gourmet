@@ -1,1 +1,0 @@
-import{a as e}from"./MainLayout.vue_vue_type_script_setup_true_lang-BAFSrHmG.js";import{c as o,j as r,g as s}from"./app-CkoeaBTJ.js";const l={},c={class:"text-4xl md:text-6xl lg:text-4xl xl:text-7xl 2xl:text-8xl"};function x(t,a){return s(),o("h3",c,[r(t.$slots,"default")])}const d=e(l,[["render",x]]);export{d as H};
