@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\PlannedMenuStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 class NonCookingDay extends Model
 {
@@ -25,10 +26,17 @@ class NonCookingDay extends Model
 
     private static function markPlannedDays(string $date, bool $isNonCookingDay): void
     {
-        PlannedMenuDay::query()
+        $plannedDays = PlannedMenuDay::query()
             ->whereDate('date', $date)
-            ->whereHas('plannedMenu', fn ($query) => $query->where('status', PlannedMenuStatus::Draft->value))
-            ->update(['is_non_cooking_day' => $isNonCookingDay]);
+            ->whereHas('plannedMenu', fn ($query) => $query->where('status', PlannedMenuStatus::Draft->value));
+
+        if ($isNonCookingDay) {
+            DB::table('planned_menu_common_item_days')
+                ->whereIn('planned_menu_day_id', $plannedDays->clone()->select('id'))
+                ->delete();
+        }
+
+        $plannedDays->update(['is_non_cooking_day' => $isNonCookingDay]);
     }
 
     protected $fillable = ['date', 'internal_note', 'created_by'];

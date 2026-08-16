@@ -82,6 +82,59 @@ class PlannedMenuWorkflowTest extends TestCase
         self::assertSame(10, BranchMenu::query()->with('days.items')->get()->flatMap->days->flatMap->items->count());
     }
 
+    public function test_common_menu_items_are_removed_from_new_holidays_and_published_at_the_end_of_selected_days(): void
+    {
+        [$user] = $this->createPlanningContext();
+        $plannedMenu = PlannedMenu::query()->create([
+            'week_start' => '2026-06-22',
+            'week_end' => '2026-06-26',
+            'status' => PlannedMenuStatus::Draft,
+            'created_by' => $user->getKey(),
+        ]);
+        $service = app(PlannedMenuService::class);
+        $service->initialize($plannedMenu);
+        $catalogType = MenuCatalogType::query()->create(['name' => 'Hlavní jídla', 'slug' => 'hlavni-jidla', 'is_active' => true]);
+        $catalogItem = MenuCatalogItem::query()->create([
+            'menu_catalog_type_id' => $catalogType->getKey(),
+            'name' => 'Společný řízek',
+            'default_price' => 179,
+            'is_active' => true,
+        ]);
+        $commonItem = $plannedMenu->commonItems()->create([
+            'type' => MenuItemType::Main,
+            'menu_catalog_item_id' => $catalogItem->getKey(),
+            'default_price' => 179,
+            'sort_order' => 1,
+        ]);
+        $commonItem->scheduledDays()->sync($plannedMenu->days()->pluck('id'));
+        $service->createMissingBranchVariants($commonItem);
+
+        NonCookingDay::query()->create(['date' => '2026-06-24', 'created_by' => $user->getKey()]);
+
+        self::assertCount(4, $commonItem->fresh()->scheduledDays);
+
+        $approvedMenu = $service->approve($plannedMenu->fresh(), $user);
+        $commonBranchItems = BranchMenu::query()
+            ->with('days.items')
+            ->get()
+            ->flatMap->days
+            ->flatMap->items
+            ->where('is_common_menu_item', true);
+
+        $mondayItems = BranchMenu::query()
+            ->firstOrFail()
+            ->days()
+            ->whereDate('date', '2026-06-22')
+            ->firstOrFail()
+            ->items()
+            ->get();
+
+        self::assertSame(PlannedMenuStatus::Approved, $approvedMenu->status);
+        self::assertCount(8, $commonBranchItems);
+        self::assertSame([true], $commonBranchItems->pluck('is_common_menu_item')->unique()->all());
+        self::assertTrue($mondayItems->last()->is_common_menu_item);
+    }
+
     private function createPlanningContext(): array
     {
         $role = Role::query()->create(['name' => 'super_admin', 'guard_name' => 'web']);

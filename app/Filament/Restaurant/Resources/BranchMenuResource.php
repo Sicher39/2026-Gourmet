@@ -125,7 +125,8 @@ class BranchMenuResource extends Resource
                             ->relationship(
                                 modifyRecordsUsing: fn (EloquentCollection $records): EloquentCollection => $records
                                     ->sortBy(fn (BranchMenuItem $item): string => sprintf(
-                                        '%d-%010d',
+                                        '%d-%d-%010d',
+                                        $item->is_common_menu_item ? 1 : 0,
                                         $item->type === MenuItemType::Soup ? 0 : 1,
                                         $item->sort_order,
                                     )),

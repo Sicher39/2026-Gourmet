@@ -16,6 +16,7 @@ use App\Models\PlannedMenuItemBranch;
 use App\Models\RestaurantContactInformation;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -40,19 +41,31 @@ class PlannedMenuService
 
             for ($offset = 0; $offset < 5; $offset++) {
                 $date = $weekStart->addDays($offset)->toDateString();
-                $plannedMenu->days()->firstOrCreate(
+                $isNonCookingDay = in_array($date, $nonCookingDates, true);
+                $plannedDay = $plannedMenu->days()->updateOrCreate(
                     ['date' => $date],
-                    ['is_non_cooking_day' => in_array($date, $nonCookingDates, true)],
+                    ['is_non_cooking_day' => $isNonCookingDay],
                 );
+
+                if ($isNonCookingDay) {
+                    DB::table('planned_menu_common_item_days')
+                        ->where('planned_menu_day_id', $plannedDay->getKey())
+                        ->delete();
+                }
             }
         });
     }
 
     public function createMissingBranchVariants(PlannedMenuItem $item): void
     {
-        $item->loadMissing('day.plannedMenu.branches');
+        $item->loadMissing('day.plannedMenu.branches', 'plannedMenu.branches');
+        $plannedMenu = $item->plannedMenu ?? $item->day?->plannedMenu;
 
-        foreach ($item->day->plannedMenu->branches as $branch) {
+        if (! $plannedMenu instanceof PlannedMenu) {
+            return;
+        }
+
+        foreach ($plannedMenu->branches as $branch) {
             $item->branchVariants()->firstOrCreate(
                 ['planned_menu_branch_id' => $branch->getKey()],
                 ['is_available' => true],
@@ -79,9 +92,16 @@ class PlannedMenuService
                 'days.items.unit',
                 'days.items.branchVariants.sideItems.allergens',
                 'days.items.branchVariants.otherItems.allergens',
+                'commonItems.scheduledDays',
+                'commonItems.catalogItem.allergens',
+                'commonItems.unit',
+                'commonItems.branchVariants.sideItems.allergens',
+                'commonItems.branchVariants.otherItems.allergens',
             ]);
 
             $this->validateForApproval($lockedMenu);
+
+            $plannedDays = $this->plannedWeekDays($lockedMenu);
 
             foreach ($lockedMenu->branches as $plannedBranch) {
                 $branchMenu = BranchMenu::query()->create([
@@ -93,7 +113,7 @@ class PlannedMenuService
                     'status' => BranchMenuStatus::Ready,
                 ]);
 
-                foreach ($lockedMenu->days as $plannedDay) {
+                foreach ($plannedDays as $plannedDay) {
                     $branchDay = $branchMenu->days()->create([
                         'date' => $plannedDay->date,
                         'is_non_cooking_day' => $plannedDay->is_non_cooking_day,
@@ -111,6 +131,22 @@ class PlannedMenuService
                         }
 
                         $this->publishBranchMenuItem($branchDay, $plannedItem, $variant);
+                    }
+
+                    $lastDailySortOrder = (int) ($plannedDay->items->max('sort_order') ?? 0);
+                    $commonItems = $lockedMenu->commonItems
+                        ->filter(fn (PlannedMenuItem $item): bool => $item->scheduledDays->contains('id', $plannedDay->getKey()))
+                        ->values();
+
+                    foreach ($commonItems as $commonItemIndex => $commonItem) {
+                        $variant = $commonItem->branchVariants->firstWhere('planned_menu_branch_id', $plannedBranch->getKey());
+
+                        if (! $variant instanceof PlannedMenuItemBranch) {
+                            continue;
+                        }
+
+                        $commonItem->setAttribute('sort_order', $lastDailySortOrder + $commonItemIndex + 1);
+                        $this->publishBranchMenuItem($branchDay, $commonItem, $variant);
                     }
                 }
             }
@@ -150,6 +186,7 @@ class PlannedMenuService
                 'unit_symbol_snapshot' => $plannedItem->unit?->symbol,
                 'price' => $plannedItem->default_price,
                 'is_available' => $variant->is_available,
+                'is_common_menu_item' => $plannedItem->planned_menu_id !== null,
                 'sort_order' => $plannedItem->sort_order,
                 'allergens_snapshot' => collect($baseAllergens)->merge($extraAllergens)->unique()->sort()->values()->all(),
             ]);
@@ -168,22 +205,39 @@ class PlannedMenuService
         });
     }
 
+    /** @return EloquentCollection<int, \App\Models\PlannedMenuDay> */
+    private function plannedWeekDays(PlannedMenu $plannedMenu): EloquentCollection
+    {
+        $weekStart = CarbonImmutable::parse($plannedMenu->week_start);
+        $dates = collect(range(0, 4))
+            ->map(fn (int $offset): string => $weekStart->addDays($offset)->toDateString());
+
+        return $plannedMenu->days
+            ->filter(fn ($day): bool => $dates->contains($day->date->toDateString()))
+            ->sortBy('date')
+            ->values();
+    }
+
     private function validateForApproval(PlannedMenu $plannedMenu): void
     {
         if ($plannedMenu->branches->isEmpty()) {
             throw ValidationException::withMessages(['approval' => 'Plán neobsahuje žádnou provozovnu.']);
         }
 
-        foreach ($plannedMenu->days as $day) {
+        foreach ($this->plannedWeekDays($plannedMenu) as $day) {
             if ($day->is_non_cooking_day) {
                 continue;
             }
 
-            if ($day->items->isEmpty()) {
+            $commonItems = $plannedMenu->commonItems
+                ->filter(fn (PlannedMenuItem $item): bool => $item->scheduledDays->contains('id', $day->getKey()));
+            $items = $day->items->concat($commonItems);
+
+            if ($items->isEmpty()) {
                 throw ValidationException::withMessages(['approval' => 'Každý vařící den musí obsahovat alespoň jednu položku.']);
             }
 
-            foreach ($day->items as $item) {
+            foreach ($items as $item) {
                 if ($item->branchVariants->count() !== $plannedMenu->branches->count()) {
                     throw ValidationException::withMessages(['approval' => 'Každá položka musí být připravena pro všechny provozovny.']);
                 }

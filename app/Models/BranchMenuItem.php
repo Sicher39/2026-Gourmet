@@ -30,7 +30,7 @@ class BranchMenuItem extends Model
         static::saved(fn (BranchMenuItem $item) => $item->refreshAllergenSnapshot());
     }
 
-    protected $fillable = ['branch_menu_day_id', 'source_planned_menu_item_id', 'type', 'menu_catalog_item_id', 'item_name_snapshot', 'amount', 'menu_unit_id', 'unit_symbol_snapshot', 'price', 'is_available', 'show_on_web', 'sort_order', 'allergens_snapshot'];
+    protected $fillable = ['branch_menu_day_id', 'source_planned_menu_item_id', 'type', 'menu_catalog_item_id', 'item_name_snapshot', 'amount', 'menu_unit_id', 'unit_symbol_snapshot', 'price', 'is_available', 'show_on_web', 'is_common_menu_item', 'sort_order', 'allergens_snapshot'];
 
     protected function casts(): array
     {
@@ -40,6 +40,7 @@ class BranchMenuItem extends Model
             'price' => 'decimal:2',
             'is_available' => 'boolean',
             'show_on_web' => 'boolean',
+            'is_common_menu_item' => 'boolean',
             'sort_order' => 'integer',
             'allergens_snapshot' => 'array',
         ];

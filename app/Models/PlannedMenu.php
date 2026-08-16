@@ -33,6 +33,11 @@ class PlannedMenu extends Model
         return $this->hasMany(PlannedMenuDay::class)->orderBy('date');
     }
 
+    public function commonItems(): HasMany
+    {
+        return $this->hasMany(PlannedMenuItem::class)->orderBy('sort_order');
+    }
+
     public function branchMenus(): HasMany
     {
         return $this->hasMany(BranchMenu::class);

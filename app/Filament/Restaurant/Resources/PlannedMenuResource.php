@@ -19,6 +19,7 @@ use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
@@ -94,6 +95,7 @@ class PlannedMenuResource extends Resource
                     static::dayTab('Středa', 2),
                     static::dayTab('Čtvrtek', 3),
                     static::dayTab('Pátek', 4),
+                    static::commonMenuTab(),
                 ])
                 ->persistTabInQueryString('den')
                 ->visible(fn (?PlannedMenu $record): bool => $record !== null)
@@ -129,6 +131,75 @@ class PlannedMenuResource extends Resource
         ];
     }
 
+    private static function commonMenuTab(): Tab
+    {
+        return Tab::make('Společné menu')
+            ->icon('heroicon-o-rectangle-stack')
+            ->schema([
+                Callout::make('Společné položky')
+                    ->description('Položky se při odsouhlasení přidají na konec vybraných dnů. V jídelním lístku provozovny je pak lze samostatně upravovat, včetně dostupnosti a příloh.')
+                    ->info()
+                    ->columnSpanFull(),
+                Repeater::make('commonItems')
+                    ->label('Položky společného menu')
+                    ->relationship()
+                    ->mutateRelationshipDataBeforeFillUsing(function (array $data): array {
+                        $item = PlannedMenuItem::query()->with('plannedMenu')->find($data['id'] ?? null);
+
+                        $data['scheduled_day_ids'] = $item instanceof PlannedMenuItem && $item->plannedMenu instanceof PlannedMenu
+                            ? $item->scheduledDays()
+                                ->whereKey(static::commonMenuCookingDays($item->plannedMenu)->modelKeys())
+                                ->pluck('planned_menu_days.id')
+                                ->map(fn (int|string $id): string => (string) $id)
+                                ->all()
+                            : [];
+
+                        return $data;
+                    })
+                    ->afterCreate(fn (array $data, PlannedMenuItem $record) => static::syncScheduledDays($record, $data))
+                    ->afterUpdate(fn (array $data, PlannedMenuItem $record) => static::syncScheduledDays($record, $data))
+                    ->defaultItems(0)
+                    ->orderColumn('sort_order')
+                    ->addActionLabel('Přidat společnou položku')
+                    ->addable(fn (): bool => static::currentUserCanManageShared())
+                    ->deletable(fn (): bool => static::currentUserCanManageShared())
+                    ->reorderable(fn (): bool => static::currentUserCanManageShared())
+                    ->collapsible()
+                    ->collapsed()
+                    ->collapseAllAction(fn (Action $action): Action => $action->label('Skrýt vše'))
+                    ->expandAllAction(fn (Action $action): Action => $action->label('Otevřít vše'))
+                    ->itemLabel(fn (array $state, string $key, Repeater $component): HtmlString => static::menuItemLabel(
+                        state: $state,
+                        itemKey: $key,
+                        repeaterState: $component->getState(),
+                    ))
+                    ->schema([
+                        CheckboxList::make('scheduled_day_ids')
+                            ->label('Nabízet ve dnech')
+                            ->options(function ($livewire): array {
+                                $plannedMenu = $livewire->getRecord();
+
+                                if (! $plannedMenu instanceof PlannedMenu) {
+                                    return [];
+                                }
+
+                                return static::commonMenuCookingDays($plannedMenu)
+                                    ->mapWithKeys(fn (PlannedMenuDay $day): array => [
+                                        $day->getKey() => $day->date->translatedFormat('l j. n.'),
+                                    ])
+                                    ->all();
+                            })
+                            ->required()
+                            ->columns(5)
+                            ->disabled(fn (): bool => ! static::currentUserCanManageShared())
+                            ->columnSpanFull(),
+                        ...static::menuItemSchema(),
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull(),
+            ]);
+    }
+
     private static function dayTab(string $label, int $offset): Tab
     {
         return Tab::make(function ($livewire) use ($label, $offset): string {
@@ -153,17 +224,25 @@ class PlannedMenuResource extends Resource
                     ->defaultItems(0)
                     ->relationship(
                         name: 'days',
-                        modifyQueryUsing: fn (Builder $query): Builder => $query
-                            ->orderBy('planned_menu_days.date')
-                            ->offset($offset)
-                            ->limit(1),
+                        modifyQueryUsing: function (Builder $query, $livewire) use ($offset): Builder {
+                            $plannedMenu = $livewire->getRecord();
+
+                            if (! $plannedMenu instanceof PlannedMenu) {
+                                return $query->whereRaw('1 = 0');
+                            }
+
+                            $date = CarbonImmutable::parse($plannedMenu->week_start)
+                                ->addDays($offset)
+                                ->toDateString();
+
+                            return $query->whereDate('planned_menu_days.date', $date);
+                        },
                     )
                     ->addable(false)
                     ->deletable(false)
                     ->reorderable(false)
                     ->itemHeaders(false)
                     ->schema([
-                        Hidden::make('date'),
                         Callout::make('Tento den se nevaří')
                             ->description(function (?PlannedMenuDay $record): string {
                                 if (! $record instanceof PlannedMenuDay) {
@@ -457,6 +536,7 @@ class PlannedMenuResource extends Resource
                             ->orderBy('menu_catalog_items.name'))
                         ->multiple()
                         ->searchable()
+                        ->preload()
                         ->disabled(fn (?PlannedMenuItemBranch $record): bool => ! static::currentUserCanEditVariant($record)),
                     Select::make('otherItems')
                         ->label('Ostatní')
@@ -467,6 +547,7 @@ class PlannedMenuResource extends Resource
                             ->orderBy('menu_catalog_items.name'))
                         ->multiple()
                         ->searchable()
+                        ->preload()
                         ->disabled(fn (?PlannedMenuItemBranch $record): bool => ! static::currentUserCanEditVariant($record)),
                     Toggle::make('is_available')
                         ->label('Dostupné na provozovně')
@@ -476,6 +557,52 @@ class PlannedMenuResource extends Resource
                 ->columns(2)
                 ->columnSpanFull(),
         ];
+    }
+
+    /** @return EloquentCollection<int, PlannedMenuDay> */
+    private static function commonMenuCookingDays(PlannedMenu $plannedMenu): EloquentCollection
+    {
+        $cookingDays = new EloquentCollection;
+
+        foreach (range(0, 4) as $offset) {
+            if (static::isNonCookingDay($plannedMenu, $offset)) {
+                continue;
+            }
+
+            $date = CarbonImmutable::parse($plannedMenu->week_start)
+                ->addDays($offset)
+                ->toDateString();
+            $day = $plannedMenu->days()->whereDate('date', $date)->first();
+
+            if ($day instanceof PlannedMenuDay) {
+                $cookingDays->push($day);
+            }
+        }
+
+        return $cookingDays;
+    }
+
+    /** @param array<string, mixed> $data */
+    private static function syncScheduledDays(PlannedMenuItem $item, array $data): void
+    {
+        $scheduledDayIds = collect($data['scheduled_day_ids'] ?? [])
+            ->map(fn (mixed $id): int => (int) $id)
+            ->filter()
+            ->unique();
+
+        $plannedMenu = $item->plannedMenu()->first();
+
+        if (! $plannedMenu instanceof PlannedMenu) {
+            $item->scheduledDays()->sync([]);
+
+            return;
+        }
+
+        $validDayIds = static::commonMenuCookingDays($plannedMenu)
+            ->whereIn('id', $scheduledDayIds)
+            ->modelKeys();
+
+        $item->scheduledDays()->sync($validDayIds);
     }
 
     private static function currentUserCanManageShared(): bool
