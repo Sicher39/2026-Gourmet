@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Menu;
 
+use App\Enums\BranchMenuStatus;
 use App\Enums\MenuItemType;
 use App\Models\BranchMenuDay;
 use App\Models\BranchMenuItem;
@@ -65,7 +66,10 @@ class BranchMenuFrontendService
                 $dates->max()->toDateString(),
             ])
             ->whereHas('branchMenu', fn (Builder $query): Builder => $query
-                ->where('restaurant_contact_information_id', $restaurant->getKey()))
+                ->where('restaurant_contact_information_id', $restaurant->getKey())
+                ->where('status', BranchMenuStatus::Ready)
+                ->whereColumn('branch_menu_days.date', '>=', 'branch_menus.week_start')
+                ->whereColumn('branch_menu_days.date', '<=', 'branch_menus.week_end'))
             ->with([
                 'items' => function (HasMany $query) use ($onlyWebVisible): void {
                     $query
