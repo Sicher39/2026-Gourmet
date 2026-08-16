@@ -18,7 +18,6 @@ use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -104,17 +103,25 @@ class BranchMenuResource extends Resource
                     ->defaultItems(0)
                     ->relationship(
                         name: 'days',
-                        modifyQueryUsing: fn (Builder $query): Builder => $query
-                            ->orderBy('branch_menu_days.date')
-                            ->offset($offset)
-                            ->limit(1),
+                        modifyQueryUsing: function (Builder $query, $livewire) use ($offset): Builder {
+                            $branchMenu = $livewire->getRecord();
+
+                            if (! $branchMenu instanceof BranchMenu) {
+                                return $query->whereRaw('1 = 0');
+                            }
+
+                            $date = CarbonImmutable::parse($branchMenu->week_start)
+                                ->addDays($offset)
+                                ->toDateString();
+
+                            return $query->whereDate('branch_menu_days.date', $date);
+                        },
                     )
                     ->addable(false)
                     ->deletable(false)
                     ->reorderable(false)
                     ->itemHeaders(false)
                     ->schema([
-                        Hidden::make('date'),
                         Callout::make('Tento den se nevaří')
                             ->description(fn (?BranchMenuDay $record): string => static::nonCookingDayReason($record))
                             ->warning()
