@@ -136,7 +136,7 @@ onBeforeUnmount((): void => {
             <div
                 v-for="item in screenMenuItems"
                 :key="item.key"
-                class="grid grid-cols-[minmax(11rem,18%)_5rem_minmax(0,1fr)_6rem]"
+                class="grid grid-cols-[minmax(11rem,18%)_7.5rem_minmax(0,1fr)_6rem]"
                 :class="rowDensityClass"
             >
                 <div>
