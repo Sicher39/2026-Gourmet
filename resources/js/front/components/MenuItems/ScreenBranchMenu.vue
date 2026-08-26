@@ -24,6 +24,87 @@ const visibleMenuItems = computed(() => todayMenu.value.menuItems.filter((item) 
 const visiblePizzaItems = computed(() => todayMenu.value.pizzaItems.filter((item) => item.enabled))
 const visibleGrillItems = computed(() => todayMenu.value.grillItems.filter((item) => item.enabled))
 
+type ScreenMenuItem = {
+    key: string
+    label: string
+    allergens: string
+    weight: string
+    unit: string
+    name: string
+    price: string
+}
+
+const screenMenuItems = computed<ScreenMenuItem[]>(() => [
+    ...visibleSoups.value.map((item) => ({
+        key: `soup-${item.soupIndex}`,
+        label: `Polévka ${item.soupIndex}`,
+        allergens: item.allergens,
+        weight: item.weight,
+        unit: item.unit,
+        name: item.soupName,
+        price: item.price
+    })),
+    ...visibleMenuItems.value.map((item) => ({
+        key: `menu-${item.menuIndex}`,
+        label: `Menu ${item.menuIndex}`,
+        allergens: item.allergens,
+        weight: item.weight,
+        unit: item.unit,
+        name: item.foodName,
+        price: item.price
+    })),
+    ...visiblePizzaItems.value.map((item) => ({
+        key: `pizza-${item.menuIndex}`,
+        label: `Pizza ${item.menuIndex}`,
+        allergens: item.allergens,
+        weight: item.weight,
+        unit: item.unit,
+        name: item.pizzaName,
+        price: item.price
+    })),
+    ...visibleGrillItems.value.map((item) => ({
+        key: `grill-${item.menuIndex}`,
+        label: `Grill ${item.menuIndex}`,
+        allergens: item.allergens,
+        weight: item.weight,
+        unit: item.unit,
+        name: item.grillName,
+        price: item.price
+    }))
+])
+
+const rowDensityClass = computed(() => {
+    if (screenMenuItems.value.length >= 13) {
+        return 'py-1.5'
+    }
+
+    if (screenMenuItems.value.length >= 9) {
+        return 'py-2.5'
+    }
+
+    return 'py-4'
+})
+
+const itemTextClass = computed(() => {
+    if (screenMenuItems.value.length >= 13) {
+        return 'text-lg leading-tight'
+    }
+
+    if (screenMenuItems.value.length >= 9) {
+        return 'text-xl leading-tight'
+    }
+
+    return 'text-2xl leading-tight'
+})
+
+const allergenTextClass = computed(() => {
+    if (screenMenuItems.value.length >= 13) {
+        return 'text-xs leading-tight'
+    }
+
+    return 'text-sm leading-tight'
+})
+
 let menuRefreshInterval: ReturnType<typeof setInterval> | null = null
 
 onMounted((): void => {
@@ -43,7 +124,7 @@ onBeforeUnmount((): void => {
 </script>
 
 <template>
-    <main class="relative min-h-screen bg-white px-6 py-10 pb-20 2xl:px-16">
+    <main class="relative min-h-screen bg-white px-6 py-6 pb-16 2xl:px-16">
         <p
             v-if="todayMenu.isNonCookingDay"
             class="font-head text-2xl font-bold uppercase text-primary"
@@ -51,93 +132,30 @@ onBeforeUnmount((): void => {
             {{ todayMenu.nonCookingMessage ?? 'Dnes nevaříme' }}
         </p>
 
-        <div v-else class="grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-6">
-            <section class="divide-y divide-accent">
-                <div
-                    v-for="soup in visibleSoups"
-                    :key="`soup-${soup.soupIndex}`"
-                    class="grid grid-cols-12 py-5"
-                >
-                    <div class="col-span-3">
-                        <p class="text-primary">Polévka {{ soup.soupIndex }}</p>
-                        <p class="text-sm font-light text-primary">*{{ soup.allergens }}</p>
-                    </div>
-                    <div class="col-span-2">
-                        <p class="font-light text-primary">{{ soup.weight }}&nbsp;{{ soup.unit }}</p>
-                    </div>
-                    <div class="col-span-5">
-                        <p class="text-primary">{{ soup.soupName }}</p>
-                    </div>
-                    <div class="col-span-2">
-                        <p class="text-right text-primary">{{ soup.price }}&nbsp;Kč</p>
-                    </div>
+        <section v-else class="divide-y divide-accent">
+            <div
+                v-for="item in screenMenuItems"
+                :key="item.key"
+                class="grid grid-cols-12"
+                :class="rowDensityClass"
+            >
+                <div class="col-span-3">
+                    <p class="text-primary" :class="itemTextClass">{{ item.label }}</p>
+                    <p class="font-light text-primary" :class="allergenTextClass">*{{ item.allergens }}</p>
                 </div>
-
-                <div
-                    v-for="item in visibleMenuItems"
-                    :key="`menu-${item.menuIndex}`"
-                    class="grid grid-cols-12 py-5"
-                >
-                    <div class="col-span-3">
-                        <p class="text-primary">Menu {{ item.menuIndex }}</p>
-                        <p class="text-sm font-light text-primary">*{{ item.allergens }}</p>
-                    </div>
-                    <div class="col-span-2">
-                        <p class="font-light text-primary">{{ item.weight }}&nbsp;{{ item.unit }}</p>
-                    </div>
-                    <div class="col-span-5">
-                        <p class="text-primary">{{ item.foodName }}</p>
-                    </div>
-                    <div class="col-span-2">
-                        <p class="text-right text-primary">{{ item.price }}&nbsp;Kč</p>
-                    </div>
+                <div class="col-span-2">
+                    <p class="font-light text-primary" :class="itemTextClass">
+                        {{ item.weight }}&nbsp;{{ item.unit }}
+                    </p>
                 </div>
-            </section>
-
-            <section class="divide-y divide-accent">
-                <div
-                    v-for="item in visiblePizzaItems"
-                    :key="`pizza-${item.menuIndex}`"
-                    class="grid grid-cols-12 py-5"
-                >
-                    <div class="col-span-3">
-                        <p class="text-primary">Pizza {{ item.menuIndex }}</p>
-                        <p class="text-sm font-light text-primary">*{{ item.allergens }}</p>
-                    </div>
-                    <div class="col-span-2">
-                        <p class="font-light text-primary">{{ item.weight }}&nbsp;{{ item.unit }}</p>
-                    </div>
-                    <div class="col-span-5">
-                        <p class="text-primary">{{ item.pizzaName }}</p>
-                    </div>
-                    <div class="col-span-2">
-                        <p class="text-right text-primary">{{ item.price }}&nbsp;Kč</p>
-                    </div>
+                <div class="col-span-5">
+                    <p class="text-primary" :class="itemTextClass">{{ item.name }}</p>
                 </div>
-            </section>
-
-            <section class="divide-y divide-accent">
-                <div
-                    v-for="item in visibleGrillItems"
-                    :key="`grill-${item.menuIndex}`"
-                    class="grid grid-cols-12 py-5"
-                >
-                    <div class="col-span-3">
-                        <p class="text-primary">Grill {{ item.menuIndex }}</p>
-                        <p class="text-sm font-light text-primary">*{{ item.allergens }}</p>
-                    </div>
-                    <div class="col-span-2">
-                        <p class="font-light text-primary">{{ item.weight }}&nbsp;{{ item.unit }}</p>
-                    </div>
-                    <div class="col-span-5">
-                        <p class="text-primary">{{ item.grillName }}</p>
-                    </div>
-                    <div class="col-span-2">
-                        <p class="text-right text-primary">{{ item.price }}&nbsp;Kč</p>
-                    </div>
+                <div class="col-span-2">
+                    <p class="text-right text-primary" :class="itemTextClass">{{ item.price }}&nbsp;Kč</p>
                 </div>
-            </section>
-        </div>
+            </div>
+        </section>
 
         <p class="absolute right-6 bottom-6 text-sm text-primary 2xl:right-16">
             Alergeny na vyžádání u obsluhy
