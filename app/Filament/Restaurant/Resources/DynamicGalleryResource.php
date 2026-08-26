@@ -40,11 +40,13 @@ class DynamicGalleryResource extends Resource
             Section::make('Galerie')->schema([
                 FileUpload::make('images')
                     ->label('Obrázky')
-                    ->helperText('Obrázky lze měnit pořadím přetažením. Před nahráním se v prohlížeči převedou do WebP v kvalitě 75 %.')
+                    ->helperText('Přidejte jeden nebo více obrázků výběrem nebo přetažením souborů. Pořadí lze upravit přetažením. Před nahráním se obrázky v prohlížeči převedou do WebP v kvalitě 75 %.')
                     ->disk('public')
                     ->directory('dynamic-galleries')
                     ->visibility('public')
                     ->image()
+                    ->imagePreviewHeight('150')
+                    ->panelLayout('grid')
                     ->extraAlpineAttributes([
                         'x-init' => "const configureWebpOutput = () => { if (! pond) { requestAnimationFrame(configureWebpOutput); return; } pond.setOptions({ imageTransformOutputMimeType: 'image/webp', imageTransformOutputQuality: 75 }); }; configureWebpOutput();",
                     ])
