@@ -295,8 +295,8 @@ const gourmetTwo = props.galleryImages['gourmet-2']
         <div
             class="grid grid-cols-1 md:grid-cols-3 py-5 border-t-1 border-accent md:divide-x-1 divide-y-1 md:divide-y-0 md:divide-x-0 divide-accent"
         >
-            <CompanyContacts v-for="(item, i) in company" :key="i" v-bind="item" />
             <CompanyContacts v-for="(item, i) in companyBranches" :key="i" v-bind="item" />
+            <CompanyContacts v-for="(item, i) in company" :key="i" v-bind="item" />
         </div>
     </FullSection>
 </template>
