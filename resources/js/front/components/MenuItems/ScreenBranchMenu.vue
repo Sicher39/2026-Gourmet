@@ -87,22 +87,22 @@ const rowDensityClass = computed(() => {
 
 const itemTextClass = computed(() => {
     if (screenMenuItems.value.length >= 13) {
-        return 'text-xl leading-tight'
+        return 'text-3xl leading-tight'
     }
 
     if (screenMenuItems.value.length >= 9) {
-        return 'text-2xl leading-tight'
+        return 'text-4xl leading-tight'
     }
 
-    return 'text-3xl leading-tight'
+    return 'text-5xl leading-tight'
 })
 
 const allergenTextClass = computed(() => {
     if (screenMenuItems.value.length >= 13) {
-        return 'text-sm leading-tight'
+        return 'text-base leading-tight'
     }
 
-    return 'text-base leading-tight'
+    return 'text-lg leading-tight'
 })
 
 let menuRefreshInterval: ReturnType<typeof setInterval> | null = null
@@ -136,22 +136,22 @@ onBeforeUnmount((): void => {
             <div
                 v-for="item in screenMenuItems"
                 :key="item.key"
-                class="grid grid-cols-12"
+                class="grid grid-cols-[minmax(11rem,18%)_5rem_minmax(0,1fr)_6rem]"
                 :class="rowDensityClass"
             >
-                <div class="col-span-3">
+                <div>
                     <p class="text-primary" :class="itemTextClass">{{ item.label }}</p>
                     <p class="font-light text-primary" :class="allergenTextClass">*{{ item.allergens }}</p>
                 </div>
-                <div class="col-span-1">
+                <div>
                     <p class="font-light text-primary" :class="itemTextClass">
                         {{ item.weight }}&nbsp;{{ item.unit }}
                     </p>
                 </div>
-                <div class="col-span-6">
+                <div>
                     <p class="text-primary" :class="itemTextClass">{{ item.name }}</p>
                 </div>
-                <div class="col-span-2">
+                <div>
                     <p class="text-right text-primary" :class="itemTextClass">{{ item.price }}&nbsp;Kč</p>
                 </div>
             </div>

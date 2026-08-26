@@ -1,1 +1,0 @@
-import{_ as e}from"./ScreenBranchMenu.vue_vue_type_script_setup_true_lang-MCbe0VA_.js";import{d as a,m as r,e as c}from"./app-BgnfEd6a.js";const u=a({__name:"ScreenVankovkaBranch",props:{branchMenu:{}},setup(n){return(o,m)=>(c(),r(e,{"branch-menu":n.branchMenu},null,8,["branch-menu"]))}});export{u as default};
