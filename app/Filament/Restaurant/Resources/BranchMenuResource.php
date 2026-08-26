@@ -36,7 +36,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\HtmlString;
 use UnitEnum;
 
@@ -131,13 +130,9 @@ class BranchMenuResource extends Resource
                         Repeater::make('items')
                             ->label('Denní menu, pizza a grill')
                             ->relationship(
-                                modifyRecordsUsing: fn (EloquentCollection $records): EloquentCollection => $records
-                                    ->sortBy(fn (BranchMenuItem $item): string => sprintf(
-                                        '%d-%d-%010d',
-                                        $item->is_common_menu_item ? 1 : 0,
-                                        $item->type === MenuItemType::Soup ? 0 : 1,
-                                        $item->sort_order,
-                                    )),
+                                modifyQueryUsing: fn (Builder $query): Builder => $query
+                                    ->orderBy('branch_menu_items.sort_order')
+                                    ->orderBy('branch_menu_items.id'),
                             )
                             ->defaultItems(0)
                             ->hidden(fn (?BranchMenuDay $record): bool => $record?->is_non_cooking_day === true)
@@ -264,7 +259,12 @@ class BranchMenuResource extends Resource
                 ->required(),
             Hidden::make('item_name_snapshot'),
             TextInput::make('price')->label('Cena')->numeric()->step(0.01)->minValue(0)->required(),
-            TextInput::make('amount')->label('Množství')->numeric()->step(0.001)->minValue(0),
+            TextInput::make('amount')
+                ->label('Množství')
+                ->numeric()
+                ->step(0.001)
+                ->minValue(0)
+                ->dehydrateStateUsing(fn (mixed $state): ?string => filled($state) ? (string) $state : null),
             Select::make('menu_unit_id')->label('Jednotka')->relationship('unit', 'name', fn (Builder $query) => $query->where('is_active', true)->orderBy('sort_order'))->searchable()->preload(),
             Group::make([
                 Toggle::make('is_available')->label('V nabídce')->default(true),

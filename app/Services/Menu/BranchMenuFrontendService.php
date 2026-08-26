@@ -28,11 +28,12 @@ class BranchMenuFrontendService
         $days = $this->menuDays($restaurant, $dates, $onlyWebVisible);
 
         return [
-            'today' => $this->dayPayload($today, $days->get($today->toDateString()), true),
+            'today' => $this->dayPayload($today, $days->get($today->toDateString()), $onlyWebVisible, true),
             'upcoming' => collect($upcomingDates)
                 ->map(fn (CarbonImmutable $date): array => $this->dayPayload(
                     $date,
                     $days->get($date->toDateString()),
+                    $onlyWebVisible,
                 ))
                 ->all(),
         ];
@@ -71,10 +72,9 @@ class BranchMenuFrontendService
                 ->whereColumn('branch_menu_days.date', '>=', 'branch_menus.week_start')
                 ->whereColumn('branch_menu_days.date', '<=', 'branch_menus.week_end'))
             ->with([
-                'items' => function (HasMany $query) use ($onlyWebVisible): void {
+                'items' => function (HasMany $query): void {
                     $query
                         ->where('is_available', true)
-                        ->when($onlyWebVisible, fn (Builder $query): Builder => $query->where('show_on_web', true))
                         ->with(['sideItems', 'otherItems']);
                 },
             ])
@@ -83,7 +83,12 @@ class BranchMenuFrontendService
     }
 
     /** @return array<string, mixed> */
-    private function dayPayload(CarbonImmutable $date, ?BranchMenuDay $day, bool $isToday = false): array
+    private function dayPayload(
+        CarbonImmutable $date,
+        ?BranchMenuDay $day,
+        bool $onlyWebVisible,
+        bool $isToday = false,
+    ): array
     {
         $isMissing = ! $day instanceof BranchMenuDay;
         $isNonCookingDay = $isMissing || $day->is_non_cooking_day;
@@ -99,10 +104,10 @@ class BranchMenuFrontendService
                 $isMissing => 'Nabídku připravujeme',
                 default => 'Tento den nevaříme',
             },
-            'soupItems' => $this->itemsPayload($items, MenuItemType::Soup),
-            'menuItems' => $this->itemsPayload($items, MenuItemType::Main),
-            'pizzaItems' => $this->itemsPayload($items, MenuItemType::Pizza),
-            'grillItems' => $this->itemsPayload($items, MenuItemType::Grill),
+            'soupItems' => $this->itemsPayload($items, MenuItemType::Soup, $onlyWebVisible),
+            'menuItems' => $this->itemsPayload($items, MenuItemType::Main, $onlyWebVisible),
+            'pizzaItems' => $this->itemsPayload($items, MenuItemType::Pizza, $onlyWebVisible),
+            'grillItems' => $this->itemsPayload($items, MenuItemType::Grill, $onlyWebVisible),
         ];
     }
 
@@ -110,12 +115,12 @@ class BranchMenuFrontendService
      * @param  Collection<int, BranchMenuItem>  $items
      * @return array<int, array<string, mixed>>
      */
-    private function itemsPayload(Collection $items, MenuItemType $type): array
+    private function itemsPayload(Collection $items, MenuItemType $type, bool $onlyWebVisible): array
     {
         return $items
             ->filter(fn (BranchMenuItem $item): bool => $item->type === $type)
             ->values()
-            ->map(function (BranchMenuItem $item, int $index) use ($type): array {
+            ->map(function (BranchMenuItem $item, int $index) use ($onlyWebVisible, $type): array {
                 $sideItems = $item->sideItems
                     ->pluck('name_snapshot')
                     ->filter()
@@ -126,14 +131,16 @@ class BranchMenuFrontendService
                     ...$item->otherItems->pluck('name_snapshot'),
                 ])->filter()->implode(', ');
 
+                $weight = $this->formatDecimal($item->amount);
+
                 return [
                     $this->itemIndexKey($type) => $index + 1,
                     'allergens' => collect($item->allergens_snapshot)->filter()->implode(', '),
-                    'weight' => $this->formatDecimal($item->amount),
-                    'unit' => (string) ($item->unit_symbol_snapshot ?? ''),
+                    'weight' => $weight,
+                    'unit' => $weight === '' ? '' : (string) ($item->unit_symbol_snapshot ?? ''),
                     $this->itemNameKey($type) => $name,
                     'price' => $this->formatDecimal($item->price),
-                    'enabled' => true,
+                    'enabled' => ! $onlyWebVisible || $item->show_on_web,
                 ];
             })
             ->all();

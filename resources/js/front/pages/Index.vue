@@ -155,7 +155,7 @@ const gourmetTwo = props.galleryImages['gourmet-2']
                         či do kanceláře.
                     </p>
                     <DeliveryHours v-if="deliveryOpeningHours.length > 0" :opening-hours="deliveryOpeningHours" />
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-y-20 md:gap-y-0">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-y-20 md:gap-y-0">
                         <DeliveryItem v-for="(item, i) in deliveries" :key="i" v-bind="item" />
                     </div>
                 </div>

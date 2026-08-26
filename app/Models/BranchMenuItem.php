@@ -22,8 +22,10 @@ class BranchMenuItem extends Model
                 }
             }
 
-            if ($item->menu_unit_id !== null && $item->isDirty('menu_unit_id')) {
-                $item->unit_symbol_snapshot = MenuUnit::query()->find($item->menu_unit_id)?->symbol;
+            if ($item->isDirty('menu_unit_id')) {
+                $item->unit_symbol_snapshot = $item->menu_unit_id === null
+                    ? null
+                    : MenuUnit::query()->find($item->menu_unit_id)?->symbol;
             }
         });
 
