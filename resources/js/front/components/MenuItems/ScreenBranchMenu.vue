@@ -105,6 +105,18 @@ const allergenTextClass = computed(() => {
     return 'text-lg leading-tight'
 })
 
+const weightTextClass = computed(() => {
+    if (screenMenuItems.value.length >= 13) {
+        return 'text-xl leading-tight'
+    }
+
+    if (screenMenuItems.value.length >= 9) {
+        return 'text-2xl leading-tight'
+    }
+
+    return 'text-3xl leading-tight'
+})
+
 let menuRefreshInterval: ReturnType<typeof setInterval> | null = null
 
 onMounted((): void => {
@@ -136,7 +148,7 @@ onBeforeUnmount((): void => {
             <div
                 v-for="item in screenMenuItems"
                 :key="item.key"
-                class="grid grid-cols-[minmax(11rem,18%)_7.5rem_minmax(0,1fr)_6rem]"
+                class="grid grid-cols-[12rem_5rem_minmax(0,1fr)_6rem]"
                 :class="rowDensityClass"
             >
                 <div>
@@ -144,7 +156,7 @@ onBeforeUnmount((): void => {
                     <p class="font-light text-primary" :class="allergenTextClass">*{{ item.allergens }}</p>
                 </div>
                 <div>
-                    <p class="font-light text-primary" :class="itemTextClass">
+                    <p class="font-light text-primary" :class="weightTextClass">
                         {{ item.weight }}&nbsp;{{ item.unit }}
                     </p>
                 </div>
