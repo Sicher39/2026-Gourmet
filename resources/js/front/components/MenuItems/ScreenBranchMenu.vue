@@ -148,7 +148,7 @@ onBeforeUnmount((): void => {
             <div
                 v-for="item in screenMenuItems"
                 :key="item.key"
-                class="grid grid-cols-[12rem_5rem_minmax(0,1fr)_6rem]"
+                class="grid grid-cols-[12rem_5rem_minmax(0,1fr)_max-content]"
                 :class="rowDensityClass"
             >
                 <div>
@@ -163,8 +163,10 @@ onBeforeUnmount((): void => {
                 <div>
                     <p class="text-primary" :class="itemTextClass">{{ item.name }}</p>
                 </div>
-                <div>
-                    <p class="text-right text-primary" :class="itemTextClass">{{ item.price }}&nbsp;Kč</p>
+                <div class="justify-self-end">
+                    <p class="text-right whitespace-nowrap text-primary" :class="itemTextClass">
+                        {{ item.price }}&nbsp;Kč
+                    </p>
                 </div>
             </div>
         </section>
