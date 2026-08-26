@@ -73,9 +73,7 @@ class BranchMenuFrontendService
                 ->whereColumn('branch_menu_days.date', '<=', 'branch_menus.week_end'))
             ->with([
                 'items' => function (HasMany $query): void {
-                    $query
-                        ->where('is_available', true)
-                        ->with(['sideItems', 'otherItems']);
+                    $query->with(['sideItems', 'otherItems']);
                 },
             ])
             ->get()
@@ -140,7 +138,7 @@ class BranchMenuFrontendService
                     'unit' => $weight === '' ? '' : (string) ($item->unit_symbol_snapshot ?? ''),
                     $this->itemNameKey($type) => $name,
                     'price' => $this->formatDecimal($item->price),
-                    'enabled' => ! $onlyWebVisible || $item->show_on_web,
+                    'enabled' => $item->is_available && (! $onlyWebVisible || $item->show_on_web),
                 ];
             })
             ->all();
