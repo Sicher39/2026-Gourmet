@@ -1,6 +1,6 @@
 {
-  "_BasicFoodMenu.vue_vue_type_script_setup_true_lang-Ca79opuK.js": {
-    "file": "assets/BasicFoodMenu.vue_vue_type_script_setup_true_lang-Ca79opuK.js",
+  "_BasicFoodMenu.vue_vue_type_script_setup_true_lang-DaH0ZvNo.js": {
+    "file": "assets/BasicFoodMenu.vue_vue_type_script_setup_true_lang-DaH0ZvNo.js",
     "name": "BasicFoodMenu.vue_vue_type_script_setup_true_lang",
     "imports": [
       "resources/js/front/app.ts"
@@ -10,51 +10,51 @@
     "file": "assets/CompanyContacts-CuCUwjb9.css",
     "src": "_CompanyContacts-CuCUwjb9.css"
   },
-  "_CompanyContacts.vue_vue_type_script_setup_true_lang-EtXtJ4oF.js": {
-    "file": "assets/CompanyContacts.vue_vue_type_script_setup_true_lang-EtXtJ4oF.js",
+  "_CompanyContacts.vue_vue_type_script_setup_true_lang-CxOoIrRF.js": {
+    "file": "assets/CompanyContacts.vue_vue_type_script_setup_true_lang-CxOoIrRF.js",
     "name": "CompanyContacts.vue_vue_type_script_setup_true_lang",
     "imports": [
       "resources/js/front/app.ts",
-      "_SeoHead.vue_vue_type_script_setup_true_lang-BeSpuSks.js"
+      "_SeoHead.vue_vue_type_script_setup_true_lang-DS8ZKODX.js"
     ],
     "css": [
       "assets/CompanyContacts-CuCUwjb9.css"
     ]
   },
-  "_FlexSection-D3Ej14qa.js": {
-    "file": "assets/FlexSection-D3Ej14qa.js",
+  "_FlexSection-D_ltESrv.js": {
+    "file": "assets/FlexSection-D_ltESrv.js",
     "name": "FlexSection",
     "imports": [
-      "_SeoHead.vue_vue_type_script_setup_true_lang-BeSpuSks.js",
+      "_SeoHead.vue_vue_type_script_setup_true_lang-DS8ZKODX.js",
       "resources/js/front/app.ts"
     ]
   },
-  "_MainLayout.vue_vue_type_script_setup_true_lang-CdyH1ABu.js": {
-    "file": "assets/MainLayout.vue_vue_type_script_setup_true_lang-CdyH1ABu.js",
+  "_MainLayout.vue_vue_type_script_setup_true_lang-C7WOu99E.js": {
+    "file": "assets/MainLayout.vue_vue_type_script_setup_true_lang-C7WOu99E.js",
     "name": "MainLayout.vue_vue_type_script_setup_true_lang",
     "imports": [
-      "_SeoHead.vue_vue_type_script_setup_true_lang-BeSpuSks.js",
+      "_SeoHead.vue_vue_type_script_setup_true_lang-DS8ZKODX.js",
       "resources/js/front/app.ts"
     ]
   },
-  "_OpeningHours.vue_vue_type_script_setup_true_lang-DzoR9CNt.js": {
-    "file": "assets/OpeningHours.vue_vue_type_script_setup_true_lang-DzoR9CNt.js",
+  "_OpeningHours.vue_vue_type_script_setup_true_lang-DPIJRB7Z.js": {
+    "file": "assets/OpeningHours.vue_vue_type_script_setup_true_lang-DPIJRB7Z.js",
     "name": "OpeningHours.vue_vue_type_script_setup_true_lang",
     "imports": [
-      "_SeoHead.vue_vue_type_script_setup_true_lang-BeSpuSks.js",
+      "_SeoHead.vue_vue_type_script_setup_true_lang-DS8ZKODX.js",
       "resources/js/front/app.ts"
     ]
   },
-  "_ScreenBranchMenu.vue_vue_type_script_setup_true_lang-BNK9Yt0V.js": {
-    "file": "assets/ScreenBranchMenu.vue_vue_type_script_setup_true_lang-BNK9Yt0V.js",
+  "_ScreenBranchMenu.vue_vue_type_script_setup_true_lang-DuGDcjhK.js": {
+    "file": "assets/ScreenBranchMenu.vue_vue_type_script_setup_true_lang-DuGDcjhK.js",
     "name": "ScreenBranchMenu.vue_vue_type_script_setup_true_lang",
     "imports": [
       "resources/js/front/app.ts",
-      "_BasicFoodMenu.vue_vue_type_script_setup_true_lang-Ca79opuK.js"
+      "_BasicFoodMenu.vue_vue_type_script_setup_true_lang-DaH0ZvNo.js"
     ]
   },
-  "_SeoHead.vue_vue_type_script_setup_true_lang-BeSpuSks.js": {
-    "file": "assets/SeoHead.vue_vue_type_script_setup_true_lang-BeSpuSks.js",
+  "_SeoHead.vue_vue_type_script_setup_true_lang-DS8ZKODX.js": {
+    "file": "assets/SeoHead.vue_vue_type_script_setup_true_lang-DS8ZKODX.js",
     "name": "SeoHead.vue_vue_type_script_setup_true_lang",
     "imports": [
       "resources/js/front/app.ts"
@@ -66,7 +66,7 @@
     "isEntry": true
   },
   "resources/js/front/app.ts": {
-    "file": "assets/app-p6tQedx4.js",
+    "file": "assets/app-cNN0kBEw.js",
     "name": "app",
     "src": "resources/js/front/app.ts",
     "isEntry": true,
@@ -84,86 +84,86 @@
     ]
   },
   "resources/js/front/pages/CookiePolicy.vue": {
-    "file": "assets/CookiePolicy-B78fNVIt.js",
+    "file": "assets/CookiePolicy-nm8m2qZK.js",
     "name": "CookiePolicy",
     "src": "resources/js/front/pages/CookiePolicy.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/front/app.ts",
-      "_MainLayout.vue_vue_type_script_setup_true_lang-CdyH1ABu.js",
-      "_FlexSection-D3Ej14qa.js",
-      "_SeoHead.vue_vue_type_script_setup_true_lang-BeSpuSks.js"
+      "_MainLayout.vue_vue_type_script_setup_true_lang-C7WOu99E.js",
+      "_FlexSection-D_ltESrv.js",
+      "_SeoHead.vue_vue_type_script_setup_true_lang-DS8ZKODX.js"
     ]
   },
   "resources/js/front/pages/Gdpr.vue": {
-    "file": "assets/Gdpr-B6OtFdzb.js",
+    "file": "assets/Gdpr-FQI1GHJK.js",
     "name": "Gdpr",
     "src": "resources/js/front/pages/Gdpr.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/front/app.ts",
-      "_FlexSection-D3Ej14qa.js",
-      "_MainLayout.vue_vue_type_script_setup_true_lang-CdyH1ABu.js",
-      "_SeoHead.vue_vue_type_script_setup_true_lang-BeSpuSks.js"
+      "_FlexSection-D_ltESrv.js",
+      "_MainLayout.vue_vue_type_script_setup_true_lang-C7WOu99E.js",
+      "_SeoHead.vue_vue_type_script_setup_true_lang-DS8ZKODX.js"
     ]
   },
   "resources/js/front/pages/Index.vue": {
-    "file": "assets/Index-CbDXmjHu.js",
+    "file": "assets/Index-B8jZX1b5.js",
     "name": "Index",
     "src": "resources/js/front/pages/Index.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_MainLayout.vue_vue_type_script_setup_true_lang-CdyH1ABu.js",
-      "_SeoHead.vue_vue_type_script_setup_true_lang-BeSpuSks.js",
+      "_MainLayout.vue_vue_type_script_setup_true_lang-C7WOu99E.js",
+      "_SeoHead.vue_vue_type_script_setup_true_lang-DS8ZKODX.js",
       "resources/js/front/app.ts",
-      "_CompanyContacts.vue_vue_type_script_setup_true_lang-EtXtJ4oF.js"
+      "_CompanyContacts.vue_vue_type_script_setup_true_lang-CxOoIrRF.js"
     ]
   },
   "resources/js/front/pages/PonavkaBranch.vue": {
-    "file": "assets/PonavkaBranch-BFDP75mS.js",
+    "file": "assets/PonavkaBranch-BxgascHO.js",
     "name": "PonavkaBranch",
     "src": "resources/js/front/pages/PonavkaBranch.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_OpeningHours.vue_vue_type_script_setup_true_lang-DzoR9CNt.js",
-      "_CompanyContacts.vue_vue_type_script_setup_true_lang-EtXtJ4oF.js",
-      "_SeoHead.vue_vue_type_script_setup_true_lang-BeSpuSks.js",
-      "_BasicFoodMenu.vue_vue_type_script_setup_true_lang-Ca79opuK.js",
+      "_OpeningHours.vue_vue_type_script_setup_true_lang-DPIJRB7Z.js",
+      "_CompanyContacts.vue_vue_type_script_setup_true_lang-CxOoIrRF.js",
+      "_SeoHead.vue_vue_type_script_setup_true_lang-DS8ZKODX.js",
+      "_BasicFoodMenu.vue_vue_type_script_setup_true_lang-DaH0ZvNo.js",
       "resources/js/front/app.ts"
     ]
   },
   "resources/js/front/pages/ScreenPonavkaBranch.vue": {
-    "file": "assets/ScreenPonavkaBranch-BvAvUYNK.js",
+    "file": "assets/ScreenPonavkaBranch-Dw_8vERd.js",
     "name": "ScreenPonavkaBranch",
     "src": "resources/js/front/pages/ScreenPonavkaBranch.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_ScreenBranchMenu.vue_vue_type_script_setup_true_lang-BNK9Yt0V.js",
+      "_ScreenBranchMenu.vue_vue_type_script_setup_true_lang-DuGDcjhK.js",
       "resources/js/front/app.ts",
-      "_BasicFoodMenu.vue_vue_type_script_setup_true_lang-Ca79opuK.js"
+      "_BasicFoodMenu.vue_vue_type_script_setup_true_lang-DaH0ZvNo.js"
     ]
   },
   "resources/js/front/pages/ScreenVankovkaBranch.vue": {
-    "file": "assets/ScreenVankovkaBranch-BZBlAG8J.js",
+    "file": "assets/ScreenVankovkaBranch-DVf35-aY.js",
     "name": "ScreenVankovkaBranch",
     "src": "resources/js/front/pages/ScreenVankovkaBranch.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_ScreenBranchMenu.vue_vue_type_script_setup_true_lang-BNK9Yt0V.js",
+      "_ScreenBranchMenu.vue_vue_type_script_setup_true_lang-DuGDcjhK.js",
       "resources/js/front/app.ts",
-      "_BasicFoodMenu.vue_vue_type_script_setup_true_lang-Ca79opuK.js"
+      "_BasicFoodMenu.vue_vue_type_script_setup_true_lang-DaH0ZvNo.js"
     ]
   },
   "resources/js/front/pages/VankovkaBranch.vue": {
-    "file": "assets/VankovkaBranch-CBNoqsbW.js",
+    "file": "assets/VankovkaBranch-BLgqi778.js",
     "name": "VankovkaBranch",
     "src": "resources/js/front/pages/VankovkaBranch.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_OpeningHours.vue_vue_type_script_setup_true_lang-DzoR9CNt.js",
-      "_CompanyContacts.vue_vue_type_script_setup_true_lang-EtXtJ4oF.js",
-      "_SeoHead.vue_vue_type_script_setup_true_lang-BeSpuSks.js",
-      "_BasicFoodMenu.vue_vue_type_script_setup_true_lang-Ca79opuK.js",
+      "_OpeningHours.vue_vue_type_script_setup_true_lang-DPIJRB7Z.js",
+      "_CompanyContacts.vue_vue_type_script_setup_true_lang-CxOoIrRF.js",
+      "_SeoHead.vue_vue_type_script_setup_true_lang-DS8ZKODX.js",
+      "_BasicFoodMenu.vue_vue_type_script_setup_true_lang-DaH0ZvNo.js",
       "resources/js/front/app.ts"
     ]
   }
