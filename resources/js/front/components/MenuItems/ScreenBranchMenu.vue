@@ -87,22 +87,22 @@ const rowDensityClass = computed(() => {
 
 const itemTextClass = computed(() => {
     if (screenMenuItems.value.length >= 13) {
-        return 'text-lg leading-tight'
-    }
-
-    if (screenMenuItems.value.length >= 9) {
         return 'text-xl leading-tight'
     }
 
-    return 'text-2xl leading-tight'
+    if (screenMenuItems.value.length >= 9) {
+        return 'text-2xl leading-tight'
+    }
+
+    return 'text-3xl leading-tight'
 })
 
 const allergenTextClass = computed(() => {
     if (screenMenuItems.value.length >= 13) {
-        return 'text-xs leading-tight'
+        return 'text-sm leading-tight'
     }
 
-    return 'text-sm leading-tight'
+    return 'text-base leading-tight'
 })
 
 let menuRefreshInterval: ReturnType<typeof setInterval> | null = null
@@ -143,12 +143,12 @@ onBeforeUnmount((): void => {
                     <p class="text-primary" :class="itemTextClass">{{ item.label }}</p>
                     <p class="font-light text-primary" :class="allergenTextClass">*{{ item.allergens }}</p>
                 </div>
-                <div class="col-span-2">
+                <div class="col-span-1">
                     <p class="font-light text-primary" :class="itemTextClass">
                         {{ item.weight }}&nbsp;{{ item.unit }}
                     </p>
                 </div>
-                <div class="col-span-5">
+                <div class="col-span-6">
                     <p class="text-primary" :class="itemTextClass">{{ item.name }}</p>
                 </div>
                 <div class="col-span-2">
