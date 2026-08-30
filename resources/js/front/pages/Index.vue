@@ -151,7 +151,7 @@ const gourmetTwo = props.galleryImages['gourmet-2']
                 </div>
                 <div class="block lg:pt-10 3xl:pt-[90px] space-y-10">
                     <p>
-                        Objednejte si bleskový rozvoz přes Bolt Food nebo Foodoru přímo k vám domů
+                        Objednejte si bleskový rozvoz přes Wolt Food nebo Foodoru přímo k vám domů
                         či do kanceláře.
                     </p>
                     <DeliveryHours v-if="deliveryOpeningHours.length > 0" :opening-hours="deliveryOpeningHours" />
