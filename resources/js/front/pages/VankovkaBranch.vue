@@ -379,7 +379,7 @@ const sectionsHours = props.openingHours
             </div>
             <div
                 v-for="(menu, index) in menus"
-                :key="menu.day"
+                :key="menu.date"
                 :style="{ zIndex: index + 1 }"
                 class="weekly-menu-card relative"
             >

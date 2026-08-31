@@ -23,7 +23,7 @@ class BranchMenuFrontendService
     public function forRestaurant(RestaurantContactInformation $restaurant, bool $onlyWebVisible = false): array
     {
         $today = CarbonImmutable::today();
-        $upcomingDates = $this->upcomingDates($today);
+        $upcomingDates = $this->upcomingDates($today, $restaurant);
         $dates = collect([$today, ...$upcomingDates]);
         $days = $this->menuDays($restaurant, $dates, $onlyWebVisible);
 
@@ -40,19 +40,33 @@ class BranchMenuFrontendService
     }
 
     /** @return array<int, CarbonImmutable> */
-    private function upcomingDates(CarbonImmutable $today): array
+    private function upcomingDates(CarbonImmutable $today, RestaurantContactInformation $restaurant): array
     {
-        if ($today->dayOfWeekIso >= 5) {
-            $nextMonday = $today->next(CarbonInterface::MONDAY);
+        $currentWeekStart = $today->startOfWeek(CarbonInterface::MONDAY);
+        $dates = $today->dayOfWeekIso >= 5
+            ? collect()
+            : collect(range($today->dayOfWeekIso, 4))
+                ->map(fn (int $offset): CarbonImmutable => $currentWeekStart->addDays($offset));
+        $nextWeekStart = $currentWeekStart->addWeek();
+        $hasNextWeekMenu = $restaurant->branchMenus()
+            ->where('status', BranchMenuStatus::Ready)
+            ->whereDate('week_start', $nextWeekStart->toDateString())
+            ->exists();
 
+        if ($hasNextWeekMenu) {
+            $dates = $dates->merge(
+                collect(range(0, 4))
+                    ->map(fn (int $offset): CarbonImmutable => $nextWeekStart->addDays($offset)),
+            );
+        }
+
+        if ($dates->isEmpty()) {
             return collect(range(0, 4))
-                ->map(fn (int $offset): CarbonImmutable => $nextMonday->addDays($offset))
+                ->map(fn (int $offset): CarbonImmutable => $nextWeekStart->addDays($offset))
                 ->all();
         }
 
-        return collect(range($today->dayOfWeekIso, 4))
-            ->map(fn (int $offset): CarbonImmutable => $today->startOfWeek()->addDays($offset))
-            ->all();
+        return $dates->all();
     }
 
     /**
