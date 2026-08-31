@@ -7,6 +7,7 @@ namespace App\Filament\Restaurant\Resources;
 use App\Enums\MenuItemType;
 use App\Filament\Restaurant\Resources\PlannedMenuResource\Pages;
 use App\Models\MenuCatalogItem;
+use App\Models\MenuCatalogType;
 use App\Models\NonCookingDay;
 use App\Models\PlannedMenu;
 use App\Models\PlannedMenuBranch;
@@ -176,6 +177,15 @@ class PlannedMenuResource extends Resource
                     ->schema([
                         CheckboxList::make('scheduled_day_ids')
                             ->label('Nabízet ve dnech')
+                            ->default(function ($livewire): array {
+                                $plannedMenu = $livewire->getRecord();
+
+                                if (! $plannedMenu instanceof PlannedMenu) {
+                                    return [];
+                                }
+
+                                return static::commonMenuCookingDays($plannedMenu)->modelKeys();
+                            })
                             ->options(function ($livewire): array {
                                 $plannedMenu = $livewire->getRecord();
 
@@ -400,6 +410,17 @@ class PlannedMenuResource extends Resource
         return ($item['type'] ?? null) === MenuItemType::Soup->value ? 0 : 1;
     }
 
+    private static function catalogTypeIdForMenuItemType(mixed $type): ?int
+    {
+        $slug = $type === MenuItemType::Soup->value ? 'polevky' : 'hlavni-jidla';
+        $catalogTypeId = MenuCatalogType::query()
+            ->where('slug', $slug)
+            ->where('is_active', true)
+            ->value('id');
+
+        return is_numeric($catalogTypeId) ? (int) $catalogTypeId : null;
+    }
+
     private static function plannedBranchName(mixed $plannedMenuBranchId): string
     {
         static::$plannedBranchNames ??= PlannedMenuBranch::query()
@@ -420,6 +441,7 @@ class PlannedMenuResource extends Resource
                 ->live()
                 ->afterStateUpdated(function (Get $get, Set $set): void {
                     $set('menu_catalog_item_id', null);
+                    $set('catalog_item_search', null);
 
                     $items = $get('../');
 
@@ -434,8 +456,11 @@ class PlannedMenuResource extends Resource
                 })
                 ->required()
                 ->disabled(fn (): bool => ! static::currentUserCanManageShared()),
+            Hidden::make('catalog_item_search')
+                ->dehydrated(false),
             Select::make('menu_catalog_item_id')
                 ->label('Základní položka')
+                ->hint('Nenalezli jste položku? Použijte tlačítko + vedle pole.')
                 ->relationship('catalogItem', 'name', function (Builder $query, Get $get): Builder {
                     $currentCatalogItemId = $get('menu_catalog_item_id');
                     $usedCatalogItemIds = collect($get('../') ?? [])
@@ -461,8 +486,53 @@ class PlannedMenuResource extends Resource
                 ->preload()
                 ->optionsLimit(50)
                 ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                ->getSearchResultsUsing(function (Select $component, ?string $search, Set $set): array {
+                    $set('catalog_item_search', trim((string) $search));
+
+                    return $component->getSearchResultsFromRelationship($search);
+                })
+                ->createOptionForm(function (Get $get): array {
+                    return [
+                        Hidden::make('menu_catalog_type_id')
+                            ->default(static::catalogTypeIdForMenuItemType($get('type'))),
+                        TextInput::make('name')
+                            ->label('Název')
+                            ->default($get('catalog_item_search'))
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpanFull(),
+                        TextInput::make('amount')
+                            ->label('Množství')
+                            ->numeric()
+                            ->step(0.001)
+                            ->minValue(0),
+                        Select::make('menu_unit_id')
+                            ->label('Jednotka')
+                            ->relationship('unit', 'name', fn (Builder $query): Builder => $query
+                                ->where('menu_units.is_active', true)
+                                ->orderBy('menu_units.sort_order'))
+                            ->searchable()
+                            ->preload(),
+                        Select::make('allergens')
+                            ->label('Alergeny')
+                            ->relationship('allergens', 'name', fn (Builder $query): Builder => $query
+                                ->where('menu_allergens.is_active', true)
+                                ->orderBy('menu_allergens.sort_order'))
+                            ->getOptionLabelFromRecordUsing(fn (\App\Models\MenuAllergen $record): string => $record->code.' '.$record->name)
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->columnSpanFull(),
+                    ];
+                })
+                ->createOptionModalHeading('Vytvořit základní položku')
+                ->createOptionAction(fn (Action $action): Action => $action
+                    ->label('Přidat základní položku')
+                    ->tooltip('Přidat základní položku'))
                 ->live()
                 ->afterStateUpdated(function (mixed $state, Set $set): void {
+                    $set('catalog_item_search', null);
+
                     $catalogItem = MenuCatalogItem::query()->find($state);
 
                     if (! $catalogItem instanceof MenuCatalogItem) {
@@ -481,8 +551,10 @@ class PlannedMenuResource extends Resource
                 ->disabled(fn (): bool => ! static::currentUserCanManageShared()),
             TextInput::make('default_price')
                 ->label('Výchozí cena')
-                ->numeric()
-                ->step(0.01)
+                ->type('text')
+                ->inputMode('numeric')
+                ->formatStateUsing(fn (mixed $state): ?string => filled($state) ? (string) (int) $state : null)
+                ->rule('integer')
                 ->minValue(0)
                 ->required()
                 ->disabled(fn (): bool => ! static::currentUserCanManageShared()),

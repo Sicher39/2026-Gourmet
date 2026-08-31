@@ -15,7 +15,7 @@
         <link rel="apple-touch-icon" sizes="72x72" href="{{ asset('img/favicon/apple-touch-icon-72.svg')}}">
         <link rel="apple-touch-icon" href="{{ asset('img/favicon/apple-touch-icon-57.svg')}}">
 
-        @routes
+        @routes('frontend')
         @vite(['resources/js/front/app.ts'])
         @inertiaHead
     </head>

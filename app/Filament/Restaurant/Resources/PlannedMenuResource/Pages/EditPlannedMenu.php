@@ -11,6 +11,7 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Validation\ValidationException;
 
 class EditPlannedMenu extends EditRecord
 {
@@ -24,11 +25,6 @@ class EditPlannedMenu extends EditRecord
             app(PlannedMenuService::class)->initialize($this->record);
             $this->fillForm();
         }
-    }
-
-    protected function afterSave(): void
-    {
-        app(PlannedMenuService::class)->initialize($this->record);
     }
 
     protected function getHeaderActions(): array
@@ -52,8 +48,19 @@ class EditPlannedMenu extends EditRecord
                         return;
                     }
 
-                    $this->save(shouldRedirect: false, shouldSendSavedNotification: false);
-                    app(PlannedMenuService::class)->approve($this->record->refresh(), $user);
+                    try {
+                        $this->save(shouldRedirect: false, shouldSendSavedNotification: false);
+                        app(PlannedMenuService::class)->approve($this->record->refresh(), $user);
+                    } catch (ValidationException $exception) {
+                        Notification::make()
+                            ->danger()
+                            ->title('Jídelní lístek nelze odsouhlasit')
+                            ->body(collect($exception->errors())->flatten()->implode(' '))
+                            ->send();
+
+                        return;
+                    }
+
                     Notification::make()->success()->title('Jídelní lístek byl odsouhlasen')->send();
                     $this->redirect(PlannedMenuResource::getUrl('view', ['record' => $this->record]));
                 }),

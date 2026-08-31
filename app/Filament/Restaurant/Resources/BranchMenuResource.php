@@ -78,6 +78,19 @@ class BranchMenuResource extends Resource
                     static::dayTab('Čtvrtek', 3),
                     static::dayTab('Pátek', 4),
                 ])
+                ->activeTab(function ($livewire): int {
+                    $branchMenu = $livewire->getRecord();
+
+                    if (! $branchMenu instanceof BranchMenu) {
+                        return 1;
+                    }
+
+                    $today = CarbonImmutable::today();
+                    $weekStart = CarbonImmutable::parse($branchMenu->week_start);
+                    $dayOffset = $weekStart->diffInDays($today, false);
+
+                    return min(5, max(1, $dayOffset + 1));
+                })
                 ->persistTabInQueryString('den')
                 ->columnSpanFull(),
         ]);
@@ -258,7 +271,14 @@ class BranchMenuResource extends Resource
                 })
                 ->required(),
             Hidden::make('item_name_snapshot'),
-            TextInput::make('price')->label('Cena')->numeric()->step(0.01)->minValue(0)->required(),
+            TextInput::make('price')
+                ->label('Cena')
+                ->type('text')
+                ->inputMode('numeric')
+                ->formatStateUsing(fn (mixed $state): ?string => filled($state) ? (string) (int) $state : null)
+                ->rule('integer')
+                ->minValue(0)
+                ->required(),
             TextInput::make('amount')
                 ->label('Množství')
                 ->numeric()
@@ -270,42 +290,44 @@ class BranchMenuResource extends Resource
                 Toggle::make('is_available')->label('V nabídce')->default(true),
                 Toggle::make('show_on_web')->label('Zobrazit na webu')->default(true),
             ])->columns(2)->columnSpanFull(),
-            Repeater::make('sideItems')
+            Select::make('sideItems')
                 ->label('Přílohy')
-                ->relationship()
-                ->orderColumn('sort_order')
-                ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
-                    $data['kind'] = 'side';
-
-                    return $data;
+                ->multiple()
+                ->searchable()
+                ->preload()
+                ->options(fn (): array => MenuCatalogItem::query()
+                    ->where('menu_catalog_items.is_active', true)
+                    ->whereHas('catalogType', fn (Builder $query): Builder => $query->where('slug', 'prilohy'))
+                    ->orderBy('menu_catalog_items.sort_order')
+                    ->orderBy('menu_catalog_items.name')
+                    ->pluck('name', 'id')
+                    ->all())
+                ->dehydrated(false)
+                ->afterStateHydrated(function (Select $component, ?BranchMenuItem $record): void {
+                    if ($record instanceof BranchMenuItem) {
+                        $component->state($record->sideItems()->pluck('menu_catalog_item_id')->all());
+                    }
                 })
-                ->schema([
-                    Select::make('menu_catalog_item_id')->label('Příloha')->relationship('catalogItem', 'name', fn (Builder $query) => $query
-                        ->where('menu_catalog_items.is_active', true)
-                        ->whereHas('catalogType', fn (Builder $query) => $query->where('slug', 'prilohy'))
-                        ->orderBy('menu_catalog_items.sort_order')
-                        ->orderBy('menu_catalog_items.name'))->searchable()->preload()->required(),
-                    Hidden::make('kind')->default('side'),
-                    Hidden::make('name_snapshot'),
-                ])->columns(1)->columnSpanFull(),
-            Repeater::make('otherItems')
+                ->columnSpanFull(),
+            Select::make('otherItems')
                 ->label('Ostatní')
-                ->relationship()
-                ->orderColumn('sort_order')
-                ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
-                    $data['kind'] = 'other';
-
-                    return $data;
+                ->multiple()
+                ->searchable()
+                ->preload()
+                ->options(fn (): array => MenuCatalogItem::query()
+                    ->where('menu_catalog_items.is_active', true)
+                    ->whereHas('catalogType', fn (Builder $query): Builder => $query->where('slug', 'omacky-a-ostatni'))
+                    ->orderBy('menu_catalog_items.sort_order')
+                    ->orderBy('menu_catalog_items.name')
+                    ->pluck('name', 'id')
+                    ->all())
+                ->dehydrated(false)
+                ->afterStateHydrated(function (Select $component, ?BranchMenuItem $record): void {
+                    if ($record instanceof BranchMenuItem) {
+                        $component->state($record->otherItems()->pluck('menu_catalog_item_id')->all());
+                    }
                 })
-                ->schema([
-                    Select::make('menu_catalog_item_id')->label('Položka')->relationship('catalogItem', 'name', fn (Builder $query) => $query
-                        ->where('menu_catalog_items.is_active', true)
-                        ->whereHas('catalogType', fn (Builder $query) => $query->where('slug', 'omacky-a-ostatni'))
-                        ->orderBy('menu_catalog_items.sort_order')
-                        ->orderBy('menu_catalog_items.name'))->searchable()->preload()->required(),
-                    Hidden::make('kind')->default('other'),
-                    Hidden::make('name_snapshot'),
-                ])->columns(1)->columnSpanFull(),
+                ->columnSpanFull(),
         ];
     }
 
