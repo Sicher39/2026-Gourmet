@@ -7,6 +7,7 @@ namespace App\Filament\Resources\RestaurantContactInformation;
 use App\Filament\Resources\RestaurantContactInformation\Pages\CreateRestaurantContactInformation;
 use App\Filament\Resources\RestaurantContactInformation\Pages\EditRestaurantContactInformation;
 use App\Filament\Resources\RestaurantContactInformation\Pages\ListRestaurantContactInformation;
+use App\Filament\Support\BranchScopedResource;
 use App\Models\CompanyProfile;
 use App\Models\RestaurantContactInformation;
 use Filament\Actions\BulkActionGroup;
@@ -15,13 +16,12 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class RestaurantContactInformationResource extends Resource
+class RestaurantContactInformationResource extends BranchScopedResource
 {
     protected static ?string $model = RestaurantContactInformation::class;
 

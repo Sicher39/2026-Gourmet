@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
@@ -59,6 +60,23 @@ class User extends Authenticatable implements FilamentUser
     public function managesRestaurant(int $restaurantId): bool
     {
         return $this->managedRestaurants()->whereKey($restaurantId)->exists();
+    }
+
+    public function managesPonavka(): bool
+    {
+        return $this->managesBranchNamed('ponavka');
+    }
+
+    public function managesVankovka(): bool
+    {
+        return $this->managesBranchNamed('vankovka');
+    }
+
+    private function managesBranchNamed(string $branchName): bool
+    {
+        return $this->managedRestaurants()
+            ->pluck('business_name')
+            ->contains(fn (string $name): bool => Str::contains(Str::lower(Str::ascii($name)), $branchName));
     }
 
     public function canManageSharedPlannedMenu(): bool

@@ -7,6 +7,7 @@ namespace App\Filament\Restaurant\Resources;
 use App\Enums\BranchMenuStatus;
 use App\Enums\MenuItemType;
 use App\Filament\Restaurant\Resources\BranchMenuResource\Pages;
+use App\Filament\Support\BranchScopedResource;
 use App\Models\BranchMenu;
 use App\Models\BranchMenuDay;
 use App\Models\BranchMenuItem;
@@ -23,7 +24,6 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Resources\Resource;
 use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
@@ -39,7 +39,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\HtmlString;
 use UnitEnum;
 
-class BranchMenuResource extends Resource
+class BranchMenuResource extends BranchScopedResource
 {
     protected static ?string $model = BranchMenu::class;
     protected static ?string $recordTitleAttribute = 'branch_name_snapshot';
@@ -53,14 +53,7 @@ class BranchMenuResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        $query = parent::getEloquentQuery()->with('restaurant');
-        $user = auth()->user();
-
-        if ($user instanceof User && ! $user->canManageSharedPlannedMenu()) {
-            $query->whereIn('restaurant_contact_information_id', $user->managedRestaurants()->select('restaurant_contact_information.id'));
-        }
-
-        return $query;
+        return parent::getEloquentQuery()->with('restaurant');
     }
 
     public static function getGloballySearchableAttributes(): array

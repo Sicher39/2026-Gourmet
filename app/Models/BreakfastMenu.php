@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToRestaurantBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class BreakfastMenu extends Model
 {
+    use BelongsToRestaurantBranch;
+
     protected $fillable = ['restaurant_contact_information_id', 'valid_from', 'valid_to', 'is_active'];
 
     protected function casts(): array

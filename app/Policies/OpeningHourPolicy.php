@@ -4,37 +4,44 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\OpeningHour;
+use App\Models\User as AuthUser;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class OpeningHourPolicy
 {
     use HandlesAuthorization;
-    
+
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:OpeningHour');
+        return ($authUser->can('ViewAny:OpeningHour')
+            || $authUser->can('View:OpeningHour')
+            || $authUser->can('Update:OpeningHour'))
+            && ($authUser->canManageSharedPlannedMenu() || $authUser->managedRestaurants()->exists());
     }
 
     public function view(AuthUser $authUser, OpeningHour $openingHour): bool
     {
-        return $authUser->can('View:OpeningHour');
+        return ($authUser->can('View:OpeningHour') || $authUser->can('Update:OpeningHour'))
+            && $this->canAccessOpeningHour($authUser, $openingHour);
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:OpeningHour');
+        return $authUser->can('Create:OpeningHour')
+            && ($authUser->canManageSharedPlannedMenu() || $authUser->managedRestaurants()->exists());
     }
 
     public function update(AuthUser $authUser, OpeningHour $openingHour): bool
     {
-        return $authUser->can('Update:OpeningHour');
+        return $authUser->can('Update:OpeningHour')
+            && $this->canAccessOpeningHour($authUser, $openingHour);
     }
 
     public function delete(AuthUser $authUser, OpeningHour $openingHour): bool
     {
-        return $authUser->can('Delete:OpeningHour');
+        return $authUser->can('Delete:OpeningHour')
+            && $this->canAccessOpeningHour($authUser, $openingHour);
     }
 
     public function restore(AuthUser $authUser, OpeningHour $openingHour): bool
@@ -67,4 +74,13 @@ class OpeningHourPolicy
         return $authUser->can('Reorder:OpeningHour');
     }
 
+    private function canAccessOpeningHour(AuthUser $authUser, OpeningHour $openingHour): bool
+    {
+        if ($authUser->canManageSharedPlannedMenu()) {
+            return true;
+        }
+
+        return ($openingHour->show_on_ponavka && $authUser->managesPonavka())
+            || ($openingHour->show_on_vankovka && $authUser->managesVankovka());
+    }
 }

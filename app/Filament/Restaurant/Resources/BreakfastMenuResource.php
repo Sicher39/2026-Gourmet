@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Filament\Restaurant\Resources;
 
 use App\Filament\Restaurant\Resources\BreakfastMenuResource\Pages;
+use App\Filament\Support\BranchScopedResource;
 use App\Models\BreakfastCatalogItem;
 use App\Models\BreakfastMenu;
 use App\Models\MenuAllergen;
+use App\Models\User;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -18,11 +20,10 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -30,7 +31,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\HtmlString;
 use UnitEnum;
 
-class BreakfastMenuResource extends Resource
+class BreakfastMenuResource extends BranchScopedResource
 {
     protected static ?string $model = BreakfastMenu::class;
 
@@ -61,7 +62,18 @@ class BreakfastMenuResource extends Resource
             Section::make('Snídaňové menu')->schema([
                 Select::make('restaurant_contact_information_id')
                     ->label('Pobočka')
-                    ->relationship('restaurant', 'business_name', fn (Builder $query) => $query->orderBy('business_name'))
+                    ->relationship('restaurant', 'business_name', function (Builder $query): Builder {
+                        $user = auth()->user();
+
+                        if ($user instanceof User && ! $user->canManageSharedPlannedMenu()) {
+                            $query->whereIn(
+                                'restaurant_contact_information.id',
+                                $user->managedRestaurants()->select('restaurant_contact_information.id'),
+                            );
+                        }
+
+                        return $query->orderBy('business_name');
+                    })
                     ->searchable()
                     ->preload()
                     ->required(),

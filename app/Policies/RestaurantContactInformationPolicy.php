@@ -4,22 +4,30 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\RestaurantContactInformation;
+use App\Models\User as AuthUser;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class RestaurantContactInformationPolicy
 {
     use HandlesAuthorization;
-    
+
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:RestaurantContactInformation');
+        if ($authUser->canManageSharedPlannedMenu()) {
+            return $authUser->can('ViewAny:RestaurantContactInformation');
+        }
+
+        return $authUser->managedRestaurants()->exists()
+            && ($authUser->can('ViewAny:RestaurantContactInformation')
+                || $authUser->can('View:RestaurantContactInformation')
+                || $authUser->can('Update:RestaurantContactInformation'));
     }
 
     public function view(AuthUser $authUser, RestaurantContactInformation $restaurantContactInformation): bool
     {
-        return $authUser->can('View:RestaurantContactInformation');
+        return ($authUser->can('View:RestaurantContactInformation') || $authUser->can('Update:RestaurantContactInformation'))
+            && ($authUser->canManageSharedPlannedMenu() || $authUser->managesRestaurant($restaurantContactInformation->getKey()));
     }
 
     public function create(AuthUser $authUser): bool
@@ -29,12 +37,14 @@ class RestaurantContactInformationPolicy
 
     public function update(AuthUser $authUser, RestaurantContactInformation $restaurantContactInformation): bool
     {
-        return $authUser->can('Update:RestaurantContactInformation');
+        return $authUser->can('Update:RestaurantContactInformation')
+            && ($authUser->canManageSharedPlannedMenu() || $authUser->managesRestaurant($restaurantContactInformation->getKey()));
     }
 
     public function delete(AuthUser $authUser, RestaurantContactInformation $restaurantContactInformation): bool
     {
-        return $authUser->can('Delete:RestaurantContactInformation');
+        return $authUser->can('Delete:RestaurantContactInformation')
+            && ($authUser->canManageSharedPlannedMenu() || $authUser->managesRestaurant($restaurantContactInformation->getKey()));
     }
 
     public function restore(AuthUser $authUser, RestaurantContactInformation $restaurantContactInformation): bool
@@ -66,5 +76,4 @@ class RestaurantContactInformationPolicy
     {
         return $authUser->can('Reorder:RestaurantContactInformation');
     }
-
 }

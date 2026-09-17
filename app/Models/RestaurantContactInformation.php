@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToRestaurantBranch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,7 +13,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RestaurantContactInformation extends Model
 {
+    use BelongsToRestaurantBranch;
     use SoftDeletes;
+
+    public static function restaurantBranchScopeColumn(): string
+    {
+        return 'id';
+    }
 
     protected $fillable = [
         'company_profile_id',
