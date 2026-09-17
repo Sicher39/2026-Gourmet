@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\PlannedMenu;
+use App\Models\User as AuthUser;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class PlannedMenuPolicy
@@ -14,22 +14,47 @@ class PlannedMenuPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:PlannedMenu');
+        if ($authUser->canManageSharedPlannedMenu()) {
+            return $authUser->can('ViewAny:PlannedMenu');
+        }
+
+        return $authUser->managedRestaurants()->exists()
+            && ($authUser->can('ViewAny:PlannedMenu')
+                || $authUser->can('View:PlannedMenu')
+                || $authUser->can('Update:PlannedMenu'));
     }
 
     public function view(AuthUser $authUser, PlannedMenu $plannedMenu): bool
     {
-        return $authUser->can('View:PlannedMenu');
+        return ($authUser->can('View:PlannedMenu') || $authUser->can('Update:PlannedMenu'))
+            && $this->canAccessRestaurantVariant($authUser, $plannedMenu);
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:PlannedMenu');
+        return $authUser->canManageSharedPlannedMenu()
+            && $authUser->can('Create:PlannedMenu');
     }
 
     public function update(AuthUser $authUser, PlannedMenu $plannedMenu): bool
     {
-        return $authUser->can('Update:PlannedMenu');
+        return $plannedMenu->isDraft()
+            && $authUser->can('Update:PlannedMenu')
+            && $this->canAccessRestaurantVariant($authUser, $plannedMenu);
+    }
+
+    private function canAccessRestaurantVariant(AuthUser $authUser, PlannedMenu $plannedMenu): bool
+    {
+        if ($authUser->canManageSharedPlannedMenu()) {
+            return true;
+        }
+
+        return $plannedMenu->branches()
+            ->whereIn(
+                'restaurant_contact_information_id',
+                $authUser->managedRestaurants()->select('restaurant_contact_information.id'),
+            )
+            ->exists();
     }
 
     public function delete(AuthUser $authUser, PlannedMenu $plannedMenu): bool

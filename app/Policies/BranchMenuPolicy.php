@@ -14,12 +14,19 @@ class BranchMenuPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:BranchMenu');
+        if ($authUser->canManageSharedPlannedMenu()) {
+            return $authUser->can('ViewAny:BranchMenu');
+        }
+
+        return $authUser->managedRestaurants()->exists()
+            && ($authUser->can('ViewAny:BranchMenu')
+                || $authUser->can('View:BranchMenu')
+                || $authUser->can('Update:BranchMenu'));
     }
 
     public function view(AuthUser $authUser, BranchMenu $branchMenu): bool
     {
-        return $authUser->can('View:BranchMenu')
+        return ($authUser->can('View:BranchMenu') || $authUser->can('Update:BranchMenu'))
             && ($authUser->canManageSharedPlannedMenu() || $authUser->managesRestaurant($branchMenu->restaurant_contact_information_id));
     }
 

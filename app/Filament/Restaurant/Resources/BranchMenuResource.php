@@ -65,7 +65,7 @@ class BranchMenuResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['branch_name_snapshot', 'days.items.name_snapshot'];
+        return ['branch_name_snapshot', 'days.items.item_name_snapshot'];
     }
 
     public static function form(Schema $schema): Schema
@@ -379,7 +379,6 @@ class BranchMenuResource extends Resource
             return false;
         }
 
-        return $user->canManageSharedPlannedMenu()
-            || ($user->can('Update:BranchMenu') && $user->managesRestaurant($record->restaurant_contact_information_id));
+        return $user->can('update', $record);
     }
 }

@@ -110,7 +110,7 @@ class PlannedMenuResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['week_start', 'note', 'branches.restaurant.business_name', 'days.items.name_snapshot'];
+        return ['week_start', 'note', 'branches.restaurant.business_name', 'days.items.catalogItem.name'];
     }
 
     public static function table(Table $table): Table
