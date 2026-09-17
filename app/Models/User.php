@@ -79,9 +79,14 @@ class User extends Authenticatable implements FilamentUser
             ->contains(fn (string $name): bool => Str::contains(Str::lower(Str::ascii($name)), $branchName));
     }
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole('super_admin');
+    }
+
     public function canManageSharedPlannedMenu(): bool
     {
-        return $this->hasRole('super_admin') || $this->can('ManageShared:PlannedMenu');
+        return $this->isSuperAdmin() || $this->can('ManageShared:PlannedMenu');
     }
 
     public function canApprovePlannedMenu(): bool

@@ -17,7 +17,7 @@ class EditOpeningHour extends EditRecord
     {
         $user = auth()->user();
 
-        if (! $user instanceof User || $user->canManageSharedPlannedMenu()) {
+        if (! $user instanceof User || $user->isSuperAdmin()) {
             return $data;
         }
 

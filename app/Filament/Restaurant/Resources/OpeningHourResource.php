@@ -49,7 +49,7 @@ class OpeningHourResource extends Resource
         $query = parent::getEloquentQuery();
         $user = auth()->user();
 
-        if (! $user instanceof User || $user->canManageSharedPlannedMenu()) {
+        if (! $user instanceof User || $user->isSuperAdmin()) {
             return $query;
         }
 
@@ -140,7 +140,7 @@ class OpeningHourResource extends Resource
     {
         $user = auth()->user();
 
-        return $user instanceof User && $user->canManageSharedPlannedMenu();
+        return $user instanceof User && $user->isSuperAdmin();
     }
 
     public static function getPages(): array

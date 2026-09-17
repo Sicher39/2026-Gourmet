@@ -17,7 +17,7 @@ class OpeningHourPolicy
         return ($authUser->can('ViewAny:OpeningHour')
             || $authUser->can('View:OpeningHour')
             || $authUser->can('Update:OpeningHour'))
-            && ($authUser->canManageSharedPlannedMenu() || $authUser->managedRestaurants()->exists());
+            && ($authUser->isSuperAdmin() || $authUser->managedRestaurants()->exists());
     }
 
     public function view(AuthUser $authUser, OpeningHour $openingHour): bool
@@ -28,7 +28,7 @@ class OpeningHourPolicy
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->canManageSharedPlannedMenu()
+        return $authUser->isSuperAdmin()
             && $authUser->can('Create:OpeningHour');
     }
 
@@ -76,7 +76,7 @@ class OpeningHourPolicy
 
     private function canAccessOpeningHour(AuthUser $authUser, OpeningHour $openingHour): bool
     {
-        if ($authUser->canManageSharedPlannedMenu()) {
+        if ($authUser->isSuperAdmin()) {
             return true;
         }
 
