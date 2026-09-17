@@ -28,8 +28,8 @@ class OpeningHourPolicy
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:OpeningHour')
-            && ($authUser->canManageSharedPlannedMenu() || $authUser->managedRestaurants()->exists());
+        return $authUser->canManageSharedPlannedMenu()
+            && $authUser->can('Create:OpeningHour');
     }
 
     public function update(AuthUser $authUser, OpeningHour $openingHour): bool

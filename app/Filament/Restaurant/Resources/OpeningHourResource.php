@@ -96,11 +96,13 @@ class OpeningHourResource extends Resource
                     ->default(0)
                     ->required(),
             ])->columns(2),
-            Section::make('Zobrazit na stránkách')->schema([
-                Toggle::make('show_on_ponavka')->label('Gourmet Ponávka'),
-                Toggle::make('show_on_vankovka')->label('Gourmet U Vaňkovky'),
-                Toggle::make('show_on_delivery')->label('Rozvoz na úvodní stránce'),
-            ])->columns(2),
+            Section::make('Zobrazit na stránkách')
+                ->visible(fn (): bool => static::currentUserCanManageBranchVisibility())
+                ->schema([
+                    Toggle::make('show_on_ponavka')->label('Gourmet Ponávka'),
+                    Toggle::make('show_on_vankovka')->label('Gourmet U Vaňkovky'),
+                    Toggle::make('show_on_delivery')->label('Rozvoz na úvodní stránce'),
+                ])->columns(2),
         ]);
     }
 
@@ -115,14 +117,30 @@ class OpeningHourResource extends Resource
                         ->map(fn (array $openingHour): string => "{$openingHour['days']}: {$openingHour['hours']}")
                         ->implode(', '))
                     ->wrap(),
-                IconColumn::make('show_on_ponavka')->label('Ponávka')->boolean(),
-                IconColumn::make('show_on_vankovka')->label('Vaňkovka')->boolean(),
-                IconColumn::make('show_on_delivery')->label('Rozvoz')->boolean(),
+                IconColumn::make('show_on_ponavka')
+                    ->label('Ponávka')
+                    ->boolean()
+                    ->visible(fn (): bool => static::currentUserCanManageBranchVisibility()),
+                IconColumn::make('show_on_vankovka')
+                    ->label('Vaňkovka')
+                    ->boolean()
+                    ->visible(fn (): bool => static::currentUserCanManageBranchVisibility()),
+                IconColumn::make('show_on_delivery')
+                    ->label('Rozvoz')
+                    ->boolean()
+                    ->visible(fn (): bool => static::currentUserCanManageBranchVisibility()),
                 TextColumn::make('sort_order')->label('Pořadí')->sortable(),
             ])
             ->defaultSort('sort_order')
             ->recordActions([EditAction::make()])
             ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
+    }
+
+    public static function currentUserCanManageBranchVisibility(): bool
+    {
+        $user = auth()->user();
+
+        return $user instanceof User && $user->canManageSharedPlannedMenu();
     }
 
     public static function getPages(): array
