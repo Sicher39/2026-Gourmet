@@ -14,8 +14,7 @@ import ButtonMain from '@/front/components/Buttons/ButtonMain.vue'
 import CookGallery from '@/front/components/FoodGallery/CookGallery.vue'
 import CompanyContacts from '@/front/components/Contacts/CompanyContacts.vue'
 import DeliveryItem from '@/front/Deliveries/DeliveryItem.vue'
-import OpeningHours from '@/front/components/Contacts/OpeningHours.vue'
-import DeliveryHours from "@/front/components/Contacts/DeliveryHours.vue";
+import DeliveryHours from '@/front/components/Contacts/DeliveryHours.vue'
 
 interface DeliveryService {
     id: number
@@ -155,7 +154,10 @@ const gourmetTwo = props.galleryImages['gourmet-2']
                         Objednejte si bleskový rozvoz přes Wolt Food nebo Foodoru přímo k vám domů
                         či do kanceláře.
                     </p>
-                    <DeliveryHours v-if="deliveryOpeningHours.length > 0" :opening-hours="deliveryOpeningHours" />
+                    <DeliveryHours
+                        v-if="deliveryOpeningHours.length > 0"
+                        :opening-hours="deliveryOpeningHours"
+                    />
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-y-20 md:gap-y-0">
                         <DeliveryItem v-for="(item, i) in deliveries" :key="i" v-bind="item" />
                     </div>
@@ -190,10 +192,12 @@ const gourmetTwo = props.galleryImages['gourmet-2']
                 </div>
                 <div class="block lg:pt-[40px] 3xl:pt-[90px] space-y-10">
                     <p>
-                        Kompletně pro vás zajistíme rauty, bankety, teambuildingy či jinou společenskou událost.
+                        Kompletně pro vás zajistíme rauty, bankety, teambuildingy či jinou
+                        společenskou událost.
                     </p>
                     <p>
-                        Akci uspořádáme v&nbsp;prostorách naší restaurace a&nbsp;kavárny, případně kdekoliv jinde dle vašich požadavků.
+                        Akci uspořádáme v&nbsp;prostorách naší restaurace a&nbsp;kavárny, případně
+                        kdekoliv jinde dle vašich požadavků.
                     </p>
                     <div class="flex justify-end">
                         <ButtonMain href="#kontakt">kontaktovat</ButtonMain>
@@ -213,14 +217,14 @@ const gourmetTwo = props.galleryImages['gourmet-2']
             <div class="relative w-full">
                 <FitTextItem text="Rauty" />
                 <FitTextHandWriteItem
-                        text="podle vašich představ"
-                        class="-mt-[70px] md:-mt-[150px] lg:-mt-[170px] xl:-mt-[260px] 3xl:-mt-[350px]"
+                    text="podle vašich představ"
+                    class="-mt-[70px] md:-mt-[150px] lg:-mt-[170px] xl:-mt-[260px] 3xl:-mt-[350px]"
                 />
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 md:mt-10 3xl:-mt-[120px]">
                 <div class="block">
                     <h3
-                            class="font-head text-primary text-3xl md:text-6xl lg:text-3xl 3xl:text-6xl font-black"
+                        class="font-head text-primary text-3xl md:text-6xl lg:text-3xl 3xl:text-6xl font-black"
                     >
                         Pohoštění na schůzku nebo rodinné setkání?
                     </h3>
@@ -278,7 +282,11 @@ const gourmetTwo = props.galleryImages['gourmet-2']
             </div>
 
             <div class="flex flex-col gap-5 py-20 md:flex-row md:gap-5 md:py-48 lg:gap-20">
-                <CookGallery v-for="item in cooksGallery.slice(0, 2)" :key="item.id" v-bind="item" />
+                <CookGallery
+                    v-for="item in cooksGallery.slice(0, 2)"
+                    :key="item.id"
+                    v-bind="item"
+                />
             </div>
         </div>
     </FullSection>

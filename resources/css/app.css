@@ -97,7 +97,7 @@
 }
 
 /*header section*/
-@utility bg-ponavka { background-image: url("/img/bg/ponavka.webp"); }
+@utility bg-ponavka { background-image: url("/img/bg/ponavka-branch.webp"); }
 @utility bg-uVankovky { background-image: url("/img/bg/u-vankovky.webp"); }
 
 
