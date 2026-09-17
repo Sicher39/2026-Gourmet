@@ -53,12 +53,19 @@ class OpeningHourResource extends Resource
             return $query;
         }
 
-        return $query->where(function (Builder $query) use ($user): void {
-            if ($user->managesPonavka()) {
+        $managesPonavka = $user->managesPonavka();
+        $managesVankovka = $user->managesVankovka();
+
+        if (! $managesPonavka && ! $managesVankovka) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->where(function (Builder $query) use ($managesPonavka, $managesVankovka): void {
+            if ($managesPonavka) {
                 $query->orWhere('show_on_ponavka', true);
             }
 
-            if ($user->managesVankovka()) {
+            if ($managesVankovka) {
                 $query->orWhere('show_on_vankovka', true);
             }
         });
