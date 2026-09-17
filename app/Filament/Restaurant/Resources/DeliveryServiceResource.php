@@ -27,6 +27,10 @@ class DeliveryServiceResource extends Resource
 {
     protected static ?string $model = DeliveryService::class;
 
+    protected static bool $isGloballySearchable = true;
+
+    protected static ?string $recordTitleAttribute = 'name';
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-truck';
 
     protected static string|UnitEnum|null $navigationGroup = 'Obsah';

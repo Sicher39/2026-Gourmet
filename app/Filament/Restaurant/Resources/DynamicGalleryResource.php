@@ -24,6 +24,10 @@ class DynamicGalleryResource extends Resource
 {
     protected static ?string $model = DynamicGallery::class;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static bool $isGloballySearchable = true;
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-photo';
 
     protected static string|UnitEnum|null $navigationGroup = 'Obsah';

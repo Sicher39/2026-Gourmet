@@ -25,6 +25,10 @@ class CompanyProfileResource extends Resource
 {
     protected static ?string $model = CompanyProfile::class;
 
+    protected static ?string $recordTitleAttribute = 'company_name';
+
+    protected static bool $isGloballySearchable = true;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-building-office-2';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Obsah';

@@ -47,6 +47,10 @@ class PlannedMenuResource extends Resource
 {
     protected static ?string $model = PlannedMenu::class;
 
+    protected static ?string $recordTitleAttribute = 'week_start';
+
+    protected static bool $isGloballySearchable = true;
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-calendar-days';
 
     protected static string|UnitEnum|null $navigationGroup = 'Menu a lístky';
@@ -102,6 +106,11 @@ class PlannedMenuResource extends Resource
                 ->visible(fn (?PlannedMenu $record): bool => $record !== null)
                 ->columnSpanFull(),
         ]);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['week_start', 'note', 'branches.restaurant.business_name', 'days.items.name_snapshot'];
     }
 
     public static function table(Table $table): Table

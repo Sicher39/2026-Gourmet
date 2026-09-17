@@ -25,6 +25,10 @@ class RestaurantContactInformationResource extends Resource
 {
     protected static ?string $model = RestaurantContactInformation::class;
 
+    protected static ?string $recordTitleAttribute = 'business_name';
+
+    protected static bool $isGloballySearchable = true;
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-map-pin';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Obsah';

@@ -22,6 +22,10 @@ class MenuCatalogTypeResource extends Resource
 {
     protected static ?string $model = MenuCatalogType::class;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static bool $isGloballySearchable = true;
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-tag';
 
     protected static string|UnitEnum|null $navigationGroup = 'Menu a lístky';

@@ -34,6 +34,10 @@ class BreakfastMenuResource extends Resource
 {
     protected static ?string $model = BreakfastMenu::class;
 
+    protected static ?string $recordTitleAttribute = 'valid_from';
+
+    protected static bool $isGloballySearchable = true;
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-sun';
 
     protected static string|UnitEnum|null $navigationGroup = 'Menu a lístky';
@@ -45,6 +49,11 @@ class BreakfastMenuResource extends Resource
     protected static ?string $pluralModelLabel = 'snídaňová menu';
 
     protected static ?int $navigationSort = 40;
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['valid_from', 'restaurant.business_name', 'items.name_snapshot'];
+    }
 
     public static function form(Schema $schema): Schema
     {

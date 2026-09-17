@@ -27,6 +27,10 @@ class CookResource extends Resource
 {
     protected static ?string $model = Cook::class;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static bool $isGloballySearchable = true;
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
 
     protected static string|UnitEnum|null $navigationGroup = 'Obsah';

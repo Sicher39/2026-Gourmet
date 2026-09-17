@@ -43,6 +43,7 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Green,
             ])
             ->viteTheme('resources/css/filament/theme.css')
+            ->globalSearchResourceOptIn()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverResources(in: app_path('Filament/Restaurant/Resources'), for: 'App\\Filament\\Restaurant\\Resources')
             ->navigationGroups([

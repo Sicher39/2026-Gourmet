@@ -22,6 +22,10 @@ class MenuUnitResource extends Resource
 {
     protected static ?string $model = MenuUnit::class;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static bool $isGloballySearchable = true;
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-scale';
 
     protected static string|UnitEnum|null $navigationGroup = 'Menu a lístky';

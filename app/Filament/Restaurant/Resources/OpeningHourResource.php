@@ -37,6 +37,11 @@ class OpeningHourResource extends Resource
 
     protected static ?int $navigationSort = 42;
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name'];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

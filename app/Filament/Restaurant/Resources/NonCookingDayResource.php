@@ -27,6 +27,11 @@ class NonCookingDayResource extends Resource
     protected static ?string $pluralModelLabel = 'nevařící dny';
     protected static ?int $navigationSort = 80;
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['date', 'internal_note'];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

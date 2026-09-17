@@ -27,6 +27,10 @@ class BreakfastCatalogItemResource extends Resource
 {
     protected static ?string $model = BreakfastCatalogItem::class;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static bool $isGloballySearchable = true;
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static string|UnitEnum|null $navigationGroup = 'Menu a lístky';
