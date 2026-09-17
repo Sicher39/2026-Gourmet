@@ -15,6 +15,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
@@ -51,26 +52,20 @@ class CookResource extends Resource
                     ->label('Jméno')
                     ->required()
                     ->maxLength(255),
+                Toggle::make('is_team')
+                    ->label('Týmová fotografie')
+                    ->helperText('Vypnuto: kuchař se čtvercovou fotografií. Zapnuto: tým s fotografií 16 : 9.')
+                    ->default(false)
+                    ->live(),
                 FileUpload::make('image')
                     ->label('Fotografie')
-                    ->helperText('Fotografie se před uložením ořízne na čtverec, zmenší na 1000 × 1000 px a uloží jako WebP v kvalitě 75 %.')
+                    ->helperText('Po výběru fotografie se automaticky otevře editor. V něm lze přepnout ořez mezi 1 : 1 a 16 : 9; fotografii mimo provedený ořez automaticky nezmenšujeme.')
                     ->disk('public')
                     ->directory('cooks')
                     ->visibility('public')
                     ->image()
-                    ->imageAspectRatio('1:1')
                     ->imageEditor()
-                    ->imageEditorAspectRatioOptions(['1:1'])
-                    ->imageEditorViewportWidth(1000)
-                    ->imageEditorViewportHeight(1000)
-                    ->automaticallyOpenImageEditorForAspectRatio()
-                    ->automaticallyCropImagesToAspectRatio()
-                    ->automaticallyResizeImagesMode('cover')
-                    ->automaticallyResizeImagesToWidth('1000')
-                    ->automaticallyResizeImagesToHeight('1000')
-                    ->extraAlpineAttributes([
-                        'x-init' => "const configureWebpOutput = () => { if (! pond) { requestAnimationFrame(configureWebpOutput); return; } pond.setOptions({ imageTransformOutputMimeType: 'image/webp', imageTransformOutputQuality: 75 }); }; configureWebpOutput();",
-                    ])
+                    ->imageEditorAspectRatioOptions([null, '1:1', '16:9'])
                     ->maxSize(5120)
                     ->required(),
                 TextInput::make('sort_order')
@@ -94,8 +89,9 @@ class CookResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('image')->label('Fotografie')->disk('public')->square(),
+                ImageColumn::make('image')->label('Fotografie')->disk('public'),
                 TextColumn::make('name')->label('Jméno')->searchable()->sortable(),
+                IconColumn::make('is_team')->label('Tým')->boolean(),
                 IconColumn::make('show_on_homepage')->label('Úvod')->boolean(),
                 IconColumn::make('show_on_ponavka')->label('Ponávka')->boolean(),
                 IconColumn::make('show_on_vankovka')->label('Vaňkovka')->boolean(),

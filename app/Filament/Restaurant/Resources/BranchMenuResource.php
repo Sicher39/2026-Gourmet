@@ -87,7 +87,7 @@ class BranchMenuResource extends Resource
 
                     $today = CarbonImmutable::today();
                     $weekStart = CarbonImmutable::parse($branchMenu->week_start);
-                    $dayOffset = $weekStart->diffInDays($today, false);
+                    $dayOffset = (int) $weekStart->diffInDays($today, false);
 
                     return min(5, max(1, $dayOffset + 1));
                 })

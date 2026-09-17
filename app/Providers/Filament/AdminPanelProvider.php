@@ -40,7 +40,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName($this->getBrandName($companyProfile))
             ->favicon($this->getFrontFaviconUrl())
             ->colors([
-                'primary' => Color::Orange,
+                'primary' => Color::Green,
             ])
             ->viteTheme('resources/css/filament/theme.css')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
@@ -52,6 +52,7 @@ class AdminPanelProvider extends PanelProvider
                 'Nastavení',
             ])
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->pages([])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

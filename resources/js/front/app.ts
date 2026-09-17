@@ -3,7 +3,7 @@ import '../bootstrap.ts';
 import { createApp, h, type DefineComponent } from 'vue';
 import { createInertiaApp, router } from '@inertiajs/vue3';
 import { ZiggyVue } from 'ziggy-js';
-import { transformPageProps } from './utils/czechTypography';
+import { observeCzechTypography, transformPageProps } from './utils/czechTypography';
 
 createInertiaApp({
     resolve: async (name) => {
@@ -24,6 +24,8 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue)
             .mount(el);
+
+        observeCzechTypography();
     },
 });
 

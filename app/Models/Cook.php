@@ -17,6 +17,7 @@ class Cook extends Model
     protected $fillable = [
         'name',
         'image',
+        'is_team',
         'show_on_homepage',
         'show_on_ponavka',
         'show_on_vankovka',
@@ -26,6 +27,7 @@ class Cook extends Model
     protected function casts(): array
     {
         return [
+            'is_team' => 'boolean',
             'show_on_homepage' => 'boolean',
             'show_on_ponavka' => 'boolean',
             'show_on_vankovka' => 'boolean',

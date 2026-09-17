@@ -3,16 +3,23 @@ const props = withDefaults(
     defineProps<{
         image?: string
         name?: string
+        isTeam?: boolean
     }>(),
     {
         image: '',
-        name: ''
+        name: '',
+        isTeam: false
     }
 )
 </script>
 
 <template>
-    <div class="relative w-full aspect-square overflow-hidden">
+    <div
+        class="relative min-w-0 overflow-hidden"
+        :class="props.isTeam
+            ? 'aspect-video basis-full md:basis-0 md:flex-[16]'
+            : 'aspect-square basis-full md:basis-0 md:flex-[9]'"
+    >
         <img
             :src="props.image"
             :alt="props.name"
@@ -22,9 +29,9 @@ const props = withDefaults(
             <img src="/img/svg/knife.svg" class="w-8/12" alt="">
         </div>
         <div
-            class="absolute bottom-[10px] left-[75px] md:bottom-[12px] md:left-[60px] xl:left-[75px]"
+            class="absolute bottom-[10px] left-[75px] md:bottom-[15px] md:left-[60px] xl:left-[75px]"
         >
-            <p class="text-lg md:text-sm xl:text-lg">{{ props.name }}</p>
+            <p class="text-sm ">{{ props.name }}</p>
         </div>
     </div>
 </template>

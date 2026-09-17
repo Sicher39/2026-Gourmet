@@ -34,6 +34,7 @@ interface Cook {
     id: number
     image: string
     name: string
+    isTeam: boolean
 }
 
 interface GalleryImages {
@@ -179,7 +180,7 @@ const gourmetTwo = props.galleryImages['gourmet-2']
                     <h3
                         class="font-head text-primary text-3xl md:text-6xl lg:text-3xl 3xl:text-6xl font-black"
                     >
-                        Plánujete firemní večírek, oslavu nebo svatbu?
+                        Plánujete firemní večírek nebo oslavu?
                     </h3>
                     <div class="hidden lg:flex justify-end">
                         <AnimateSvgItem class="w-8/12 text-accent">
@@ -189,13 +190,10 @@ const gourmetTwo = props.galleryImages['gourmet-2']
                 </div>
                 <div class="block lg:pt-[40px] 3xl:pt-[90px] space-y-10">
                     <p>
-                        Kompletně pro vás zajistíme rauty, bankety, recepce či školení včetně
-                        doprovodného programu, jako je živá hudba, barmanská show nebo živé vaření.
+                        Kompletně pro vás zajistíme rauty, bankety, teambuildingy či jinou společenskou událost.
                     </p>
                     <p>
-                        Akci rádi uspořádáme v prostorách naší restaurace a kavárny, případně
-                        kdekoliv jinde dle vašich požadavků. Umíme malé akce pro 5 osob i velké
-                        události pro více než 100 hostů.
+                        Akci uspořádáme v&nbsp;prostorách naší restaurace a&nbsp;kavárny, případně kdekoliv jinde dle vašich požadavků.
                     </p>
                     <div class="flex justify-end">
                         <ButtonMain href="#kontakt">kontaktovat</ButtonMain>
@@ -209,28 +207,28 @@ const gourmetTwo = props.galleryImages['gourmet-2']
             </div>
         </div>
     </FullSection>
+
     <FullSection id="rauty">
         <div class="block -mt-[40px] md:-mt-[80px] 3xl:-mt-[200px]">
             <div class="relative w-full">
                 <FitTextItem text="Rauty" />
                 <FitTextHandWriteItem
-                    text="podle vašich představ"
-                    class="-mt-[70px] md:-mt-[150px] lg:-mt-[170px] xl:-mt-[260px] 3xl:-mt-[350px]"
+                        text="podle vašich představ"
+                        class="-mt-[70px] md:-mt-[150px] lg:-mt-[170px] xl:-mt-[260px] 3xl:-mt-[350px]"
                 />
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 md:mt-10 3xl:-mt-[120px]">
                 <div class="block">
                     <h3
-                        class="font-head text-primary text-3xl md:text-6xl lg:text-3xl 3xl:text-6xl font-black"
+                            class="font-head text-primary text-3xl md:text-6xl lg:text-3xl 3xl:text-6xl font-black"
                     >
                         Pohoštění na schůzku nebo rodinné setkání?
                     </h3>
                 </div>
                 <div class="block lg:pt-[40px] 3xl:pt-[90px] space-y-10">
                     <p>
-                        Připravíme pro vás čerstvé bagety, chlebíčky, dezerty i bohaté ovocné,
-                        zeleninové či slané mísy. Na zakázku pro vás rádi uvaříme i teplé obědy ve
-                        větším počtu porcí.
+                        Připravíme pro vás čerstvé bagety, kanapky, dezerty i bohaté ovocné,
+                        zeleninové či slané mísy.
                     </p>
                     <p>
                         Vše pro vás nachystáme k vyzvednutí u nás v domluvený čas. Vzhledem k
@@ -279,10 +277,8 @@ const gourmetTwo = props.galleryImages['gourmet-2']
                 </div>
             </div>
 
-            <div
-                class="grid grid-cols-1 md:grid-cols-3 w-full py-20 md:py-48 gap-y-20 md:gap-y-0 md:gap-5 lg:gap-20"
-            >
-                <CookGallery v-for="item in cooksGallery" :key="item.id" v-bind="item" />
+            <div class="flex flex-col gap-5 py-20 md:flex-row md:gap-5 md:py-48 lg:gap-20">
+                <CookGallery v-for="item in cooksGallery.slice(0, 2)" :key="item.id" v-bind="item" />
             </div>
         </div>
     </FullSection>

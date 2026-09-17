@@ -7,6 +7,7 @@ namespace App\Filament\Restaurant\Resources;
 use App\Enums\ContentStatus;
 use App\Filament\Restaurant\Resources\DynamicGalleryResource\Pages;
 use App\Models\DynamicGallery;
+use App\Support\ImageToWebpConverter;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
@@ -16,6 +17,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use UnitEnum;
 
 class DynamicGalleryResource extends Resource
@@ -40,16 +42,20 @@ class DynamicGalleryResource extends Resource
             Section::make('Galerie')->schema([
                 FileUpload::make('images')
                     ->label('Obrázky')
-                    ->helperText('Přidejte jeden nebo více obrázků výběrem nebo přetažením souborů. Pořadí lze upravit přetažením. Před nahráním se obrázky v prohlížeči převedou do WebP v kvalitě 75 %.')
+                    ->helperText('Přidejte jeden nebo více obrázků výběrem nebo přetažením souborů. Každou fotografii upravíte samostatně ikonou tužky u jejího náhledu; lze zvolit volný ořez, 1 : 1 nebo 16 : 9. JPG, PNG a HEIC/HEIF se uloží jako WebP v kvalitě 70 %, již připravené WebP zůstane beze změny. Pořadí lze upravit přetažením.')
                     ->disk('public')
                     ->directory('dynamic-galleries')
                     ->visibility('public')
                     ->image()
+                    ->imageEditor()
+                    ->imageEditorAspectRatioOptions([null, '1:1', '16:9'])
+                    ->saveUploadedFileUsing(fn (TemporaryUploadedFile $file): string => ImageToWebpConverter::storeUploadedFile(
+                        $file,
+                        'dynamic-galleries',
+                        'images',
+                    ))
                     ->imagePreviewHeight('150')
                     ->panelLayout('grid')
-                    ->extraAlpineAttributes([
-                        'x-init' => "const configureWebpOutput = () => { if (! pond) { requestAnimationFrame(configureWebpOutput); return; } pond.setOptions({ imageTransformOutputMimeType: 'image/webp', imageTransformOutputQuality: 75 }); }; configureWebpOutput();",
-                    ])
                     ->multiple()
                     ->reorderable()
                     ->appendFiles()

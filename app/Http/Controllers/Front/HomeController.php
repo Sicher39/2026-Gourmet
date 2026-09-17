@@ -115,6 +115,7 @@ class HomeController extends Controller
                     'id' => $cook->id,
                     'name' => $cook->name,
                     'image' => $cook->imageUrl(),
+                    'isTeam' => $cook->is_team,
                 ])
                 ->all();
         }

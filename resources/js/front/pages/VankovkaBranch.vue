@@ -32,6 +32,7 @@ interface Cook {
     id: number
     image: string
     name: string
+    isTeam: boolean
 }
 
 interface CompanyContact {
@@ -476,9 +477,8 @@ const sectionsHours = props.openingHours
                 </div>
             </div>
 
-            <div
-                class="grid grid-cols-1 md:grid-cols-3 w-full py-20 md:py-48 gap-y-20 md:gap-y-0 md:gap-5 lg:gap-20"
-            >
+            <div class="flex flex-col gap-5 py-20 md:flex-row md:gap-5 md:py-48 lg:gap-20">
+
                 <CookGallery v-for="item in cooksGallery" :key="item.id" v-bind="item" />
             </div>
         </div>

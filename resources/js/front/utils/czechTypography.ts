@@ -5,7 +5,7 @@ type TypographyMode = 'text' | 'html'
 
 const SINGLE_LETTER_WORDS = /(^|[\s([{"„])([AaIiKkOoSsUuVvZz])\s+(?=\S)/g
 const ABBREVIATIONS = /(^|[\s([{"„])((?:čl|odst|písm|str|č|tel|mob)\.)\s+(?=\S)/gi
-const NUMBER_WITH_FOLLOWING_TOKEN = /(\d+(?:[ .,]\d+)*)(?:\s+)(?=(?:%|°C|kW|kWh|MWh|MW|Wp|W|V|A|Ah|Kč|EUR|m|m2|m²|m3|m³|cm|mm|kg|t|ks|let|roku|roků|dní|hodin|hodiny|hod|Sb\.|CZK|\S))/g
+const NUMBER_WITH_FOLLOWING_TOKEN = /(\d+(?:[ .,]\d+)*)(?:\s+)(?=(?:%|‰|°[CF]|kcal|kJ|kW|kWh|MWh|MW|Wp|W|V|A|Ah|Kč|CZK|EUR|€|USD|\$|l|ml|cl|dl|m|m2|m²|m3|m³|cm|mm|km|kg|g|mg|t|ks|let|roku|roků|dní|hodin|hodiny|hod|min|s|Sb\.|\S))/g
 
 function spacer(mode: TypographyMode): string {
   return mode === 'html' ? HTML_NBSP : NBSP
@@ -120,4 +120,80 @@ function transformBackendValue(value: unknown, key: string | null = null): unkno
  */
 export function transformPageProps(props: Record<string, unknown>): void {
   transformBackendValue(props)
+}
+
+const SKIPPED_ELEMENT_NAMES = new Set([
+  'CODE',
+  'KBD',
+  'PRE',
+  'SCRIPT',
+  'STYLE',
+  'SVG',
+  'TEXTAREA',
+])
+
+function shouldTransformTextNode(node: Text): boolean {
+  const parent = node.parentElement
+
+  return parent !== null
+    && !parent.closest('[contenteditable], [data-no-typography]')
+    && !SKIPPED_ELEMENT_NAMES.has(parent.tagName)
+}
+
+function transformTextNode(node: Text): void {
+  if (!shouldTransformTextNode(node)) {
+    return
+  }
+
+  const transformed = nbspText(node.data)
+
+  if (transformed !== node.data) {
+    node.data = transformed
+  }
+}
+
+/**
+ * Applies Czech typography to static templates and dynamically inserted frontend text.
+ * Technical and editable content can opt out with the data-no-typography attribute.
+ */
+export function observeCzechTypography(root: HTMLElement = document.body): MutationObserver {
+  const transformTree = (node: Node): void => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      transformTextNode(node as Text)
+
+      return
+    }
+
+    const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT)
+    let textNode = walker.nextNode()
+
+    while (textNode) {
+      transformTextNode(textNode as Text)
+      textNode = walker.nextNode()
+    }
+  }
+
+  transformTree(root)
+
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.type === 'characterData') {
+        transformTextNode(mutation.target as Text)
+
+        continue
+      }
+
+      for (const node of mutation.addedNodes) {
+        transformTree(node)
+      }
+    }
+  })
+
+  observer.observe(root, {
+    childList: true,
+    characterData: true,
+    subtree: true,
+  })
+
+  return observer
 }

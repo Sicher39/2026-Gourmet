@@ -45,6 +45,11 @@ class ImageToWebpConverter
         }
 
         $mimeType = $file->getMimeType();
+
+        if ($mimeType === 'image/webp') {
+            return self::storeOriginalWebp($file, $directory);
+        }
+
         $filename = Str::uuid().'.webp';
         $tempPath = sys_get_temp_dir().DIRECTORY_SEPARATOR.$filename;
 
@@ -69,6 +74,20 @@ class ImageToWebpConverter
                 unlink($tempPath);
             }
         }
+    }
+
+    private static function storeOriginalWebp(UploadedFile $file, string $directory): string
+    {
+        $filename = Str::uuid().'.webp';
+        $disk = Storage::disk('public');
+
+        if (! $disk->exists($directory)) {
+            $disk->makeDirectory($directory);
+        }
+
+        $disk->putFileAs($directory, $file, $filename, 'public');
+
+        return $directory.'/'.$filename;
     }
 
     private static function shouldUseImagick(?string $mimeType): bool

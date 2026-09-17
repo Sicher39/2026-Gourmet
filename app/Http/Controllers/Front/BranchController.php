@@ -67,7 +67,7 @@ class BranchController extends Controller
             ->first()?->imageUrls() ?? [];
     }
 
-    /** @return array<int, array{id: int, name: string, image: string}> */
+    /** @return array<int, array{id: int, name: string, image: string, isTeam: bool}> */
     private function cooksFor(string $visibilityColumn): array
     {
         if (! Schema::hasTable('cooks')) {
@@ -84,6 +84,7 @@ class BranchController extends Controller
                 'id' => $cook->id,
                 'name' => $cook->name,
                 'image' => $cook->imageUrl(),
+                'isTeam' => $cook->is_team,
             ])
             ->all();
     }
