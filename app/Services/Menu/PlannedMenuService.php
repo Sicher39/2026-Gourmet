@@ -186,6 +186,7 @@ class PlannedMenuService
                 'unit_symbol_snapshot' => $plannedItem->unit?->symbol,
                 'price' => $plannedItem->default_price,
                 'is_available' => $variant->is_available,
+                'show_on_web' => true,
                 'is_common_menu_item' => $plannedItem->planned_menu_id !== null,
                 'sort_order' => $plannedItem->sort_order,
                 'allergens_snapshot' => collect($baseAllergens)->merge($extraAllergens)->unique()->sort()->values()->all(),

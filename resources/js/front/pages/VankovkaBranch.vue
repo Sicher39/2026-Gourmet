@@ -10,7 +10,7 @@ import type {
     BranchMenuPayload
 } from '@/front/types/branch-menu'
 import { router } from '@inertiajs/vue3'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import DailyMenu from '@/front/components/MenuItems/DailyMenu.vue'
@@ -80,6 +80,7 @@ let weeklyMenuContext: gsap.Context | null = null
 let removeWeeklyMenuResizeListener: (() => void) | null = null
 let removeWeeklyMenuScrollListener: (() => void) | null = null
 let removeWeeklyMenuItemsScrollListener: (() => void) | null = null
+let removeMenuWatcher: (() => void) | null = null
 let menuRefreshInterval: ReturnType<typeof setInterval> | null = null
 
 onMounted(async (): Promise<void> => {
@@ -97,16 +98,17 @@ onMounted(async (): Promise<void> => {
         return
     }
 
-    const cards = Array.from(section.querySelectorAll<HTMLElement>('.weekly-menu-card'))
-    const cardContents = cards
-        .map((card) => card.querySelector<HTMLElement>('.weekly-menu-card-surface'))
-        .filter((card): card is HTMLElement => card instanceof HTMLElement)
-    const itemViewports = cards
-        .map((card) => card.querySelector<HTMLElement>('.weekly-menu-items-viewport'))
-        .filter((viewport): viewport is HTMLElement => viewport instanceof HTMLElement)
-    const menuItems = cards
-        .map((card) => card.querySelector<HTMLElement>('.weekly-menu-items'))
-        .filter((items): items is HTMLElement => items instanceof HTMLElement)
+    let cards = Array.from(section.querySelectorAll<HTMLElement>('.weekly-menu-card'))
+    let cardContents = cards.map((card) => card.querySelector<HTMLElement>('.weekly-menu-card-surface')).filter((card): card is HTMLElement => card instanceof HTMLElement)
+    let itemViewports = cards.map((card) => card.querySelector<HTMLElement>('.weekly-menu-items-viewport'))
+    let menuItems = cards.map((card) => card.querySelector<HTMLElement>('.weekly-menu-items'))
+
+    const collectCards = (): void => {
+        cards = Array.from(section.querySelectorAll<HTMLElement>('.weekly-menu-card'))
+        cardContents = cards.map((card) => card.querySelector<HTMLElement>('.weekly-menu-card-surface')).filter((card): card is HTMLElement => card instanceof HTMLElement)
+        itemViewports = cards.map((card) => card.querySelector<HTMLElement>('.weekly-menu-items-viewport'))
+        menuItems = cards.map((card) => card.querySelector<HTMLElement>('.weekly-menu-items'))
+    }
     const overflowReadingDistance = 120
     const cardGap = 60
     let stickyTop = 80
@@ -150,10 +152,14 @@ onMounted(async (): Promise<void> => {
             cardContent.style.top = ''
         })
         itemViewports.forEach((viewport) => {
-            viewport.style.height = ''
+            if (viewport) {
+                viewport.style.height = ''
+            }
         })
         menuItems.forEach((items) => {
-            items.style.transform = ''
+            if (items) {
+                items.style.transform = ''
+            }
         })
 
         const availableCardHeight = Math.max(320, window.innerHeight - stickyTop - 32)
@@ -170,7 +176,7 @@ onMounted(async (): Promise<void> => {
         itemViewports.forEach((viewport, index) => {
             const cardContent = cardContents[index]
 
-            if (!cardContent) {
+            if (!cardContent || !viewport) {
                 return
             }
 
@@ -215,6 +221,14 @@ onMounted(async (): Promise<void> => {
     synchronizeCardHeights()
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    removeMenuWatcher = watch(() => props.branchMenu, async () => {
+        await nextTick()
+        collectCards()
+        synchronizeCardHeights()
+        if (!prefersReducedMotion) {
+            ScrollTrigger.refresh()
+        }
+    })
     const handleResize = (): void => {
         synchronizeCardHeights()
 
@@ -318,6 +332,8 @@ onBeforeUnmount((): void => {
     removeWeeklyMenuScrollListener = null
     removeWeeklyMenuItemsScrollListener?.()
     removeWeeklyMenuItemsScrollListener = null
+    removeMenuWatcher?.()
+    removeMenuWatcher = null
     weeklyMenuContext?.revert()
     weeklyMenuContext = null
 })

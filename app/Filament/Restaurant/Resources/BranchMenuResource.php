@@ -220,13 +220,19 @@ class BranchMenuResource extends BranchScopedResource
         $typeLabel = $type?->label() ?? 'Položka';
         $numberedType = $type instanceof MenuItemType ? $typeLabel.' '.max(1, $typeNumber) : $typeLabel;
         $name = (string) ($state['item_name_snapshot'] ?? '');
+        $visibility = match (true) {
+            ($state['is_available'] ?? true) === false => ' · mimo nabídku',
+            ($state['show_on_web'] ?? true) === false => ' · skryto na webu',
+            default => '',
+        };
         $badgeColor = $type === MenuItemType::Soup ? '#f59e0b' : '#10b981';
         $badgeBackground = $type === MenuItemType::Soup ? 'rgba(245, 158, 11, 0.16)' : 'rgba(16, 185, 129, 0.16)';
 
         return new HtmlString(
             '<span style="display:inline-flex;align-items:center;border-radius:9999px;padding:0.125rem 0.5rem;font-weight:600;color:'
             .$badgeColor.';background-color:'.$badgeBackground.'">'.e($numberedType).'</span>'
-            .(filled($name) ? '<span style="margin-left:0.35rem"> – '.e($name).'</span>' : ''),
+            .(filled($name) ? '<span style="margin-left:0.35rem"> – '.e($name).'</span>' : '')
+            .(filled($visibility) ? '<span style="margin-left:0.35rem;color:#f59e0b">'.e($visibility).'</span>' : ''),
         );
     }
 

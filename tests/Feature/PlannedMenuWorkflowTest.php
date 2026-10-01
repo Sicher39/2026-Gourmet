@@ -14,6 +14,7 @@ use App\Models\NonCookingDay;
 use App\Models\PlannedMenu;
 use App\Models\RestaurantContactInformation;
 use App\Models\User;
+use App\Services\Menu\BranchMenuFrontendService;
 use App\Services\Menu\PlannedMenuService;
 use Carbon\CarbonImmutable;
 use Spatie\Permission\Models\Role;
@@ -133,6 +134,54 @@ class PlannedMenuWorkflowTest extends TestCase
         self::assertCount(8, $commonBranchItems);
         self::assertSame([true], $commonBranchItems->pluck('is_common_menu_item')->unique()->all());
         self::assertTrue($mondayItems->last()->is_common_menu_item);
+    }
+
+    public function test_next_week_web_menu_contains_every_available_published_item_in_order(): void
+    {
+        [$user, $restaurants] = $this->createPlanningContext();
+        $plannedMenu = PlannedMenu::query()->create([
+            'week_start' => '2026-10-05',
+            'week_end' => '2026-10-09',
+            'status' => PlannedMenuStatus::Draft,
+            'created_by' => $user->getKey(),
+        ]);
+        $service = app(PlannedMenuService::class);
+        $service->initialize($plannedMenu);
+        $catalogType = MenuCatalogType::query()->create(['name' => 'Hlavní jídla', 'slug' => 'hlavni-jidla', 'is_active' => true]);
+
+        $catalogItems = collect(range(1, 6))->mapWithKeys(fn (int $number): array => [
+            $number => MenuCatalogItem::query()->create([
+                'menu_catalog_type_id' => $catalogType->getKey(),
+                'name' => "Jídlo {$number}",
+                'default_price' => 169,
+                'is_active' => true,
+            ]),
+        ]);
+
+        foreach ($plannedMenu->days()->orderBy('date')->get() as $day) {
+            foreach ($catalogItems as $number => $catalogItem) {
+                $item = $day->items()->create([
+                    'type' => MenuItemType::Main,
+                    'menu_catalog_item_id' => $catalogItem->getKey(),
+                    'default_price' => 169,
+                    'sort_order' => $number,
+                ]);
+                $service->createMissingBranchVariants($item);
+            }
+        }
+
+        $service->approve($plannedMenu, $user);
+        $this->travelTo(CarbonImmutable::parse('2026-10-02 12:00:00'));
+
+        try {
+            $payload = app(BranchMenuFrontendService::class)->forRestaurant($restaurants->first(), onlyWebVisible: true);
+            self::assertCount(5, $payload['upcoming']);
+            self::assertSame([1, 2, 3, 4, 5, 6], array_column($payload['upcoming'][0]['menuItems'], 'menuIndex'));
+            self::assertSame(['Jídlo 1', 'Jídlo 2', 'Jídlo 3', 'Jídlo 4', 'Jídlo 5', 'Jídlo 6'], array_column($payload['upcoming'][0]['menuItems'], 'foodName'));
+            self::assertSame([true, true, true, true, true, true], array_column($payload['upcoming'][0]['menuItems'], 'enabled'));
+        } finally {
+            $this->travelBack();
+        }
     }
 
     private function createPlanningContext(): array
