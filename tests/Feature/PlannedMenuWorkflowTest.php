@@ -290,6 +290,70 @@ class PlannedMenuWorkflowTest extends TestCase
             ->assertSee('Hovězí guláš');
     }
 
+    public function test_manager_only_sees_assigned_variants_and_saving_preserves_other_branch_variants(): void
+    {
+        [$admin, $restaurants] = $this->createPlanningContext();
+        $plannedMenu = PlannedMenu::query()->create([
+            'week_start' => '2026-10-19',
+            'week_end' => '2026-10-23',
+            'status' => PlannedMenuStatus::Draft,
+            'created_by' => $admin->getKey(),
+        ]);
+        $service = app(PlannedMenuService::class);
+        $service->initialize($plannedMenu);
+        $mainType = MenuCatalogType::query()->create(['name' => 'Hlavní jídla', 'slug' => 'hlavni-jidla', 'is_active' => true]);
+        $sideType = MenuCatalogType::query()->create(['name' => 'Přílohy', 'slug' => 'prilohy', 'is_active' => true]);
+        $main = MenuCatalogItem::query()->create(['menu_catalog_type_id' => $mainType->getKey(), 'name' => 'Oběd', 'default_price' => 169, 'is_active' => true]);
+        $side = MenuCatalogItem::query()->create(['menu_catalog_type_id' => $sideType->getKey(), 'name' => 'Brambory', 'default_price' => 0, 'is_active' => true]);
+        $day = $plannedMenu->days()->whereDate('date', '2026-10-19')->firstOrFail();
+        $dailyItem = $day->items()->create(['type' => MenuItemType::Main, 'menu_catalog_item_id' => $main->getKey(), 'default_price' => 169, 'sort_order' => 1]);
+        $commonItem = $plannedMenu->commonItems()->create(['type' => MenuItemType::Main, 'menu_catalog_item_id' => $main->getKey(), 'default_price' => 169, 'sort_order' => 1]);
+        $commonItem->scheduledDays()->sync([$day->getKey()]);
+
+        foreach ([$dailyItem, $commonItem] as $item) {
+            $service->createMissingBranchVariants($item);
+        }
+
+        $ponavkaBranch = $plannedMenu->branches()->where('restaurant_contact_information_id', $restaurants->first()->getKey())->firstOrFail();
+        $vankovkaBranch = $plannedMenu->branches()->where('restaurant_contact_information_id', $restaurants->last()->getKey())->firstOrFail();
+        $dailyPonavka = $dailyItem->branchVariants()->where('planned_menu_branch_id', $ponavkaBranch->getKey())->firstOrFail();
+        $dailyVankovka = $dailyItem->branchVariants()->where('planned_menu_branch_id', $vankovkaBranch->getKey())->firstOrFail();
+        $commonPonavka = $commonItem->branchVariants()->where('planned_menu_branch_id', $ponavkaBranch->getKey())->firstOrFail();
+        $commonVankovka = $commonItem->branchVariants()->where('planned_menu_branch_id', $vankovkaBranch->getKey())->firstOrFail();
+        $dailyVankovka->sideItems()->sync([$side->getKey()]);
+        $commonVankovka->sideItems()->sync([$side->getKey()]);
+        $dailyVankovka->update(['is_available' => false]);
+        $commonVankovka->update(['is_available' => false]);
+
+        $manager = User::factory()->create();
+        $manager->managedRestaurants()->attach($restaurants->first()->getKey());
+        $manager->givePermissionTo(Permission::findOrCreate('Update:PlannedMenu', 'web'));
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        Livewire::actingAs($manager)
+            ->test(EditPlannedMenu::class, ['record' => $plannedMenu->getKey()])
+            ->assertSee('Provozovna – Ponávka')
+            ->assertDontSee('Provozovna – Vaňkovka')
+            ->set("data.day_0.record-{$day->getKey()}.items.record-{$dailyItem->getKey()}.branchVariants.record-{$dailyPonavka->getKey()}.sideItems", [$side->getKey()])
+            ->set("data.commonItems.record-{$commonItem->getKey()}.branchVariants.record-{$commonPonavka->getKey()}.sideItems", [$side->getKey()])
+            ->call('save')
+            ->assertHasNoErrors();
+
+        self::assertSame([$side->getKey()], $dailyPonavka->sideItems()->pluck('menu_catalog_items.id')->all());
+        self::assertSame([$side->getKey()], $commonPonavka->sideItems()->pluck('menu_catalog_items.id')->all());
+        self::assertSame([$side->getKey()], $dailyVankovka->sideItems()->pluck('menu_catalog_items.id')->all());
+        self::assertSame([$side->getKey()], $commonVankovka->sideItems()->pluck('menu_catalog_items.id')->all());
+        self::assertSame(2, $dailyItem->branchVariants()->count());
+        self::assertSame(2, $commonItem->branchVariants()->count());
+        self::assertFalse($dailyVankovka->fresh()->is_available);
+        self::assertFalse($commonVankovka->fresh()->is_available);
+
+        Livewire::actingAs($admin)
+            ->test(EditPlannedMenu::class, ['record' => $plannedMenu->getKey()])
+            ->assertSee('Provozovna – Ponávka')
+            ->assertSee('Provozovna – Vaňkovka');
+    }
+
     private function createPlanningContext(): array
     {
         $role = Role::query()->create(['name' => 'super_admin', 'guard_name' => 'web']);

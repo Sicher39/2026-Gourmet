@@ -581,7 +581,7 @@ class PlannedMenuResource extends Resource
                 ->disabled(fn (): bool => ! static::currentUserCanManageShared()),
             Repeater::make('branchVariants')
                 ->label('Provozovny')
-                ->relationship()
+                ->relationship(modifyRecordsUsing: fn (EloquentCollection $records): EloquentCollection => static::visibleBranchVariants($records))
                 ->default(function ($livewire): array {
                     $plannedMenu = $livewire->getRecord();
 
@@ -684,6 +684,30 @@ class PlannedMenuResource extends Resource
             ->modelKeys();
 
         $item->scheduledDays()->sync($validDayIds);
+    }
+
+    /** @param EloquentCollection<int, PlannedMenuItemBranch> $records
+     *  @return EloquentCollection<int, PlannedMenuItemBranch>
+     */
+    private static function visibleBranchVariants(EloquentCollection $records): EloquentCollection
+    {
+        $user = auth()->user();
+
+        if (! $user instanceof User) {
+            return $records->filter(fn (): bool => false);
+        }
+
+        if ($user->canManageSharedPlannedMenu() || $records->isEmpty()) {
+            return $records;
+        }
+
+        $allowedBranchIds = PlannedMenuBranch::query()
+            ->whereKey($records->pluck('planned_menu_branch_id'))
+            ->whereIn('restaurant_contact_information_id', $user->managedRestaurants()->select('restaurant_contact_information.id'))
+            ->pluck('id')
+            ->all();
+
+        return $records->filter(fn (PlannedMenuItemBranch $variant): bool => in_array($variant->planned_menu_branch_id, $allowedBranchIds));
     }
 
     private static function currentUserCanManageShared(): bool
