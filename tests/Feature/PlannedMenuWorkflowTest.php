@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Enums\MenuItemType;
 use App\Enums\PlannedMenuStatus;
 use App\Filament\Restaurant\Resources\BranchMenuResource\Pages\EditBranchMenu;
+use App\Filament\Restaurant\Resources\PlannedMenuResource\Pages\EditPlannedMenu;
 use App\Models\BranchMenu;
 use App\Models\CompanyProfile;
 use App\Models\MenuCatalogItem;
@@ -20,6 +21,7 @@ use App\Services\Menu\PlannedMenuService;
 use Carbon\CarbonImmutable;
 use Filament\Facades\Filament;
 use Livewire\Livewire;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\Concerns\UsesIsolatedTestDatabase;
 use Tests\TestCase;
@@ -27,6 +29,16 @@ use Tests\TestCase;
 class PlannedMenuWorkflowTest extends TestCase
 {
     use UsesIsolatedTestDatabase;
+
+    public function test_planned_menu_record_title_formats_the_week_without_a_time(): void
+    {
+        $menu = new PlannedMenu(['week_start' => '2026-10-19', 'week_end' => '2026-10-23']);
+        self::assertSame('19. – 23. 10. 2026', $menu->week_period);
+
+        $menu->week_start = '2026-09-28';
+        $menu->week_end = '2026-10-02';
+        self::assertSame('28. 9. – 2. 10. 2026', $menu->week_period);
+    }
 
     public function test_initialization_snapshots_all_branches_and_marks_non_cooking_days(): void
     {
@@ -245,6 +257,37 @@ class PlannedMenuWorkflowTest extends TestCase
 
         self::assertSame([], $item->sideItems()->pluck('menu_catalog_item_id')->all());
         self::assertSame([$other->getKey()], $item->otherItems()->pluck('menu_catalog_item_id')->all());
+    }
+
+    public function test_branch_manager_sees_names_and_numbers_in_collapsed_planned_menu_items(): void
+    {
+        [$admin, $restaurants] = $this->createPlanningContext();
+        $plannedMenu = PlannedMenu::query()->create([
+            'week_start' => '2026-10-19',
+            'week_end' => '2026-10-23',
+            'status' => PlannedMenuStatus::Draft,
+            'created_by' => $admin->getKey(),
+        ]);
+        app(PlannedMenuService::class)->initialize($plannedMenu);
+        $soupType = MenuCatalogType::query()->create(['name' => 'Polévky', 'slug' => 'polevky', 'is_active' => true]);
+        $mainType = MenuCatalogType::query()->create(['name' => 'Hlavní jídla', 'slug' => 'hlavni-jidla', 'is_active' => true]);
+        $soup = MenuCatalogItem::query()->create(['menu_catalog_type_id' => $soupType->getKey(), 'name' => 'Boršč', 'default_price' => 39, 'is_active' => true]);
+        $main = MenuCatalogItem::query()->create(['menu_catalog_type_id' => $mainType->getKey(), 'name' => 'Hovězí guláš', 'default_price' => 169, 'is_active' => true]);
+        $day = $plannedMenu->days()->whereDate('date', '2026-10-19')->firstOrFail();
+        $day->items()->create(['type' => MenuItemType::Soup, 'menu_catalog_item_id' => $soup->getKey(), 'default_price' => 39, 'sort_order' => 1]);
+        $day->items()->create(['type' => MenuItemType::Main, 'menu_catalog_item_id' => $main->getKey(), 'default_price' => 169, 'sort_order' => 2]);
+
+        $manager = User::factory()->create();
+        $manager->managedRestaurants()->attach($restaurants->first()->getKey());
+        $manager->givePermissionTo(Permission::findOrCreate('Update:PlannedMenu', 'web'));
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        Livewire::actingAs($manager)
+            ->test(EditPlannedMenu::class, ['record' => $plannedMenu->getKey()])
+            ->assertSee('Polévka 1')
+            ->assertSee('Boršč')
+            ->assertSee('Menu 1')
+            ->assertSee('Hovězí guláš');
     }
 
     private function createPlanningContext(): array

@@ -47,7 +47,7 @@ class PlannedMenuResource extends Resource
 {
     protected static ?string $model = PlannedMenu::class;
 
-    protected static ?string $recordTitleAttribute = 'week_start';
+    protected static ?string $recordTitleAttribute = 'week_period';
 
     protected static bool $isGloballySearchable = true;
 
@@ -179,9 +179,9 @@ class PlannedMenuResource extends Resource
                     ->collapseAllAction(fn (Action $action): Action => $action->label('Skrýt vše'))
                     ->expandAllAction(fn (Action $action): Action => $action->label('Otevřít vše'))
                     ->itemLabel(fn (array $state, string $key, Repeater $component): HtmlString => static::menuItemLabel(
-                        state: $state,
+                        state: ($component->getRawState() ?? [])[$key] ?? $state,
                         itemKey: $key,
-                        repeaterState: $component->getState(),
+                        repeaterState: $component->getRawState() ?? [],
                     ))
                     ->schema([
                         CheckboxList::make('scheduled_day_ids')
@@ -305,9 +305,9 @@ class PlannedMenuResource extends Resource
                             ->collapseAllAction(fn (Action $action): Action => $action->label('Skrýt vše'))
                             ->expandAllAction(fn (Action $action): Action => $action->label('Otevřít vše'))
                             ->itemLabel(fn (array $state, string $key, Repeater $component): HtmlString => static::menuItemLabel(
-                                state: $state,
+                                state: ($component->getRawState() ?? [])[$key] ?? $state,
                                 itemKey: $key,
-                                repeaterState: $component->getState(),
+                                repeaterState: $component->getRawState() ?? [],
                             ))
                             ->schema(static::menuItemSchema())
                             ->columns(2)

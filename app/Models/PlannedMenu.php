@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\PlannedMenuStatus;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -51,6 +52,22 @@ class PlannedMenu extends Model
     public function approver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function getWeekPeriodAttribute(): string
+    {
+        $start = CarbonImmutable::parse($this->week_start);
+        $end = CarbonImmutable::parse($this->week_end);
+
+        if ($start->isSameMonth($end) && $start->year === $end->year) {
+            return $start->format('j.').' – '.$end->format('j. n. Y');
+        }
+
+        if ($start->year === $end->year) {
+            return $start->format('j. n.').' – '.$end->format('j. n. Y');
+        }
+
+        return $start->format('j. n. Y').' – '.$end->format('j. n. Y');
     }
 
     public function isDraft(): bool
