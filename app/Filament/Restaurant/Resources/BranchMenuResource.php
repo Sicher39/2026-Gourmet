@@ -314,6 +314,11 @@ class BranchMenuResource extends BranchScopedResource
                         $component->state($record->sideItems()->pluck('menu_catalog_item_id')->all());
                     }
                 })
+                ->saveRelationshipsUsing(function (Select $component, ?BranchMenuItem $record): void {
+                    if ($record instanceof BranchMenuItem) {
+                        static::syncComponentSelection($record, $component->getRawState(), 'side', 'prilohy');
+                    }
+                })
                 ->columnSpanFull(),
             Select::make('otherItems')
                 ->label('Ostatní')
@@ -333,8 +338,43 @@ class BranchMenuResource extends BranchScopedResource
                         $component->state($record->otherItems()->pluck('menu_catalog_item_id')->all());
                     }
                 })
+                ->saveRelationshipsUsing(function (Select $component, ?BranchMenuItem $record): void {
+                    if ($record instanceof BranchMenuItem) {
+                        static::syncComponentSelection($record, $component->getRawState(), 'other', 'omacky-a-ostatni');
+                    }
+                })
                 ->columnSpanFull(),
         ];
+    }
+
+    /** @param array<int|string, mixed>|null $catalogItemIds */
+    private static function syncComponentSelection(BranchMenuItem $item, ?array $catalogItemIds, string $kind, string $catalogTypeSlug): void
+    {
+        if ($catalogItemIds === null) {
+            return;
+        }
+
+        $selectedIds = array_values(array_unique(array_map(
+            intval(...),
+            array_filter($catalogItemIds, fn (mixed $id): bool => is_numeric($id) && (int) $id > 0),
+        )));
+        $allowedIds = MenuCatalogItem::query()
+            ->whereKey($selectedIds)
+            ->where('is_active', true)
+            ->whereHas('catalogType', fn (Builder $query): Builder => $query->where('slug', $catalogTypeSlug))
+            ->pluck('id')
+            ->map(fn (int|string $id): int => (int) $id)
+            ->all();
+
+        $item->catalogItems()->where('kind', $kind)->delete();
+
+        foreach (array_values(array_intersect($selectedIds, $allowedIds)) as $sortOrder => $catalogItemId) {
+            $item->catalogItems()->create([
+                'menu_catalog_item_id' => $catalogItemId,
+                'kind' => $kind,
+                'sort_order' => $sortOrder,
+            ]);
+        }
     }
 
     public static function table(Table $table): Table

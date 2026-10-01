@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Enums\MenuItemType;
 use App\Enums\PlannedMenuStatus;
+use App\Filament\Restaurant\Resources\BranchMenuResource\Pages\EditBranchMenu;
 use App\Models\BranchMenu;
 use App\Models\CompanyProfile;
 use App\Models\MenuCatalogItem;
@@ -17,6 +18,8 @@ use App\Models\User;
 use App\Services\Menu\BranchMenuFrontendService;
 use App\Services\Menu\PlannedMenuService;
 use Carbon\CarbonImmutable;
+use Filament\Facades\Filament;
+use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
 use Tests\Concerns\UsesIsolatedTestDatabase;
 use Tests\TestCase;
@@ -182,6 +185,66 @@ class PlannedMenuWorkflowTest extends TestCase
         } finally {
             $this->travelBack();
         }
+    }
+
+    public function test_branch_menu_editor_persists_and_removes_components_without_touching_other_branches(): void
+    {
+        [$user, $restaurants] = $this->createPlanningContext();
+        $plannedMenu = PlannedMenu::query()->create([
+            'week_start' => '2026-10-05',
+            'week_end' => '2026-10-09',
+            'status' => PlannedMenuStatus::Draft,
+            'created_by' => $user->getKey(),
+        ]);
+        $service = app(PlannedMenuService::class);
+        $service->initialize($plannedMenu);
+        $mainType = MenuCatalogType::query()->create(['name' => 'Hlavní jídla', 'slug' => 'hlavni-jidla', 'is_active' => true]);
+        $sideType = MenuCatalogType::query()->create(['name' => 'Přílohy', 'slug' => 'prilohy', 'is_active' => true]);
+        $otherType = MenuCatalogType::query()->create(['name' => 'Ostatní', 'slug' => 'omacky-a-ostatni', 'is_active' => true]);
+        $main = MenuCatalogItem::query()->create(['menu_catalog_type_id' => $mainType->getKey(), 'name' => 'Hlavní', 'default_price' => 169, 'is_active' => true]);
+        $side = MenuCatalogItem::query()->create(['menu_catalog_type_id' => $sideType->getKey(), 'name' => 'Brambory', 'default_price' => 0, 'is_active' => true]);
+        $other = MenuCatalogItem::query()->create(['menu_catalog_type_id' => $otherType->getKey(), 'name' => 'Omáčka', 'default_price' => 0, 'is_active' => true]);
+
+        foreach ($plannedMenu->days()->get() as $day) {
+            $item = $day->items()->create([
+                'type' => MenuItemType::Main,
+                'menu_catalog_item_id' => $main->getKey(),
+                'default_price' => 169,
+                'sort_order' => 1,
+            ]);
+            $service->createMissingBranchVariants($item);
+        }
+
+        $service->approve($plannedMenu, $user);
+        $branchMenu = BranchMenu::query()->where('restaurant_contact_information_id', $restaurants->first()->getKey())->firstOrFail();
+        $day = $branchMenu->days()->whereDate('date', '2026-10-05')->firstOrFail();
+        $item = $day->items()->firstOrFail();
+        $itemPath = "data.day_0.record-{$day->getKey()}.items.record-{$item->getKey()}";
+
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        Livewire::actingAs($user)
+            ->test(EditBranchMenu::class, ['record' => $branchMenu->getKey()])
+            ->set("{$itemPath}.sideItems", [$side->getKey()])
+            ->set("{$itemPath}.otherItems", [$other->getKey()])
+            ->call('save')
+            ->assertHasNoErrors();
+
+        self::assertSame([$side->getKey()], $item->sideItems()->pluck('menu_catalog_item_id')->all());
+        self::assertSame([$other->getKey()], $item->otherItems()->pluck('menu_catalog_item_id')->all());
+        self::assertSame([], BranchMenu::query()
+            ->where('restaurant_contact_information_id', $restaurants->last()->getKey())
+            ->firstOrFail()->days()->whereDate('date', '2026-10-05')->firstOrFail()
+            ->items()->firstOrFail()->catalogItems()->pluck('menu_catalog_item_id')->all());
+
+        Livewire::actingAs($user)
+            ->test(EditBranchMenu::class, ['record' => $branchMenu->getKey()])
+            ->set("{$itemPath}.sideItems", [])
+            ->call('save')
+            ->assertHasNoErrors();
+
+        self::assertSame([], $item->sideItems()->pluck('menu_catalog_item_id')->all());
+        self::assertSame([$other->getKey()], $item->otherItems()->pluck('menu_catalog_item_id')->all());
     }
 
     private function createPlanningContext(): array
