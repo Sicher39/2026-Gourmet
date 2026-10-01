@@ -1,0 +1,20 @@
+[data-pwa-install-container][hidden],
+[data-pwa-install-button][hidden],
+[data-pwa-install-hint][hidden],
+[data-pwa-install-dismiss][hidden],
+.g-pwa-standalone [data-pwa-install-container] { display: none !important; }
+
+.g-pwa-install { padding: .75rem; margin: .5rem; border-top: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
+.g-pwa-install__heading { margin: 0; padding-inline: .5rem; font-size: .75rem; font-weight: 600; letter-spacing: .025em; text-transform: uppercase; }
+.g-pwa-install__button { display: flex; align-items: center; gap: .75rem; width: 100%; min-height: 44px; padding: .5rem; border-radius: .5rem; font-size: .875rem; font-weight: 600; text-align: left; }
+.g-pwa-install__button:hover, .g-pwa-install__button:focus-visible { background: color-mix(in srgb, currentColor 10%, transparent); }
+.g-pwa-install__hint { padding: .5rem; font-size: .875rem; line-height: 1.5; }
+.g-pwa-install__dismiss { min-height: 44px; padding: .5rem; font-size: .875rem; text-decoration: underline; }
+
+@media (max-width: 767px) {
+    .fi-body { padding-bottom: env(safe-area-inset-bottom, 0px); }
+    .fi-topbar { padding-top: env(safe-area-inset-top, 0px); }
+    .fi-btn, .fi-icon-btn, .fi-sidebar-item-button { min-height: 44px; }
+    .fi-ta-content { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .fi-modal-window { max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 1rem); }
+}

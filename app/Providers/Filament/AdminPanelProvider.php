@@ -11,6 +11,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -43,6 +44,8 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Green,
             ])
             ->viteTheme('resources/css/filament/theme.css')
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => view('filament.pwa.head')->render())
+            ->renderHook(PanelsRenderHook::SIDEBAR_NAV_END, fn (): string => view('filament.pwa.install')->render())
             ->globalSearchResourceOptIn()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverResources(in: app_path('Filament/Restaurant/Resources'), for: 'App\\Filament\\Restaurant\\Resources')
