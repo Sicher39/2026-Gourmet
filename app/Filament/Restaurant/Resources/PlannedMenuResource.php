@@ -421,13 +421,23 @@ class PlannedMenuResource extends Resource
 
     private static function catalogTypeIdForMenuItemType(mixed $type): ?int
     {
-        $slug = $type === MenuItemType::Soup->value ? 'polevky' : 'hlavni-jidla';
+        $slug = static::catalogTypeSlugForMenuItemType($type);
         $catalogTypeId = MenuCatalogType::query()
             ->where('slug', $slug)
             ->where('is_active', true)
             ->value('id');
 
         return is_numeric($catalogTypeId) ? (int) $catalogTypeId : null;
+    }
+
+    private static function catalogTypeSlugForMenuItemType(mixed $type): string
+    {
+        return match ($type) {
+            MenuItemType::Soup->value => 'polevky',
+            MenuItemType::Pizza->value => 'pizza',
+            MenuItemType::Grill->value => 'grill',
+            default => 'hlavni-jidla',
+        };
     }
 
     private static function plannedBranchName(mixed $plannedMenuBranchId): string
@@ -483,7 +493,7 @@ class PlannedMenuResource extends Resource
                     return $query
                         ->where('menu_catalog_items.is_active', true)
                         ->whereHas('catalogType', function (Builder $query) use ($get): void {
-                            $query->where('slug', $get('type') === MenuItemType::Soup->value ? 'polevky' : 'hlavni-jidla');
+                            $query->where('slug', static::catalogTypeSlugForMenuItemType($get('type')));
                         })
                         ->when(
                             $usedCatalogItemIds !== [],
