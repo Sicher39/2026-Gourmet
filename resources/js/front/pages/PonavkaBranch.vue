@@ -401,6 +401,8 @@ const sectionsHours = props.openingHours
                     :non-cooking-message="menu.nonCookingMessage"
                     :soup-items="menu.soupItems"
                     :menu-items="menu.menuItems"
+                    :pizza-items="menu.pizzaItems"
+                    :grill-items="menu.grillItems"
                 />
             </div>
         </div>

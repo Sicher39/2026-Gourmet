@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { DailyFoodItem, DailySoupItem } from '@/front/types/branch-menu'
+import type { DailyFoodItem, DailyGrillItem, DailyPizzaItem, DailySoupItem } from '@/front/types/branch-menu'
 import { computed } from 'vue'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     day: string
     date: string
     second?: boolean
@@ -10,11 +10,18 @@ const props = defineProps<{
     nonCookingMessage?: string | null
     soupItems: DailySoupItem[]
     menuItems: DailyFoodItem[]
-}>()
+    pizzaItems?: DailyPizzaItem[]
+    grillItems?: DailyGrillItem[]
+}>(), {
+    pizzaItems: () => [],
+    grillItems: () => [],
+})
 
 const visibleSoups = computed(() => props.soupItems.filter((soup) => soup.enabled))
 
 const visibleMenuItems = computed(() => props.menuItems.filter((food) => food.enabled))
+const visiblePizzaItems = computed(() => props.pizzaItems.filter((pizza) => pizza.enabled))
+const visibleGrillItems = computed(() => props.grillItems.filter((grill) => grill.enabled))
 </script>
 
 <template>
@@ -100,6 +107,26 @@ const visibleMenuItems = computed(() => props.menuItems.filter((food) => food.en
                     <div class="col-span-2">
                         <p class="text-right text-primary">{{ food.price }}&nbsp;Kč</p>
                     </div>
+                </div>
+                <div
+                    v-for="pizza in visiblePizzaItems"
+                    :key="`pizza-${pizza.menuIndex}`"
+                    class="grid grid-cols-12 py-5"
+                >
+                    <div class="col-span-3 md:col-span-2"><p class="text-primary">Pizza {{ pizza.menuIndex }}</p><p class="text-sm font-light text-primary">*{{ pizza.allergens }}</p></div>
+                    <div class="col-span-2 md:col-span-1"><p class="font-light text-primary">{{ pizza.weight }}&nbsp;{{ pizza.unit }}</p></div>
+                    <div class="col-span-5 md:col-span-7"><p class="text-primary">{{ pizza.pizzaName }}</p></div>
+                    <div class="col-span-2"><p class="text-right text-primary">{{ pizza.price }}&nbsp;Kč</p></div>
+                </div>
+                <div
+                    v-for="grill in visibleGrillItems"
+                    :key="`grill-${grill.menuIndex}`"
+                    class="grid grid-cols-12 py-5"
+                >
+                    <div class="col-span-3 md:col-span-2"><p class="text-primary">Grill {{ grill.menuIndex }}</p><p class="text-sm font-light text-primary">*{{ grill.allergens }}</p></div>
+                    <div class="col-span-2 md:col-span-1"><p class="font-light text-primary">{{ grill.weight }}&nbsp;{{ grill.unit }}</p></div>
+                    <div class="col-span-5 md:col-span-7"><p class="text-primary">{{ grill.grillName }}</p></div>
+                    <div class="col-span-2"><p class="text-right text-primary">{{ grill.price }}&nbsp;Kč</p></div>
                 </div>
             </div>
         </div>
