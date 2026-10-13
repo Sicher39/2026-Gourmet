@@ -65,16 +65,15 @@ const hasSpecialtyMenu = computed(
 <template>
     <div
         :class="[
-            'mt-10 grid grid-cols-1 py-10 px-5 2xl:px-10',
-            hasSpecialtyMenu ? 'lg:grid-cols-2 lg:gap-x-5' : 'lg:grid-cols-12 lg:gap-x-10'
+            'mt-10 grid grid-cols-1 py-10 px-5 2xl:px-10 lg:grid-cols-12 lg:gap-x-10'
         ]"
     >
-        <div :class="hasSpecialtyMenu ? 'w-full' : 'contents'">
-            <div :class="hasSpecialtyMenu ? '' : 'lg:col-span-4'">
+        <div class="contents">
+            <div class="lg:col-span-4">
                 <h3 class="font-head text-2xl font-bold uppercase text-primary">Denní menu</h3>
             </div>
 
-            <div :class="hasSpecialtyMenu ? '' : 'lg:col-span-8'">
+            <div class="lg:col-span-8 lg:col-start-5">
                 <p
                 v-if="props.isNonCookingDay"
                 class="mt-5 font-head text-2xl font-bold uppercase text-primary lg:-mt-5"
@@ -129,10 +128,10 @@ const hasSpecialtyMenu = computed(
         </div>
         </div>
 
-        <div v-if="hasSpecialtyMenu" class="mt-10 w-full lg:col-start-2 lg:mt-0">
-            <section v-if="visiblePizzaItems.length > 0">
+        <div v-if="hasSpecialtyMenu" class="mt-10 w-full lg:col-span-8 lg:col-start-5 lg:mt-0">
+            <section v-if="visiblePizzaItems.length > 0" class="mt-2 md:mt-7">
                 <h3 class="font-head text-2xl font-bold uppercase text-primary">Pizza</h3>
-                <div class="mt-5 divide-y divide-accent">
+                <div class="divide-y divide-accent">
                     <div
                         v-for="pizza in visiblePizzaItems"
                         :key="`pizza-${pizza.menuIndex}`"
@@ -155,9 +154,9 @@ const hasSpecialtyMenu = computed(
                 </div>
             </section>
 
-            <section :class="visiblePizzaItems.length > 0 ? 'mt-10' : ''" v-if="visibleGrillItems.length > 0">
+            <section :class="visiblePizzaItems.length > 0 ? 'mt-2 md:mt-7' : ''" v-if="visibleGrillItems.length > 0">
                 <h3 class="font-head text-2xl font-bold uppercase text-primary">Grill</h3>
-                <div class="mt-5 divide-y divide-accent">
+                <div class="divide-y divide-accent">
                     <div
                         v-for="grill in visibleGrillItems"
                         :key="`grill-${grill.menuIndex}`"

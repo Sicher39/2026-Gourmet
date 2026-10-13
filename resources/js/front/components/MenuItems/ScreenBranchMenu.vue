@@ -73,48 +73,74 @@ const screenMenuItems = computed<ScreenMenuItem[]>(() => [
     }))
 ])
 
+const menuItemCount = computed(() => screenMenuItems.value.length)
+
 const rowDensityClass = computed(() => {
-    if (screenMenuItems.value.length >= 13) {
-        return 'py-1.5'
+    if (menuItemCount.value >= 13) {
+        return 'py-0.5'
     }
 
-    if (screenMenuItems.value.length >= 9) {
-        return 'py-2.5'
+    if (menuItemCount.value >= 9) {
+        return 'py-1'
+    }
+
+    if (menuItemCount.value >= 6) {
+        return 'py-2'
     }
 
     return 'py-4'
 })
 
 const itemTextClass = computed(() => {
-    if (screenMenuItems.value.length >= 13) {
-        return 'text-3xl leading-tight'
+    if (menuItemCount.value >= 13) {
+        return 'text-xl leading-tight'
     }
 
-    if (screenMenuItems.value.length >= 9) {
+    if (menuItemCount.value >= 9) {
+        return 'text-2xl leading-tight'
+    }
+
+    if (menuItemCount.value >= 6) {
         return 'text-4xl leading-tight'
     }
 
-    return 'text-5xl leading-tight'
+    return 'text-6xl leading-tight'
 })
 
-const allergenTextClass = computed(() => {
-    if (screenMenuItems.value.length >= 13) {
+const labelTextClass = computed(() => {
+    if (menuItemCount.value >= 13) {
         return 'text-base leading-tight'
     }
 
-    return 'text-lg leading-tight'
+    if (menuItemCount.value >= 9) {
+        return 'text-lg leading-tight'
+    }
+
+    return 'text-2xl leading-tight'
+})
+
+const menuRowsStyle = computed(() => ({
+    gridTemplateRows: `repeat(${Math.max(menuItemCount.value, 1)}, minmax(0, 1fr))`,
+}))
+
+const allergenTextClass = computed(() => {
+    if (screenMenuItems.value.length >= 13) {
+        return 'text-xs leading-tight'
+    }
+
+    return 'text-sm leading-tight'
 })
 
 const weightTextClass = computed(() => {
     if (screenMenuItems.value.length >= 13) {
-        return 'text-xl leading-tight'
+        return 'text-sm leading-tight'
     }
 
     if (screenMenuItems.value.length >= 9) {
-        return 'text-2xl leading-tight'
+        return 'text-base leading-tight'
     }
 
-    return 'text-3xl leading-tight'
+    return 'text-lg leading-tight'
 })
 
 let menuRefreshInterval: ReturnType<typeof setInterval> | null = null
@@ -124,7 +150,7 @@ onMounted((): void => {
         router.reload({
             only: ['branchMenu']
         })
-    }, 60_000)
+    }, 30_000)
 })
 
 onBeforeUnmount((): void => {
@@ -136,7 +162,7 @@ onBeforeUnmount((): void => {
 </script>
 
 <template>
-    <main class="relative min-h-screen bg-white px-6 py-6 pb-16 2xl:px-16">
+    <main class="relative h-screen overflow-hidden bg-white px-6 py-4 pb-12 2xl:px-16">
         <p
             v-if="todayMenu.isNonCookingDay"
             class="font-head text-2xl font-bold uppercase text-primary"
@@ -144,15 +170,19 @@ onBeforeUnmount((): void => {
             {{ todayMenu.nonCookingMessage ?? 'Dnes nevaříme' }}
         </p>
 
-        <section v-else class="divide-y divide-accent">
+        <section
+            v-else
+            class="grid h-[calc(100vh-4rem)] divide-y divide-accent"
+            :style="menuRowsStyle"
+        >
             <div
                 v-for="item in screenMenuItems"
                 :key="item.key"
-                class="grid grid-cols-[12rem_5rem_minmax(0,1fr)_max-content]"
+                class="grid grid-cols-[8rem_4rem_minmax(0,1fr)_max-content] items-start gap-x-2"
                 :class="rowDensityClass"
             >
                 <div>
-                    <p class="text-primary" :class="itemTextClass">{{ item.label }}</p>
+                    <p class="whitespace-nowrap text-primary" :class="labelTextClass">{{ item.label }}</p>
                     <p class="font-light text-primary" :class="allergenTextClass">*{{ item.allergens }}</p>
                 </div>
                 <div>
@@ -164,7 +194,7 @@ onBeforeUnmount((): void => {
                     <p class="text-primary" :class="itemTextClass">{{ item.name }}</p>
                 </div>
                 <div class="justify-self-end">
-                    <p class="text-right whitespace-nowrap text-primary" :class="itemTextClass">
+                    <p class="whitespace-nowrap text-right text-primary" :class="itemTextClass">
                         {{ item.price }}&nbsp;Kč
                     </p>
                 </div>
