@@ -16,6 +16,16 @@ Route::post('/api/compliance/consent', ConsentController::class)->middleware('th
 
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 
+Route::domain('ponavka.gourmetrestaurant.cz')
+    ->middleware('vue')
+    ->get('/', [BranchController::class, 'ponavka'])
+    ->name('front.ponavka-domain');
+
+Route::domain('uvankovky.gourmetrestaurant.cz')
+    ->middleware('vue')
+    ->get('/', [BranchController::class, 'vankovka'])
+    ->name('front.vankovka-domain');
+
 Route::middleware('vue')->name('front.')->group(function () {
     Route::get('/', HomeController::class)->name('index');
     Route::get('/gourmet-ponavka', [BranchController::class, 'ponavka'])->name('ponavka-branch');
