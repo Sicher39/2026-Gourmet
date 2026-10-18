@@ -12,6 +12,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -73,10 +74,13 @@ class SeoPageResource extends Resource
                                     ->label('Open Graph popis')
                                     ->rows(3)
                                     ->columnSpanFull(),
-                                TextInput::make('og_image')
-                                    ->label('Open Graph obrázek (URL)')
-                                    ->url()
-                                    ->maxLength(2048)
+                                FileUpload::make('og_image')
+                                    ->label('Open Graph obrázek')
+                                    ->image()
+                                    ->disk('public')
+                                    ->directory('seo/open-graph')
+                                    ->visibility('public')
+                                    ->imageEditor()
                                     ->columnSpanFull(),
                                 TextInput::make('twitter_title')
                                     ->label('Twitter titulek')

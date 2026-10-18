@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class SeoPage extends Model
@@ -183,8 +184,6 @@ class SeoPage extends Model
             ))
             ->all();
 
-        array_unshift($records, self::globalRecord());
-
         return $records;
     }
 
@@ -193,106 +192,124 @@ class SeoPage extends Model
      */
     public static function frontPageDefinitions(): array
     {
+        $baseUrl = 'https://gourmetrestaurant.cz';
+        $organizationId = $baseUrl.'/#organization';
+        $websiteId = $baseUrl.'/#website';
+        $organization = [
+            '@type' => 'Organization',
+            '@id' => $organizationId,
+            'name' => 'Gourmet Restaurant',
+            'legalName' => 'Gourmet Group s.r.o.',
+            'identifier' => '24277649',
+            'url' => $baseUrl.'/',
+            'email' => 'info@gourmetrestaurant.cz',
+        ];
+        $website = [
+            '@type' => 'WebSite',
+            '@id' => $websiteId,
+            'url' => $baseUrl.'/',
+            'name' => 'Gourmet Restaurant',
+            'inLanguage' => 'cs-CZ',
+            'publisher' => ['@id' => $organizationId],
+        ];
+
         return [
             [
-                'key' => 'front-index',
-                'page_name' => 'Gourmet Restaurant Brno',
+                'key' => 'gourmet-main',
+                'page_name' => 'Gourmet Restaurant',
                 'route_name' => 'front.index',
                 'path' => '/',
                 'schema_type' => 'WebSite',
                 'overrides' => [
-                    'seo_title' => 'Gourmet Restaurant Brno | Ponávka a U Vaňkovky',
-                    'seo_description' => 'Gourmet Restaurant v Brně: polední menu, kavárna, rozvoz, catering a rauty. Navštivte pobočku Ponávka nebo U Vaňkovky.',
-                    'seo_keywords' => ['Gourmet Restaurant Brno', 'restaurace Brno', 'polední menu Brno', 'catering Brno', 'rauty Brno', 'rozvoz jídla Brno', 'Ponávka', 'U Vaňkovky'],
+                    'is_global' => true,
+                    'canonical_url' => $baseUrl.'/',
+                    'robots' => 'index,follow',
+                    'seo_title' => 'Gourmet Restaurant Brno | Catering, rauty a restaurace',
+                    'seo_description' => 'Gourmet Restaurant v Brně nabízí catering na firemní akce a oslavy, rauty i rozvoz jídel. Poznejte naše restaurace Ponávka a U Vaňkovky.',
+                    'seo_keywords' => ['catering Brno', 'rauty Brno', 'Gourmet Restaurant Brno', 'firemní catering Brno', 'catering na oslavu Brno', 'občerstvení na firemní akce Brno', 'rauty na míru Brno', 'obložené mísy Brno', 'kanapky Brno', 'rozvoz obědů Brno'],
+                    'og_title' => 'Gourmet Restaurant Brno | Catering, rauty a restaurace',
+                    'og_description' => 'Catering, rauty a rozvoz jídel v Brně. Gourmet Ponávka a Gourmet U Vaňkovky – dvě restaurace, jedno místo pro dobré jídlo.',
+                    'twitter_title' => 'Gourmet Restaurant Brno | Catering, rauty a restaurace',
+                    'twitter_description' => 'Catering, rauty a rozvoz jídel v Brně. Gourmet Ponávka a Gourmet U Vaňkovky.',
                     'business_name' => 'Gourmet Restaurant',
-                    'area_served' => ['Brno', 'Brno-střed', 'Trnitá', 'Ponávka'],
-                    'available_languages' => ['cs'],
-                    'offers_online' => true,
-                    'aeo_summary' => 'Gourmet Restaurant provozuje dvě pobočky v Brně – na Ponávce a U Vaňkovky. Nabízí polední menu, kavárnu, rozvoz, catering a rauty.',
-                    'aeo_search_intent' => 'Lokální a komerční – hledání restaurace, poledního menu, cateringu nebo rozvozu v Brně.',
-                    'aeo_entities' => ['Gourmet Restaurant', 'Brno', 'Ponávka', 'U Vaňkovky', 'catering', 'rauty', 'rozvoz'],
-                    'aeo_faq' => [
-                        ['question' => 'Kde najdu Gourmet Restaurant v Brně?', 'answer' => 'Gourmet Restaurant má pobočky na Ponávce a U Vaňkovky. Aktuální kontakty a otevírací dobu najdete u jednotlivých poboček.'],
-                        ['question' => 'Nabízí Gourmet Restaurant catering a rauty?', 'answer' => 'Ano. Gourmet připravuje catering a rauty pro firemní i soukromé akce; poptávku můžete zaslat přes uvedené kontakty.'],
-                        ['question' => 'Má Gourmet Restaurant rozvoz?', 'answer' => 'Aktuální možnosti rozvozu a dostupné rozvozové služby jsou uvedeny na hlavní stránce.'],
-                    ],
+                    'address_country' => 'CZ',
+                    'area_served' => ['Brno'],
+                    'available_languages' => ['cs-CZ'],
+                    'aeo_summary' => 'Gourmet Restaurant provozuje v Brně dvě restaurace – Gourmet Ponávka a Gourmet U Vaňkovky – a nabízí catering, rauty a rozvoz jídel.',
+                    'aeo_search_intent' => 'Hledání restaurací Gourmet v Brně, cateringu, rautů a rozvozu jídel.',
+                    'aeo_entities' => ['Gourmet Restaurant', 'Gourmet Ponávka', 'Gourmet U Vaňkovky', 'catering Brno', 'rauty Brno', 'rozvoz jídel'],
+                    'aeo_faq' => [],
+                    'schema_json' => ['@context' => 'https://schema.org', '@graph' => [
+                        $organization,
+                        $website,
+                        ['@type' => 'WebPage', '@id' => $baseUrl.'/#webpage', 'url' => $baseUrl.'/', 'name' => 'Gourmet Restaurant Brno | Catering, rauty a restaurace', 'inLanguage' => 'cs-CZ', 'isPartOf' => ['@id' => $websiteId], 'about' => ['@id' => $organizationId]],
+                    ]],
                 ],
             ],
             [
-                'key' => 'front-ponavka',
+                'key' => 'gourmet-ponavka',
                 'page_name' => 'Gourmet Ponávka',
                 'route_name' => 'front.ponavka-branch',
                 'path' => '/gourmet-ponavka',
                 'schema_type' => 'Restaurant',
                 'overrides' => [
+                    'canonical_url' => $baseUrl.'/gourmet-ponavka',
+                    'robots' => 'index,follow',
                     'seo_title' => 'Gourmet Ponávka | Polední menu a kavárna v Brně',
-                    'seo_description' => 'Gourmet Ponávka na Škrobárenské v Brně: polední menu, kavárna a rozvoz. Zjistěte aktuální nabídku, otevírací dobu a kontakt.',
-                    'seo_keywords' => ['Gourmet Ponávka', 'restaurace Ponávka', 'polední menu Ponávka', 'polední menu Škrobárenská', 'kavárna Ponávka', 'rozvoz Ponávka'],
+                    'seo_description' => 'Gourmet Ponávka na Škrobárenské v Brně. Denní a týdenní menu, obědy, snídaně i kavárna. Prohlédněte si aktuální nabídku a kontakty.',
+                    'seo_keywords' => ['Gourmet Ponávka', 'polední menu Ponávka', 'Gourmet Ponávka Brno', 'denní menu Ponávka', 'týdenní menu Ponávka', 'obědy Ponávka Brno', 'restaurace Ponávka Brno', 'snídaně Ponávka', 'kavárna Ponávka Brno'],
+                    'og_title' => 'Gourmet Ponávka | Polední menu a kavárna v Brně',
+                    'og_description' => 'Gourmet Ponávka na Škrobárenské v Brně: obědy, denní a týdenní menu, snídaně a kavárna.',
+                    'twitter_title' => 'Gourmet Ponávka | Polední menu a kavárna v Brně',
+                    'twitter_description' => 'Gourmet Ponávka na Škrobárenské v Brně: obědy, denní a týdenní menu, snídaně a kavárna.',
                     'business_name' => 'Gourmet Ponávka',
                     'street_address' => 'Škrobárenská 511/3',
-                    'address_locality' => 'Brno – Trnitá',
+                    'address_locality' => 'Brno',
                     'postal_code' => '617 00',
                     'address_country' => 'CZ',
                     'area_served' => ['Brno', 'Trnitá', 'Ponávka'],
-                    'available_languages' => ['cs'],
-                    'offers_online' => true,
-                    'aeo_summary' => 'Gourmet Ponávka je restaurace a kavárna na Škrobárenské v Brně. Nabízí polední menu a rozvoz podle aktuální nabídky.',
-                    'aeo_search_intent' => 'Lokální – hledání poledního menu, kavárny, rozvozu a kontaktu na Ponávce.',
-                    'aeo_entities' => ['Gourmet Ponávka', 'Škrobárenská 511/3', 'Brno – Trnitá', 'polední menu', 'kavárna'],
+                    'available_languages' => ['cs-CZ'],
+                    'aeo_summary' => 'Gourmet Ponávka je restaurace a kavárna na adrese Škrobárenská 511/3, 617 00 Brno. Nabízí denní a týdenní menu, obědy a snídaně.',
+                    'aeo_search_intent' => 'Lokální hledání poledního menu, denní a týdenní nabídky, snídaně a kavárny na Ponávce v Brně.',
+                    'aeo_entities' => ['Gourmet Ponávka', 'Škrobárenská 511/3', '617 00 Brno', 'polední menu Ponávka', 'denní menu', 'týdenní menu', 'snídaně', 'kavárna'],
+                    'aeo_faq' => [],
+                    'schema_json' => ['@context' => 'https://schema.org', '@graph' => [
+                        ['@type' => 'Restaurant', '@id' => $baseUrl.'/gourmet-ponavka#restaurant', 'name' => 'Gourmet Ponávka', 'url' => $baseUrl.'/gourmet-ponavka', 'address' => ['@type' => 'PostalAddress', 'streetAddress' => 'Škrobárenská 511/3', 'postalCode' => '617 00', 'addressLocality' => 'Brno', 'addressCountry' => 'CZ'], 'parentOrganization' => ['@id' => $organizationId]],
+                        ['@type' => 'WebPage', '@id' => $baseUrl.'/gourmet-ponavka#webpage', 'url' => $baseUrl.'/gourmet-ponavka', 'name' => 'Gourmet Ponávka | Polední menu a kavárna v Brně', 'inLanguage' => 'cs-CZ', 'isPartOf' => ['@id' => $websiteId], 'mainEntity' => ['@id' => $baseUrl.'/gourmet-ponavka#restaurant']],
+                    ]],
                 ],
             ],
             [
-                'key' => 'front-vankovka',
+                'key' => 'gourmet-vankovka',
                 'page_name' => 'Gourmet U Vaňkovky',
                 'route_name' => 'front.vankovka-branch',
                 'path' => '/gourmet-u-vankovky',
                 'schema_type' => 'Restaurant',
                 'overrides' => [
-                    'seo_title' => 'Gourmet U Vaňkovky | Polední menu a kavárna v Brně',
-                    'seo_description' => 'Gourmet U Vaňkovky v Brně: polední menu a kavárna v blízkosti centra. Zjistěte aktuální nabídku, otevírací dobu a kontakt.',
-                    'seo_keywords' => ['Gourmet U Vaňkovky', 'restaurace U Vaňkovky', 'polední menu Vaňkovka', 'polední menu Brno-střed', 'kavárna Vaňkovka'],
+                    'canonical_url' => $baseUrl.'/gourmet-u-vankovky',
+                    'robots' => 'index,follow',
+                    'seo_title' => 'Gourmet U Vaňkovky | Polední menu a obědy v Brně',
+                    'seo_description' => 'Gourmet U Vaňkovky na ulici Trnitá v Brně. Denní a týdenní polední menu, snídaně a kavárna nedaleko Vaňkovky. Podívejte se na nabídku.',
+                    'seo_keywords' => ['Gourmet U Vaňkovky', 'polední menu Vaňkovka', 'Gourmet U Vaňkovky Brno', 'denní menu Vaňkovka', 'týdenní menu Vaňkovka', 'obědy u Vaňkovky', 'restaurace Trnitá Brno', 'snídaně u Vaňkovky', 'kavárna Vaňkovka Brno'],
+                    'og_title' => 'Gourmet U Vaňkovky | Polední menu a obědy v Brně',
+                    'og_description' => 'Gourmet U Vaňkovky na Trnité v Brně: denní a týdenní menu, obědy, snídaně a kavárna u Vaňkovky.',
+                    'twitter_title' => 'Gourmet U Vaňkovky | Polední menu a obědy v Brně',
+                    'twitter_description' => 'Gourmet U Vaňkovky na Trnité v Brně: denní a týdenní menu, obědy, snídaně a kavárna.',
                     'business_name' => 'Gourmet U Vaňkovky',
                     'street_address' => 'Trnitá 500/9',
-                    'address_locality' => 'Brno-střed',
+                    'address_locality' => 'Brno',
                     'postal_code' => '602 00',
                     'address_country' => 'CZ',
-                    'area_served' => ['Brno', 'Brno-střed', 'U Vaňkovky'],
-                    'available_languages' => ['cs'],
-                    'aeo_summary' => 'Gourmet U Vaňkovky je restaurace a kavárna v Brně-střed na ulici Trnitá. Nabízí polední menu podle aktuální nabídky.',
-                    'aeo_search_intent' => 'Lokální – hledání poledního menu, kavárny a kontaktu v oblasti U Vaňkovky.',
-                    'aeo_entities' => ['Gourmet U Vaňkovky', 'Trnitá 500/9', 'Brno-střed', 'polední menu', 'kavárna'],
-                ],
-            ],
-            [
-                'key' => 'front-gdpr',
-                'page_name' => 'Ochrana osobních údajů',
-                'route_name' => 'front.gdpr',
-                'path' => '/ochrana-osobnich-udaju',
-                'schema_type' => 'WebPage',
-                'overrides' => [
-                    'seo_title' => 'Ochrana osobních údajů | Gourmet Restaurant',
-                    'seo_description' => 'Informace o zpracování a ochraně osobních údajů na webu Gourmet Restaurant v souladu s GDPR.',
-                    'seo_keywords' => ['Gourmet Restaurant GDPR', 'ochrana osobních údajů', 'soukromí', 'GDPR'],
-                    'business_name' => 'Gourmet Restaurant',
-                    'aeo_summary' => 'Zásady ochrany osobních údajů společnosti Gourmet Group s.r.o. pro web Gourmet Restaurant.',
-                    'aeo_search_intent' => 'Informační – ochrana osobních údajů a GDPR.',
-                    'aeo_entities' => ['Gourmet Restaurant', 'GDPR', 'ochrana osobních údajů'],
-                ],
-            ],
-            [
-                'key' => 'front-cookies',
-                'page_name' => 'Zásady cookies',
-                'route_name' => 'front.cookies',
-                'path' => '/zasady-cookies',
-                'schema_type' => 'WebPage',
-                'overrides' => [
-                    'seo_title' => 'Zásady cookies | Gourmet Restaurant',
-                    'seo_description' => 'Informace o používání cookies a správě souhlasů na webu Gourmet Restaurant.',
-                    'seo_keywords' => ['Gourmet Restaurant cookies', 'zásady cookies', 'nastavení cookies', 'soukromí'],
-                    'business_name' => 'Gourmet Restaurant',
-                    'aeo_summary' => 'Zásady používání cookies a správy souhlasů na webu Gourmet Restaurant.',
-                    'aeo_search_intent' => 'Informační – cookies, nastavení a odvolání souhlasu.',
-                    'aeo_entities' => ['Gourmet Restaurant', 'cookies', 'nastavení cookies'],
+                    'area_served' => ['Brno', 'Brno-střed', 'Trnitá'],
+                    'available_languages' => ['cs-CZ'],
+                    'aeo_summary' => 'Gourmet U Vaňkovky je restaurace a kavárna na adrese Trnitá 500/9, 602 00 Brno, poblíž Galerie Vaňkovka. Nabízí denní a týdenní menu, obědy a snídaně.',
+                    'aeo_search_intent' => 'Lokální hledání poledního menu, denní a týdenní nabídky, snídaně a kavárny v oblasti U Vaňkovky.',
+                    'aeo_entities' => ['Gourmet U Vaňkovky', 'Trnitá 500/9', '602 00 Brno', 'polední menu Vaňkovka', 'denní menu', 'týdenní menu', 'snídaně', 'kavárna'],
+                    'aeo_faq' => [],
+                    'schema_json' => ['@context' => 'https://schema.org', '@graph' => [
+                        ['@type' => 'Restaurant', '@id' => $baseUrl.'/gourmet-u-vankovky#restaurant', 'name' => 'Gourmet U Vaňkovky', 'url' => $baseUrl.'/gourmet-u-vankovky', 'address' => ['@type' => 'PostalAddress', 'streetAddress' => 'Trnitá 500/9', 'postalCode' => '602 00', 'addressLocality' => 'Brno', 'addressCountry' => 'CZ'], 'parentOrganization' => ['@id' => $organizationId]],
+                        ['@type' => 'WebPage', '@id' => $baseUrl.'/gourmet-u-vankovky#webpage', 'url' => $baseUrl.'/gourmet-u-vankovky', 'name' => 'Gourmet U Vaňkovky | Polední menu a obědy v Brně', 'inLanguage' => 'cs-CZ', 'isPartOf' => ['@id' => $websiteId], 'mainEntity' => ['@id' => $baseUrl.'/gourmet-u-vankovky#restaurant']],
+                    ]],
                 ],
             ],
         ];
@@ -368,17 +385,19 @@ class SeoPage extends Model
             'description' => $description,
             'keywords' => $keywords,
             'canonical' => $canonical,
-            'robots' => self::firstMeaningful($pageSeo?->robots, $globalSeo?->robots, self::DEFAULT_ROBOTS),
+            'robots' => $pageSeo === null && $normalizedPath !== '/'
+                ? 'noindex,follow'
+                : self::firstMeaningful($pageSeo?->robots, $globalSeo?->robots, self::DEFAULT_ROBOTS),
             'ogTitle' => self::firstMeaningful($pageSeo?->og_title, $globalSeo?->og_title, $title),
             'ogDescription' => self::firstMeaningful($pageSeo?->og_description, $globalSeo?->og_description, $description),
-            'ogImage' => self::firstMeaningful($pageSeo?->og_image, $globalSeo?->og_image, self::defaultOgImage()),
+            'ogImage' => self::resolveImageUrl(self::firstMeaningful($pageSeo?->og_image, $globalSeo?->og_image)),
             'ogType' => self::inferOgType($schemaType, $normalizedPath),
             'ogUrl' => self::firstMeaningful($canonical, self::normalizeUrl($currentUrl), self::buildUrl('/')),
             'ogLocale' => self::DEFAULT_OG_LOCALE,
             'ogSiteName' => self::DEFAULT_SITE_NAME,
             'twitterTitle' => self::firstMeaningful($pageSeo?->twitter_title, $globalSeo?->twitter_title, $title),
             'twitterDescription' => self::firstMeaningful($pageSeo?->twitter_description, $globalSeo?->twitter_description, $description),
-            'twitterImage' => self::firstMeaningful($pageSeo?->twitter_image, $globalSeo?->twitter_image, self::defaultOgImage()),
+            'twitterImage' => self::resolveImageUrl(self::firstMeaningful($pageSeo?->twitter_image, $globalSeo?->twitter_image)),
             'twitterCard' => self::DEFAULT_TWITTER_CARD,
             'socialProfiles' => $socialProfiles,
             'structuredData' => $structuredData,
@@ -437,10 +456,6 @@ class SeoPage extends Model
         } else {
             $structuredDataItems = self::injectSameAsIntoCustomStructuredData($structuredDataItems, $sameAs);
             $structuredDataItems = self::injectBusinessContextIntoCustomStructuredData($structuredDataItems, $businessContext);
-        }
-
-        if ($faqItems !== [] && ! self::containsFaqPage($structuredDataItems)) {
-            $structuredDataItems[] = self::buildFaqSchema($faqItems);
         }
 
         return count($structuredDataItems) === 1
@@ -1082,6 +1097,28 @@ class SeoPage extends Model
     private static function defaultOgImage(): string
     {
         return self::buildUrl(self::DEFAULT_OG_IMAGE_PATH);
+    }
+
+    private static function resolveImageUrl(?string $image): ?string
+    {
+        if ($image === null || trim($image) === '') {
+            return null;
+        }
+
+        $image = trim($image);
+
+        if (filter_var($image, FILTER_VALIDATE_URL)) {
+            return $image;
+        }
+
+        if (str_starts_with($image, '/')) {
+            return self::buildUrl($image);
+        }
+        $storageUrl = Storage::disk('public')->url($image);
+
+        return filter_var($storageUrl, FILTER_VALIDATE_URL)
+            ? $storageUrl
+            : self::buildUrl($storageUrl);
     }
 
     private static function buildUrl(?string $path): string

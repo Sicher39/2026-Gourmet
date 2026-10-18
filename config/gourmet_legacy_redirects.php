@@ -26,6 +26,7 @@ return [
         ],
         'ponavka.gourmetrestaurant.cz' => [
             '/catering' => '/gourmet-ponavka',
+            '/catering/50082604_136563043944561_5526687921341464576_n' => '/#catering',
             '/catering/46521765_703732426672228_2446241697663811584_n' => '/gourmet-ponavka',
             '/catering/49848547_2292825444309256_8682177888084033536_n' => '/gourmet-ponavka',
             '/catering/50023982_1266462663491705_7647739838090706944_n' => '/gourmet-ponavka',
