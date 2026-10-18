@@ -1,3 +1,19 @@
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # Public assets may be replaced at the same URL, so use a moderate cache lifetime.
+    <FilesMatch "\.(?:css|js|mjs|woff2?|ttf|otf|avif|gif|jpe?g|png|svg|webp)$">
+        ExpiresDefault "access plus 30 days"
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+
+    # Service workers must be revalidated so deployed updates are picked up promptly.
+    <Files "service-worker.js">
+        ExpiresDefault "access plus 0 seconds"
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+    </Files>
+</IfModule>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes

@@ -202,6 +202,7 @@ onUnmounted(() => {
         <div
             id="mobile-menu"
             :aria-hidden="!open"
+            :inert="!open"
             class="fixed inset-0 z-50 flex justify-end lg:hidden"
             :class="open ? 'pointer-events-auto' : 'pointer-events-none'"
         >

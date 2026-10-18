@@ -34,10 +34,10 @@ const props = withDefaults(
         <p class="text-sm">{{ city }}</p>
 
         <p class="text-sm mt-2">
-            <a :href="`tel:${phone}`">{{ phone }}</a>
+            <a class="inline-flex min-h-11 items-center" :href="`tel:${phone}`">{{ phone }}</a>
         </p>
         <p class="text-sm">
-            <a :href="`mailto:${email}`">{{ email }}</a>
+            <a class="inline-flex min-h-11 items-center" :href="`mailto:${email}`">{{ email }}</a>
         </p>
 
         <template v-if="companyNumber !== ''">

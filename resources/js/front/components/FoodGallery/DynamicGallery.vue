@@ -40,20 +40,34 @@ const galleryStyle = {
             <div
                 v-for="(item, index) in images"
                 :key="`${item}-${index}`"
-                class="dynamic-gallery__item aspect-square shrink-0 bg-cover bg-center"
-                :style="{
-                    backgroundImage: `url('${item}')`
-                }"
-            />
+                class="dynamic-gallery__item aspect-square shrink-0 overflow-hidden"
+            >
+                <img
+                    :src="item"
+                    alt=""
+                    width="800"
+                    height="800"
+                    loading="lazy"
+                    decoding="async"
+                    class="h-full w-full object-cover"
+                >
+            </div>
             <div
                 v-for="(item, index) in images"
                 :key="`${item}-${index}-duplicate`"
                 aria-hidden="true"
-                class="dynamic-gallery__item aspect-square shrink-0 bg-cover bg-center"
-                :style="{
-                    backgroundImage: `url('${item}')`
-                }"
-            />
+                class="dynamic-gallery__item aspect-square shrink-0 overflow-hidden"
+            >
+                <img
+                    :src="item"
+                    alt=""
+                    width="800"
+                    height="800"
+                    loading="lazy"
+                    decoding="async"
+                    class="h-full w-full object-cover"
+                >
+            </div>
         </div>
     </div>
 </template>
