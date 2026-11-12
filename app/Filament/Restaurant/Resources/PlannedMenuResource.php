@@ -6,6 +6,7 @@ namespace App\Filament\Restaurant\Resources;
 
 use App\Enums\MenuItemType;
 use App\Filament\Restaurant\Resources\PlannedMenuResource\Pages;
+use App\Filament\Support\Concerns\ClearsSearchableSelectSearch;
 use App\Models\MenuCatalogItem;
 use App\Models\MenuCatalogType;
 use App\Models\NonCookingDay;
@@ -45,6 +46,8 @@ use UnitEnum;
 
 class PlannedMenuResource extends Resource
 {
+    use ClearsSearchableSelectSearch;
+
     protected static ?string $model = PlannedMenu::class;
 
     protected static ?string $recordTitleAttribute = 'week_period';
@@ -628,6 +631,7 @@ class PlannedMenuResource extends Resource
                         ->multiple()
                         ->searchable()
                         ->preload()
+                        ->extraAlpineAttributes(static::clearSearchAfterSelectionAttributes())
                         ->disabled(fn (?PlannedMenuItemBranch $record): bool => ! static::currentUserCanEditVariant($record)),
                     Select::make('otherItems')
                         ->label('Ostatní')
@@ -639,6 +643,7 @@ class PlannedMenuResource extends Resource
                         ->multiple()
                         ->searchable()
                         ->preload()
+                        ->extraAlpineAttributes(static::clearSearchAfterSelectionAttributes())
                         ->disabled(fn (?PlannedMenuItemBranch $record): bool => ! static::currentUserCanEditVariant($record)),
                     Toggle::make('is_available')
                         ->label('Dostupné na provozovně')

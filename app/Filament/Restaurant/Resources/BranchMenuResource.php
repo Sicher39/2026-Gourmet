@@ -8,6 +8,7 @@ use App\Enums\BranchMenuStatus;
 use App\Enums\MenuItemType;
 use App\Filament\Restaurant\Resources\BranchMenuResource\Pages;
 use App\Filament\Support\BranchScopedResource;
+use App\Filament\Support\Concerns\ClearsSearchableSelectSearch;
 use App\Models\BranchMenu;
 use App\Models\BranchMenuDay;
 use App\Models\BranchMenuItem;
@@ -41,6 +42,8 @@ use UnitEnum;
 
 class BranchMenuResource extends BranchScopedResource
 {
+    use ClearsSearchableSelectSearch;
+
     protected static ?string $model = BranchMenu::class;
     protected static ?string $recordTitleAttribute = 'branch_name_snapshot';
     protected static bool $isGloballySearchable = true;
@@ -308,6 +311,7 @@ class BranchMenuResource extends BranchScopedResource
                     ->orderBy('menu_catalog_items.name')
                     ->pluck('name', 'id')
                     ->all())
+                ->extraAlpineAttributes(static::clearSearchAfterSelectionAttributes())
                 ->dehydrated(false)
                 ->afterStateHydrated(function (Select $component, ?BranchMenuItem $record): void {
                     if ($record instanceof BranchMenuItem) {
@@ -332,6 +336,7 @@ class BranchMenuResource extends BranchScopedResource
                     ->orderBy('menu_catalog_items.name')
                     ->pluck('name', 'id')
                     ->all())
+                ->extraAlpineAttributes(static::clearSearchAfterSelectionAttributes())
                 ->dehydrated(false)
                 ->afterStateHydrated(function (Select $component, ?BranchMenuItem $record): void {
                     if ($record instanceof BranchMenuItem) {
